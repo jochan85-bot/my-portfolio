@@ -83,6 +83,10 @@ html[data-theme=dark] .badge{background:#3B2A0B;color:#FCD34D}
 .lg{display:flex;align-items:center;gap:6px;font-size:12px}
 .lgl{flex:1;color:var(--ink)}.lgv{color:var(--sub);font-variant-numeric:tabular-nums;font-size:11.5px}
 a{-webkit-tap-highlight-color:transparent}
+.sortRow{display:flex;flex-wrap:wrap;gap:4px;padding:0 2px 8px;align-items:center}
+.sortRow .slab{font-size:10.5px;color:var(--sub);font-weight:700;margin-right:2px}
+.sbtn{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer}
+.sbtn.on{background:#1E3A8A;border-color:#1E3A8A;color:#fff}.sbtn .ar{margin-left:3px;font-weight:800}
 </style>
 </head>
 <body>
@@ -146,6 +150,27 @@ async function unlock(pw,saved){
 $('go').addEventListener('click',function(){var v=$('pw').value.trim();if(v)unlock(v,false);});
 $('pw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click();});
 $('relock').addEventListener('click',function(){localStorage.removeItem(KEY);DATA=null;$('pw').value='';$('app').hidden=true;$('lock').hidden=false;});
+
+/* ---------- 정렬(표시층·기기 localStorage 저장) ---------- */
+function sortState(scope,def,defdir){try{var s=JSON.parse(localStorage.getItem('mp_sort_'+scope));if(s&&s.k)return s;}catch(e){}return {k:def,d:defdir||-1};}
+function sortBar(scope,opts,def,rerender){
+  var st=sortState(scope,def);
+  return h('div',{class:'sortRow'},h('span',{class:'slab'},'정렬'),opts.map(function(o){
+    var on=st.k===o[0];
+    return h('button',{class:'sbtn'+(on?' on':''),type:'button',onclick:function(){
+      var n=on?{k:o[0],d:-st.d}:{k:o[0],d:(o[2]||-1)};
+      localStorage.setItem('mp_sort_'+scope,JSON.stringify(n));rerender();}},o[1],on?h('span',{class:'ar'},st.d<0?'↓':'↑'):null);}));
+}
+function sortList(list,scope,def,acc,tie){
+  var st=sortState(scope,def),f=acc[st.k]||acc[def],t=tie||function(){return null};
+  var cmp=function(a,b){if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return a<b?-1:(a>b?1:0);};
+  return list.map(function(x,i){return [x,i]}).sort(function(p,q){
+    var a=f(p[0]),b=f(q[0]);
+    if(a==null||b==null){var r0=cmp(a,b);if(r0)return r0;}
+    else{var r=cmp(a,b);if(r)return r*st.d;}
+    var ta=t(p[0]),tb=t(q[0]);var r2=cmp(ta,tb);if(r2)return -r2;
+    return p[1]-q[1];}).map(function(p){return p[0]});
+}
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);}
 var th=localStorage.getItem(THEME)||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');applyTheme(th);
 $('theme').addEventListener('click',function(){th=th==='dark'?'light':'dark';localStorage.setItem(THEME,th);applyTheme(th);});
@@ -194,7 +219,10 @@ function viewMM(){
     h('div',{class:'dist'},Object.keys(d).map(function(k){return h('span',{class:'chip'},k+' · '+d[k])}))));
   if(s.errors&&s.errors.length)wrap.appendChild(h('div',{class:'warn'},'산출 불가 종목: '+s.errors.join(', ')));
   wrap.appendChild(allToggle(DATA.mm.map(function(c){return 'mm:'+c.symbol})));
-  DATA.mm.forEach(function(c){wrap.appendChild(mmCard(c))});
+  var SO=[['value','평가액'],['pct','비중'],['upct','미실현%'],['rytd','실현 올해'],['rall','실현 전체'],['start','시작일'],['name','티커',1]];
+  wrap.appendChild(sortBar('mm',SO,'value',render));
+  var accm={value:function(c){return c.error?null:c.value_usd},pct:function(c){return c.error?null:c.pct},upct:function(c){return c.error?null:c.upct},rytd:function(c){return c.error?null:c.realized_ytd},rall:function(c){return c.error?null:c.realized_all},start:function(c){return c.error?null:c.cycle_start},name:function(c){return c.symbol}};
+  sortList(DATA.mm,'mm','value',accm,function(c){return c.error?null:c.realized_all}).forEach(function(c){wrap.appendChild(mmCard(c))});
   if(DATA.legend_mm)wrap.appendChild(h('div',{class:'note'},DATA.legend_mm));
   return wrap;
 }
@@ -270,14 +298,18 @@ function viewCyc(){
   wrap.appendChild(h('div',{class:'note'},'「장부」= 장부 개시(2026-10-26) 이후 시작한 사이클 · 「이력 복원(추정)」= 메리츠 체결 캐시로 규칙대로 복원한 것(앱 사이클 번호·과거 시드는 대조 불가). 진행도는 현재 시드 가정. 세전·수수료 필드 0.'));
   var keys=Y.summary.map(function(s){return 'cy:'+s.symbol});
   wrap.appendChild(allToggle(keys));
-  Y.summary.forEach(function(s){
+  var SC=[['end','종료일'],['ret','수익률'],['days','기간'],['name','종목',1]];
+  wrap.appendChild(sortBar('cyc',SC,'end',render));
+  var accs={end:function(s){return s.last_end},ret:function(s){return s.med_ret},days:function(s){return s.med_days},name:function(s){return s.symbol}};
+  var accr={end:function(c){return c.end||'9999-12-31'},ret:function(c){return c.return_pct},days:function(c){return c.days},name:function(c){return c.start}};
+  sortList(Y.summary,'cyc','end',accs,function(s){return s.realized}).forEach(function(s){
     var key='cy:'+s.symbol,open=!!OPEN[key];
     var head=h('div',{class:'chead',style:'--c:#60A5FA',onclick:function(){OPEN[key]=!OPEN[key];render();}},
       h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#60A5FA'},s.symbol),h('span',{class:'badge'},'종료 '+s.closed+(s.single?' · 단발 '+s.single:'')),s.past?h('span',{class:'badge',style:'background:var(--track);color:var(--sub)'},'과거 무매 · 보유 없음'):null),h('span',{class:'pct '+cls(s.realized)},sgn(s.realized,usdA))),
       h('div',{class:'key',style:'margin-top:8px'},h('div',{},'승률',h('b',{},s.win_pct==null?'—':s.win_pct+'%')),h('div',{},'중앙 기간',h('b',{},s.med_days==null?'—':s.med_days+'일')),h('div',{},'중앙 수익률',h('b',{class:cls(s.med_ret)},s.med_ret==null?'—':pctS(s.med_ret)))));
     var card=h('div',{class:'card'},head);
     if(open){
-      var rows=Y.cycles.filter(function(c){return c.symbol===s.symbol}).sort(function(a,b){return a.start<b.start?1:-1});
+      var rows=sortList(Y.cycles.filter(function(c){return c.symbol===s.symbol}),'cyc','end',accr,function(c){return c.start});
       card.appendChild(h('div',{class:'cbody'},kv('진행 중 사이클 시작',dstr(s.open_start)),kv('진행 중 실현(부분 매도)',sgn(s.open_realized,usdA),cls(s.open_realized)),h('div',{class:'sec'},'사이클 목록(최신순)'),rows.map(cycRow)));
     }
     wrap.appendChild(card);
@@ -294,9 +326,7 @@ function viewCyc(){
       h('div',{style:'display:flex;justify-content:space-between'},h('span',{class:'l'},dstr(p.start)+' ~ '+dstr(p.end)+(p.current?' (현 주기)':'')),h('span',{class:'r '+cls(p.realized)},sgn(p.realized,usdA))),
       h('div',{style:'font-size:11px;color:var(--sub);display:flex;justify-content:space-between;gap:8px'},h('span',{},'보유 '+num(p.qty_start,0)+'→'+num(p.qty_end,0)+'주 · 매수 '+p.n_buy+'건 · 매도 '+p.n_sell+'건'+(p.avg_end?' · 말 평단 $'+num(p.avg_end,2):'')),h('span',{},'V '+(p.V==null?'—':usd(p.V,0)))));
   }),vp.length>8?h('div',{style:'text-align:center;margin-top:8px'},h('button',{class:'hbtn',style:'color:var(--sub);border-color:var(--line)',onclick:function(){OPEN.vrp=!OPEN.vrp;render();}},OPEN.vrp?'접기':'전체 '+vp.length+'개 보기')):null)));
-  // 그 외 종목
-  wrap.appendChild(h('div',{class:'sec'},'그 외 종목(무매 소속 미확정 — 종료 무매형 사이클 수·실현)'));
-  wrap.appendChild(h('div',{class:'card'},h('div',{class:'cbody',style:'background:var(--card);border-top:0'},Y.others.length?Y.others.map(function(o){return kv(o.symbol+' · '+o.n+'개',sgn(o.realized,usdA),cls(o.realized))}):h('div',{class:'note'},'없음'),Y.others_more?h('div',{class:'note'},'… 외 '+Y.others_more+'종목'):null,h('div',{class:'note'},Y.note_scope))));
+  wrap.appendChild(h('div',{class:'note'},Y.note_scope));
   // 규칙
   wrap.appendChild(h('div',{class:'sec'},'복원 규칙'));
   wrap.appendChild(h('div',{class:'card'},h('div',{class:'cbody',style:'background:var(--card);border-top:0'},Y.rules.map(function(r){return h('div',{class:'note',style:'margin:2px 0'},r)}))));

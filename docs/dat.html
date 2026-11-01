@@ -83,6 +83,10 @@ html[data-theme=dark] .badge{background:#3B2A0B;color:#FCD34D}
 .lg{display:flex;align-items:center;gap:6px;font-size:12px}
 .lgl{flex:1;color:var(--ink)}.lgv{color:var(--sub);font-variant-numeric:tabular-nums;font-size:11.5px}
 a{-webkit-tap-highlight-color:transparent}
+.sortRow{display:flex;flex-wrap:wrap;gap:4px;padding:0 2px 8px;align-items:center}
+.sortRow .slab{font-size:10.5px;color:var(--sub);font-weight:700;margin-right:2px}
+.sbtn{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer}
+.sbtn.on{background:#1E3A8A;border-color:#1E3A8A;color:#fff}.sbtn .ar{margin-left:3px;font-weight:800}
 </style>
 </head>
 <body>
@@ -147,6 +151,27 @@ async function unlock(pw,saved){
 $('go').addEventListener('click',function(){var v=$('pw').value.trim();if(v)unlock(v,false);});
 $('pw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click();});
 $('relock').addEventListener('click',function(){localStorage.removeItem(KEY);DATA=null;$('pw').value='';$('app').hidden=true;$('lock').hidden=false;});
+
+/* ---------- 정렬(표시층·기기 localStorage 저장) ---------- */
+function sortState(scope,def,defdir){try{var s=JSON.parse(localStorage.getItem('mp_sort_'+scope));if(s&&s.k)return s;}catch(e){}return {k:def,d:defdir||-1};}
+function sortBar(scope,opts,def,rerender){
+  var st=sortState(scope,def);
+  return h('div',{class:'sortRow'},h('span',{class:'slab'},'정렬'),opts.map(function(o){
+    var on=st.k===o[0];
+    return h('button',{class:'sbtn'+(on?' on':''),type:'button',onclick:function(){
+      var n=on?{k:o[0],d:-st.d}:{k:o[0],d:(o[2]||-1)};
+      localStorage.setItem('mp_sort_'+scope,JSON.stringify(n));rerender();}},o[1],on?h('span',{class:'ar'},st.d<0?'↓':'↑'):null);}));
+}
+function sortList(list,scope,def,acc,tie){
+  var st=sortState(scope,def),f=acc[st.k]||acc[def],t=tie||function(){return null};
+  var cmp=function(a,b){if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return a<b?-1:(a>b?1:0);};
+  return list.map(function(x,i){return [x,i]}).sort(function(p,q){
+    var a=f(p[0]),b=f(q[0]);
+    if(a==null||b==null){var r0=cmp(a,b);if(r0)return r0;}
+    else{var r=cmp(a,b);if(r)return r*st.d;}
+    var ta=t(p[0]),tb=t(q[0]);var r2=cmp(ta,tb);if(r2)return -r2;
+    return p[1]-q[1];}).map(function(p){return p[0]});
+}
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);}
 var th=localStorage.getItem(THEME)||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');applyTheme(th);
 $('theme').addEventListener('click',function(){th=th==='dark'?'light':'dark';localStorage.setItem(THEME,th);applyTheme(th);});
@@ -225,19 +250,18 @@ function render(){
   var keys=D.items.map(function(i){return PAGE+':'+i.symbol});
   var allOpen=keys.every(function(k){return OPEN[k]});
   v.appendChild(h('div',{style:'text-align:right;margin:-4px 2px 8px'},h('button',{class:'hbtn',style:'color:var(--sub);border-color:var(--line)',onclick:function(){keys.forEach(function(k){OPEN[k]=!allOpen});render();}},allOpen?'모두 접기':'모두 펼치기')));
-  D.items.forEach(function(it){v.appendChild(itemCard(D,it))});
-  if(D.kind==='owner'){
-    v.appendChild(h('div',{class:'sec',id:'uncls'},'미분류 종목 (섹터 장부에 없음 · 추측 배정 안 함) — '+D.unclassified.length+'종목'));
-    v.appendChild(h('div',{class:'card'},h('div',{class:'cbody',style:'background:var(--card);border-top:0'},
-      D.unclassified.map(function(u){return kv(u.symbol+' · 사이클 '+u.cycles+'개'+(u.held?' · 보유':''),sk(u.realized_all,function(x){return '$'+num(x,0)})+' (올해 '+sk(u.realized_ytd,function(x){return '$'+num(x,0)})+')',cls(u.realized_all))}))));
-  }
+  var SO=[['value','평가액'],['pct','비중'],['upct','미실현%'],['rytd','실현 올해'],['rall','실현 전체'],['start','시작일'],['name','티커',1]];
+  v.appendChild(sortBar(PAGE,SO,'value',render));
+  var rk=function(it,a,b){return it[a]!=null?it[a]:it[b]};
+  var acc={value:function(i){return i.value_krw},pct:function(i){return i.pct},upct:function(i){return i.upct},rytd:function(i){return rk(i,'realized_krw_ytd','realized_ytd')},rall:function(i){return rk(i,'realized_krw_all','realized_all')},start:function(i){return i.start},name:function(i){return i.symbol}};
+  sortList(D.items,PAGE,'value',acc,function(i){return rk(i,'realized_krw_all','realized_all')}).forEach(function(it){v.appendChild(itemCard(D,it))});
+  if(D.kind==='owner')v.appendChild(h('div',{class:'note'},'오너 직투 '+D.n_symbols+'종목 · 현재 보유 '+D.n_held+'종목(나머지는 청산 완료 — 실현만 표시).'));
   if(D.note)v.appendChild(h('div',{class:'note'},D.note));
   if(D.unpriced&&D.unpriced.length)v.appendChild(h('div',{class:'note'},'시세 없는 통화 제외: '+D.unpriced.join(', ')));
   finish();
   function finish(){$('foot').textContent='열람 전용 · 매매 판단·주문 기능 없음 · 금액은 각 원천의 기준 시각(위) 값';}
 }
 if(/open/.test(location.hash))OPEN.__all=true;
-(function(){if(location.hash==='#uncls'){setTimeout(function(){var e=document.getElementById('uncls');if(e)e.scrollIntoView();},600);}})();
 var saved=localStorage.getItem(KEY);if(saved)unlock(saved,true);
 })();
 </script>
