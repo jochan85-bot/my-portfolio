@@ -136,7 +136,7 @@ async function load(pw){
 function setErr(m){$('err').textContent=m||''}
 async function unlock(pw,saved){
   setErr('');$('go').disabled=true;
-  try{DATA=await load(pw);if(OPEN.__all){delete OPEN.__all;DATA.mm.forEach(function(c){OPEN['mm:'+c.symbol]=true});}localStorage.setItem(KEY,pw);$('lock').hidden=true;$('app').hidden=false;render();}
+  try{DATA=await load(pw);if(OPEN.__all&&typeof PAGE==='undefined'&&DATA.mm){delete OPEN.__all;DATA.mm.forEach(function(c){OPEN['mm:'+c.symbol]=true});}localStorage.setItem(KEY,pw);$('lock').hidden=true;$('app').hidden=false;render();}
   catch(e){
     if(saved){localStorage.removeItem(KEY);setErr('저장된 비밀번호가 맞지 않습니다(바뀌었을 수 있음). 다시 입력하세요.');}
     else setErr(e&&e.name==='OperationError'?'비밀번호가 맞지 않습니다.':'불러오지 못했습니다: '+(e&&e.message||e));
@@ -255,20 +255,25 @@ function cycRow(c){
     h('div',{style:'display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--sub)'},h('span',{},rp+' · 쿼터 '+c.quarter_sells+'회 · 최대 진행도 '+(c.max_progress_pct==null?'—':num(c.max_progress_pct,0)+'%')+(c.verdict==='무매형'?'':' · '+c.verdict)),badgeTag(c.badge+(c.ledger_continues?'·장부 이어짐':''))));
 }
 function viewCyc(){
-  var Y=DATA.cycles,wrap=h('div',{}),cn=Y.counts;
-  wrap.appendChild(h('div',{class:'sum'},h('div',{class:'tt'},'사이클 손익 — 현 로스터 8종목'),
+  var Y=DATA.cycles,wrap=h('div',{}),cn=Y.counts,cp=Y.mm_compare;
+  wrap.appendChild(h('div',{class:'sum'},h('div',{class:'tt'},'사이클 손익 — 현 로스터 8종목 + 과거 무매 '+cp.extra.join('·')),
     h('div',{class:'sum-grid'},
-      h('div',{class:'sbox'},h('div',{class:'l'},'종료(무매형)'),h('div',{class:'v'},String(cn.roster_closed-cn.roster_single)+'개'),h('div',{class:'s'},'단발 '+cn.roster_single+'개 별도')),
+      h('div',{class:'sbox'},h('div',{class:'l'},'종료(무매형)'),h('div',{class:'v'},cp.after.closed+'개'),h('div',{class:'s'},'합산 전 '+cp.before.closed+'개')),
       h('div',{class:'sbox'},h('div',{class:'l'},'진행 중'),h('div',{class:'v'},cn.roster_open+'개'),h('div',{class:'s'},'장부 이어짐')),
       h('div',{class:'sbox'},h('div',{class:'l'},'결론 불가'),h('div',{class:'v'},cn.roster_undetermined+'개'),h('div',{class:'s'},'로스터 기준'))),
     h('div',{class:'dist'},[h('span',{class:'chip'},'장부 배지 '+cn.ledger_badge),h('span',{class:'chip'},'이력 복원(추정) 배지 '+cn.restored_badge)])));
+  wrap.appendChild(h('div',{class:'card'},h('div',{class:'cbody',style:'background:var(--card);border-top:0'},
+    h('div',{class:'sec',style:'margin-top:0'},cp.extra.join('·')+' 합산 전 → 후 (종료 무매형 사이클)'),
+    kv('사이클 수',cp.before.closed+' → '+cp.after.closed),kv('승률',(cp.before.win_pct==null?'—':num(cp.before.win_pct,1)+'%')+' → '+(cp.after.win_pct==null?'—':num(cp.after.win_pct,1)+'%')),
+    kv('평균 기간',num(cp.before.mean_days,1)+'일 → '+num(cp.after.mean_days,1)+'일'),kv('평균 수익률',pctS(cp.before.mean_ret)+' → '+pctS(cp.after.mean_ret)),
+    kv('누적 실현',usdA(cp.before.realized)+' → '+usdA(cp.after.realized)))));
   wrap.appendChild(h('div',{class:'note'},'「장부」= 장부 개시(2026-10-26) 이후 시작한 사이클 · 「이력 복원(추정)」= 메리츠 체결 캐시로 규칙대로 복원한 것(앱 사이클 번호·과거 시드는 대조 불가). 진행도는 현재 시드 가정. 세전·수수료 필드 0.'));
   var keys=Y.summary.map(function(s){return 'cy:'+s.symbol});
   wrap.appendChild(allToggle(keys));
   Y.summary.forEach(function(s){
     var key='cy:'+s.symbol,open=!!OPEN[key];
     var head=h('div',{class:'chead',style:'--c:#60A5FA',onclick:function(){OPEN[key]=!OPEN[key];render();}},
-      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#60A5FA'},s.symbol),h('span',{class:'badge'},'종료 '+s.closed+(s.single?' · 단발 '+s.single:''))),h('span',{class:'pct '+cls(s.realized)},sgn(s.realized,usdA))),
+      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#60A5FA'},s.symbol),h('span',{class:'badge'},'종료 '+s.closed+(s.single?' · 단발 '+s.single:'')),s.past?h('span',{class:'badge',style:'background:var(--track);color:var(--sub)'},'과거 무매 · 보유 없음'):null),h('span',{class:'pct '+cls(s.realized)},sgn(s.realized,usdA))),
       h('div',{class:'key',style:'margin-top:8px'},h('div',{},'승률',h('b',{},s.win_pct==null?'—':s.win_pct+'%')),h('div',{},'중앙 기간',h('b',{},s.med_days==null?'—':s.med_days+'일')),h('div',{},'중앙 수익률',h('b',{class:cls(s.med_ret)},s.med_ret==null?'—':pctS(s.med_ret)))));
     var card=h('div',{class:'card'},head);
     if(open){

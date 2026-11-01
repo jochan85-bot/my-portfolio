@@ -136,7 +136,7 @@ async function load(pw){
 function setErr(m){$('err').textContent=m||''}
 async function unlock(pw,saved){
   setErr('');$('go').disabled=true;
-  try{DATA=await load(pw);if(OPEN.__all){delete OPEN.__all;DATA.mm.forEach(function(c){OPEN['mm:'+c.symbol]=true});}localStorage.setItem(KEY,pw);$('lock').hidden=true;$('app').hidden=false;render();}
+  try{DATA=await load(pw);if(OPEN.__all&&typeof PAGE==='undefined'&&DATA.mm){delete OPEN.__all;DATA.mm.forEach(function(c){OPEN['mm:'+c.symbol]=true});}localStorage.setItem(KEY,pw);$('lock').hidden=true;$('app').hidden=false;render();}
   catch(e){
     if(saved){localStorage.removeItem(KEY);setErr('저장된 비밀번호가 맞지 않습니다(바뀌었을 수 있음). 다시 입력하세요.');}
     else setErr(e&&e.name==='OperationError'?'비밀번호가 맞지 않습니다.':'불러오지 못했습니다: '+(e&&e.message||e));
@@ -153,7 +153,7 @@ document.addEventListener('visibilitychange',function(){var pw=localStorage.getI
 
 /* ---------- 메인(자산 총괄) 렌더 ---------- */
 function kv(a,b,c){return h('div',{class:'kv'},h('span',{},a),h('span',{class:c||''},b));}
-var COLORS={mm:'#10B981',vr:'#3B82F6',dat:'#A855F7',toss_kr:'#F59E0B',toss_us:'#F97316',crypto:'#EAB308',cash:'#94A3B8',past:'#64748B'};
+var COLORS={mm:'#10B981',vr:'#3B82F6',dat:'#A855F7',toss_kr:'#F59E0B',toss_us:'#F97316',crypto:'#EAB308',cash:'#94A3B8',owner:'#06B6D4',uncls:'#64748B'};
 function dstr(s){if(!s)return '—';var m=/^(\d{4})-?(\d{2})-?(\d{2})/.exec(s);return m?m[2]+'-'+m[3]:s;}
 function tstr(s){if(!s)return '—';var m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(s);return m?m[2]+'-'+m[3]+' '+m[4]+':'+m[5]:s;}
 function krwShort(x){if(x==null||isNaN(x))return '—';var a=Math.abs(x),s=x<0?'−':'';if(a>=1e8)return s+num(a/1e8,2)+'억';if(a>=1e4)return s+num(Math.round(a/1e4),0)+'만';return s+num(a,0);}
@@ -180,7 +180,7 @@ function catCard(c,total){
       kv('실현 올해 / 전체',sk(c.realized_krw_ytd,krwShort)+' / '+sk(c.realized_krw_all,krwShort),cls(c.realized_krw_all)),
     ];
     inner=h('div',{class:'cbody',style:'background:var(--card);border-top:0;border-left:4px solid '+col},
-      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'dot',style:'background:'+col}),h('b',{},c.label),c.n!=null&&c.id!=='past'?h('span',{class:'badge',style:'background:var(--track);color:var(--sub)'},c.n+'종목'):null),h('span',{class:'pct'},c.value_krw?krwShort(c.value_krw):'—')),
+      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'dot',style:'background:'+col}),h('b',{},c.label),c.n!=null&&c.n>0&&c.id!=='uncls'?h('span',{class:'badge',style:'background:var(--track);color:var(--sub)'},c.n+'종목'):null),h('span',{class:'pct'},c.value_krw?krwShort(c.value_krw):'—')),
       h('div',{style:'font-size:11px;color:var(--sub);margin:2px 0 6px'},(pct==null?'':'비중 '+num(pct,1)+'% · ')+'기준 '+tstr(c.asof)),
       lines,
       c.realized_note?h('div',{class:'note',style:'margin:4px 0 0'},'실현: '+c.realized_note):null,
