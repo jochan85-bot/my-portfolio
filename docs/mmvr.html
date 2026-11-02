@@ -306,7 +306,7 @@ function viewCyc(){
   sortList(Y.summary,'cyc','end',accs,function(s){return s.realized}).forEach(function(s){
     var key='cy:'+s.symbol,open=!!OPEN[key];
     var head=h('div',{class:'chead',style:'--c:#60A5FA',onclick:function(){OPEN[key]=!OPEN[key];render();}},
-      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#60A5FA'},s.symbol),h('span',{class:'badge'},'종료 '+s.closed+(s.single?' · 단발 '+s.single:'')),s.past?h('span',{class:'badge',style:'background:var(--track);color:var(--sub)'},'과거 무매 · 보유 없음'):null),h('span',{class:'pct '+cls(s.realized)},sgn(s.realized,usdA))),
+      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#60A5FA'},s.symbol),h('span',{class:'badge'},'종료 '+s.closed+(s.single?' · 단발 '+s.single:'')),s.past?h('span',{class:'badge',style:'background:var(--track);color:var(--sub)'},s.past_label||'과거 무매 · 보유 없음'):null),h('span',{class:'pct '+cls(s.realized)},sgn(s.realized,usdA))),
       h('div',{class:'key',style:'margin-top:8px'},h('div',{},'승률',h('b',{},s.win_pct==null?'—':s.win_pct+'%')),h('div',{},'중앙 기간',h('b',{},s.med_days==null?'—':s.med_days+'일')),h('div',{},'중앙 수익률',h('b',{class:cls(s.med_ret)},s.med_ret==null?'—':pctS(s.med_ret)))));
     var card=h('div',{class:'card'},head);
     if(open){
