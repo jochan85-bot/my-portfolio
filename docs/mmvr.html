@@ -289,13 +289,14 @@ function viewCyc(){
       h('div',{class:'sbox'},h('div',{class:'l'},'종료(무매형)'),h('div',{class:'v'},cp.after.closed+'개'),h('div',{class:'s'},'합산 전 '+cp.before.closed+'개')),
       h('div',{class:'sbox'},h('div',{class:'l'},'진행 중'),h('div',{class:'v'},cn.roster_open+'개'),h('div',{class:'s'},'장부 이어짐')),
       h('div',{class:'sbox'},h('div',{class:'l'},'결론 불가'),h('div',{class:'v'},cn.roster_undetermined+'개'),h('div',{class:'s'},'로스터 기준'))),
-    h('div',{class:'dist'},[h('span',{class:'chip'},'장부 배지 '+cn.ledger_badge),h('span',{class:'chip'},'이력 복원(추정) 배지 '+cn.restored_badge)])));
+    h('div',{class:'dist'},[h('span',{class:'chip'},'장부 배지 '+cn.ledger_badge),h('span',{class:'chip'},'이력 복원(추정) 배지 '+cn.restored_badge)].concat((cn.badge_extra||[]).map(function(x){return h('span',{class:'chip'},x)})))));
   wrap.appendChild(h('div',{class:'card'},h('div',{class:'cbody',style:'background:var(--card);border-top:0'},
     h('div',{class:'sec',style:'margin-top:0'},cp.extra.join('·')+' 합산 전 → 후 (종료 무매형 사이클)'),
     kv('사이클 수',cp.before.closed+' → '+cp.after.closed),kv('승률',(cp.before.win_pct==null?'—':num(cp.before.win_pct,1)+'%')+' → '+(cp.after.win_pct==null?'—':num(cp.after.win_pct,1)+'%')),
     kv('평균 기간',num(cp.before.mean_days,1)+'일 → '+num(cp.after.mean_days,1)+'일'),kv('평균 수익률',pctS(cp.before.mean_ret)+' → '+pctS(cp.after.mean_ret)),
     kv('누적 실현',usdA(cp.before.realized)+' → '+usdA(cp.after.realized)))));
   wrap.appendChild(h('div',{class:'note'},'「장부」= 장부 개시(2026-10-26) 이후 시작한 사이클 · 「이력 복원(추정)」= 메리츠 체결 캐시로 규칙대로 복원한 것(앱 사이클 번호·과거 시드는 대조 불가). 진행도는 현재 시드 가정. 세전·수수료 필드 0.'));
+  if(Y.note_extra)wrap.appendChild(h('div',{class:'note'},Y.note_extra));
   var keys=Y.summary.map(function(s){return 'cy:'+s.symbol});
   wrap.appendChild(allToggle(keys));
   var SC=[['end','종료일'],['ret','수익률'],['days','기간'],['name','종목',1]];
