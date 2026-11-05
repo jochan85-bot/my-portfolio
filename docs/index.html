@@ -306,12 +306,12 @@ function freshness(){
 
 /* ---------- 상단 고정 요약 바 ---------- */
 function sumbar(){
-  var O=DATA.derived.overview,M=DATA.main,d=O.dod,box=function(l,v,s,c){return h('div',{class:'sb'},h('div',{class:'l'},l),h('div',{class:'v'+(c?' '+c:'')},v),h('div',{class:'s'},s||''))};
-  var un=O.unrealized_krw;
+  var O=DATA.derived.overview,M=DATA.main,d=O.dod,box=function(l,v,s,c,t){return h('div',{class:'sb',title:t||''},h('div',{class:'l'},l),h('div',{class:'v'+(c?' '+c:'')},v),h('div',{class:'s'},s||''))};
+  var pl=O.pnl_vs_principal,bd=O.principal_base_date?md(O.principal_base_date):'—';
   $('sumbar').replaceChildren(
     box('총자산',amt(O.total_krw),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(O.total_usd)),
-    box('순투자원금',amt(O.principal),'추적 기준 · 추정'),
-    box('평가손익',amt(un,true),pc(O.unrealized_pct),cls(un)),
+    box('기준자산+순입금',amt(O.principal),bd+' 기준·추정',null,'추적 시작일('+bd+') 총자산에 그 뒤 외부 입출금을 더한 값. 입출금이 비어 있는 계좌가 있어 추정입니다.'),
+    box('평가손익 ⓘ',amt(pl,true),pc(O.pnl_vs_principal_pct),cls(pl),'총자산 − (기준자산+순입금). 「보유 미실현손익(현금 제외)」과 다른 이유: 이 값은 현금·환율 변동·이미 실현한 손익까지 포함한 전체 증감이고, 보유 미실현손익은 지금 들고 있는 종목의 평가차익만입니다(계좌 탭 상단).'),
     box('현금 비중',(O.cash_pct==null?'—':num(O.cash_pct,1)+'%'),krwShort(O.cash_krw)),
     box('오늘 변동',d?amt(d.delta_krw,true):'—',d?pc(d.pct)+(d.partial?' · 일부':''):'첫 기록',d?cls(d.delta_krw):''));
   $('cur').textContent=CUR==='KRW'?'₩ → $':'$ → ₩';
@@ -339,16 +339,12 @@ function viewOverview(){
     return card(kv('크립토 방향성 노출',''),h('div',{style:'display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:-2px 0 2px'},amt(E.crypto_dir_krw),h('span',{},num(E.crypto_dir_pct,1)+'%')),h('div',{class:'note'},E.crypto_note),
       kv('레버리지 상품 비중',''),h('div',{style:'display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:-2px 0 2px'},amt(E.leveraged_krw),h('span',{},num(E.leveraged_pct,1)+'%')),h('div',{class:'note'},E.leveraged_note),
       kv('현금 합계',''),h('div',{style:'display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:-2px 0 2px'},amt(O.cash_krw),h('span',{},num(O.cash_pct,1)+'%')),
-      h('div',{class:'note'},'원화 '+krwFull(cb.KRW)+' · 달러 '+usd(cb.USD,2)+' (계좌별은 「계좌」 탭)'));
-  }));
-  w.appendChild(sect('ov-cat','카테고리',function(){
-    return card((M.categories||[]).map(function(c){
-      var right=c.status==='ok'?amt(c.value_krw):h('span',{},bdg('stale','대기'));
-      return h('div',{class:'ln',style:'cursor:pointer',onclick:function(){go('accounts',c.id)}},h('span',{class:'l'},c.label,c.stale?[' ',bdg('stale','직전 값')]:null),h('span',{class:'r'},right));
-    }));
+      (O.cash_accounts||[]).map(function(c){var tab=c.account.indexOf('업비트')===0?'upbit':(c.account==='토스 KR'?'toss_kr':(c.account==='토스 US'?'toss_us':'meritz'));
+        return h('div',{class:'ln',style:'cursor:pointer',onclick:function(){go('accounts',tab)}},h('span',{class:'l'},c.account,c.stale?[' ',bdg('stale','직전 값')]:null),h('span',{class:'r'},c.ccy==='USD'?[usd(c.amount,2),' (',amt(c.krw),')']:amt(c.krw),' ›'))}),
+      h('div',{class:'note'},'줄을 누르면 해당 계좌로 이동합니다.'));
   }));
   M.notes.forEach(function(n){w.appendChild(h('div',{class:'note'},n))});
-  w.appendChild(h('div',{class:'note'},'순투자원금 = '+(DATA.derived.trend.defs?DATA.derived.trend.defs.principal:'—')+'. 입출금이 비어 있는 계좌가 있어 「추정」입니다. 평가손익 = 보유 평가금 − 매입 원가(현금 제외).'));
+  w.appendChild(h('div',{class:'note'},'기준자산+순입금 = '+(DATA.derived.trend.defs?DATA.derived.trend.defs.principal:'—')+'. 입출금이 비어 있는 계좌가 있어 「추정」입니다. 평가손익 = 총자산 − (기준자산+순입금). 보유 종목만의 평가차익은 「계좌」 탭 상단의 보유 미실현손익(현금 제외)입니다.'));
   return w;
 }
 
@@ -374,13 +370,13 @@ function itemCard(page,D,it){
     h('div',{class:'key',style:'margin-top:8px'},
       h('div',{},crypto?'FIFO 평단':'평단',h('b',{},crypto?(it.avg_fifo==null?'—':krwFull(it.avg_fifo)):(it.avg==null?(it.inherit_avg?usd(it.inherit_avg):'—'):usd(it.avg)))),
       h('div',{},'현재가',h('b',{},crypto?krwFull(it.last):(it.last==null?'—':usd(it.last)))),
-      h('div',{},'실현 전체',h('b',{class:cls(it.realized_all)},crypto?sk(it.realized_all,krwShort):sk(it.realized_all,function(v){return '$'+num(v,0)})))));
+      h('div',{},'미실현(평가)',h('b',{class:cls(crypto?it.unreal_krw:it.unreal_usd)},it.held||crypto?(crypto?sk(it.unreal_krw,krwShort):sk(it.unreal_usd,function(v){return '$'+num(v,0)})):'—'))));
   var c=h('div',{class:'card'},head);
   if(open){
     var g=crypto?h('div',{class:'grid'},kv('수량',num(it.qty,it.qty<1?6:2)),kv('평가액',krwFull(it.value_krw)),kv('FIFO 평단',it.avg_fifo==null?'—':krwFull(it.avg_fifo)),kv('업비트 평단',krwFull(it.avg_upbit)),
-        kv('미실현',sk(it.unreal_krw,krwShort),cls(it.unreal_krw)),kv('수익률',pc(it.pnl_pct),cls(it.pnl_pct)),kv('실현 올해',sk(it.realized_ytd,krwShort),cls(it.realized_ytd)),kv('실현 전체',sk(it.realized_all,krwShort),cls(it.realized_all)))
+        kv('미실현손익(평가, FIFO 평단 기준)',sk(it.unreal_krw,krwShort),cls(it.unreal_krw)),kv('평가 수익률',pc(it.pnl_pct),cls(it.pnl_pct)),kv('실현손익(확정) 올해',sk(it.realized_ytd,krwShort),cls(it.realized_ytd)),kv('실현손익(확정) 전체',sk(it.realized_all,krwShort),cls(it.realized_all)))
       :h('div',{class:'grid'},kv('수량',it.qty==null?'—':num(it.qty,0)+'주'),kv('평가액',it.held?usd(it.value_usd,0)+' · '+krwShort(it.value_krw):'—'),kv('평단',it.avg==null?'—':usd(it.avg)),kv('수익률',pc(it.pnl_pct),cls(it.pnl_pct)),
-        kv('미실현',it.held?sk(it.unreal_usd,function(v){return '$'+num(v,0)})+' · '+sk(it.unreal_krw,krwShort):'—',cls(it.unreal_usd)),kv('보유 시작일',ymd(it.start)),kv('실현 올해',sk(it.realized_ytd,function(v){return '$'+num(v,0)}),cls(it.realized_ytd)),kv('실현 전체',sk(it.realized_all,function(v){return '$'+num(v,0)}),cls(it.realized_all)));
+        kv('미실현손익(평가)',it.held?sk(it.unreal_usd,function(v){return '$'+num(v,0)})+' · '+sk(it.unreal_krw,krwShort):'—',cls(it.unreal_usd)),kv('보유 시작일',ymd(it.start)),kv('실현손익(확정) 올해',sk(it.realized_ytd,function(v){return '$'+num(v,0)}),cls(it.realized_ytd)),kv('실현손익(확정) 전체',sk(it.realized_all,function(v){return '$'+num(v,0)}),cls(it.realized_all)));
     c.appendChild(h('div',{class:'cbody'},g,it.end&&!it.held?kv('청산일',ymd(it.end)):null,h('div',{class:'sec'},'체결 이력'+(crypto?' (업비트 · 스냅샷 제공 범위)':'')),fillTable(it.fills&&it.fills.rows?it.fills.rows:it.fills,it.fills&&it.fills.n_total,crypto)));
   }
   return c;
@@ -403,11 +399,14 @@ function detailBlock(page){
 }
 function posTable(rows,ccy){
   if(!rows.length)return h('div',{class:'note'},'보유 없음');
-  var fx=FX(),t=h('table',{class:'tbl'},h('tr',{},['종목','구분','수량','평단','현재가','평가','수익률'].map(function(x){return h('th',{},x)})));
+  var fx=FX(),box=h('div',{});
+  var t=h('table',{class:'tbl'},h('tr',{},['종목','구분','평가','수익률'].map(function(x){return h('th',{},x)})));
   rows.slice().sort(function(a,b){return (b.qty*(b.last||b.avg||0))-(a.qty*(a.last||a.avg||0))}).forEach(function(p){
-    var v=p.last!=null?p.qty*p.last:null,pr=(p.last!=null&&p.avg)?(p.last/p.avg-1)*100:null,k=p.ccy==='USD'?(v==null?null:v*fx):v;
-    t.appendChild(h('tr',{},h('td',{},p.ticker),h('td',{},p.tag||''),h('td',{},num(p.qty,p.qty<1?4:0)),h('td',{},p.ccy==='USD'?usd(p.avg):krwFull(p.avg)),
-      h('td',{title:p.last_src||''},p.last==null?'미수집':(p.ccy==='USD'?usd(p.last):krwFull(p.last))),h('td',{},k==null?'—':amt(k)),h('td',{class:cls(pr)},pc(pr))));
+    var v=p.last!=null?p.qty*p.last:null,pr=(p.last!=null&&p.avg)?(p.last/p.avg-1)*100:null,k=p.ccy==='USD'?(v==null?null:v*fx):v,key='pos:'+p.acct+':'+p.ticker,open=!!OPEN[key];
+    t.appendChild(h('tr',{style:'cursor:pointer',onclick:function(){OPEN[key]=!OPEN[key];render();}},h('td',{},(open?'▾ ':'▸ ')+p.ticker,p.basis==='avg'?[' ',bdg('stale','평단 기준')]:null),h('td',{},p.tag||''),h('td',{},k==null?'—':amt(k)),h('td',{class:cls(pr)},pc(pr))));
+    if(open)t.appendChild(h('tr',{},h('td',{colspan:'4',style:'text-align:left;white-space:normal;background:var(--soft);font-size:11.5px;line-height:1.7'},
+      '수량 '+num(p.qty,p.qty<1?4:0)+' · 평단 '+(p.ccy==='USD'?usd(p.avg):krwFull(p.avg))+' · 현재가 '+(p.last==null?'미수집':(p.ccy==='USD'?usd(p.last):krwFull(p.last)))+(p.basis==='avg'?' (평단으로 대체)':'')+(v==null?'':' · 평가 '+(p.ccy==='USD'?usd(v,2):krwFull(v))),
+      h('br',{}),h('span',{style:'color:var(--sub)'},'현재가 근거: '+(p.last_src||'—')))));
   });
   return h('div',{class:'hs'},t);
 }
@@ -421,6 +420,9 @@ function acctCard(id,title,value,sub,body,extra){
 }
 function viewAccounts(){
   var M=DATA.main,P=(DATA.data.positions||{}).rows||[],w=h('div',{}),cat=function(i){return (M.categories||[]).filter(function(c){return c.id===i})[0]||{}};
+  var O0=DATA.derived.overview;
+  w.appendChild(card(h('div',{class:'ctop'},h('b',{},'보유 미실현손익 (현금 제외)'),h('span',{class:'pct '+cls(O0.unrealized_krw)},amt(O0.unrealized_krw,true))),
+    h('div',{class:'note',style:'margin:4px 0 0'},'지금 보유한 종목의 평가차익 합 '+pc(O0.unrealized_pct)+' · 상단 「평가손익」은 총자산 − 기준자산+순입금이라 값이 다릅니다.')));
   var mkv=['mm','vr','dat','owner'].reduce(function(s,i){return s+(cat(i).value_krw||0)},0);
   var mcash=(M.cash||[]).filter(function(c){return c.account.indexOf('메리츠')===0}).reduce(function(s,c){return s+(c.krw||0)},0);
   w.appendChild(acctCard('meritz','메리츠',amt(mkv+mcash),'무매·VR·DAT·오너 직투 + 현금 · 현금 비중 '+(mkv+mcash?num(mcash/(mkv+mcash)*100,1):'—')+'%',function(){
@@ -441,7 +443,8 @@ function viewAccounts(){
       if(c.note)b.appendChild(h('div',{class:'note'},c.note));
       b.appendChild(h('div',{class:'sec'},'현금'));cashLines(['토스 '+mk]).forEach(function(x){b.appendChild(x)});
       b.appendChild(h('div',{class:'sec'},'보유 종목'));b.appendChild(posTable(P.filter(function(p){return p.acct==='토스 '+mk})));
-      b.appendChild(h('div',{class:'note'},'현재가 = 일봉 캐시 종가(신규 진입 종목은 다음 캐시까지 미수집) · 평단 = 브로커 평단'));
+      var pv=P.filter(function(p){return p.acct==='토스 '+mk}).reduce(function(a,p){return a+(p.qty||0)*(p.last||0)},0);
+      b.appendChild(h('div',{class:'note'},'현재가 근거: ① 매매일지의 브로커 평단·수익률 환산(저널 빌드 시점 브로커 조회) ② 일봉 캐시 종가 ③ 평단(「평단 기준」 배지). 종목 평가 합 '+(mk==='US'?usd(pv,2):krwFull(pv))+' vs 계좌 평가 '+(mk==='US'?usd(c.value,2):krwFull(c.value))+' — 총자산에는 계좌 평가(브로커 조회)를 씁니다. 종목을 눌러 상세 보기.'));
       return b;},c.stale?bdg('stale','직전 값'):null));
   });
   var cr=cat('crypto'),uc=(M.cash||[]).filter(function(x){return x.account==='업비트 KRW'})[0]||{};
@@ -464,7 +467,7 @@ function cssv(n){return getComputedStyle(document.documentElement).getPropertyVa
 function mkChart(el,opts,data){LIVE.push(function(){var wdt=el.clientWidth||360;opts.width=wdt;var u=new uPlot(opts,data,el);CHARTS.push(u);});return el;}
 function ts(d){return Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/1000;}
 function axisY(fmt){return {stroke:cssv('--sub'),grid:{stroke:cssv('--line'),width:1},ticks:{show:false},size:52,values:function(u,vs){return vs.map(fmt)}};}
-function axisX(){return {stroke:cssv('--sub'),grid:{show:false},ticks:{show:false},values:function(u,vs){return vs.map(function(v){var d=new Date(v*1000);return (d.getUTCMonth()+1)+'/'+d.getUTCDate();})}};}
+function axisX(xs){var a={stroke:cssv('--sub'),grid:{show:false},ticks:{show:false},values:function(u,vs){return vs.map(function(v){var d=new Date(v*1000);return (d.getUTCMonth()+1)+'/'+d.getUTCDate();})}};if(xs&&xs.length<=14)a.splits=function(){return xs};return a;}
 function hoverTip(u,fmt){var el=u.over;el.addEventListener('mouseleave',function(){tip(null)});u.hooks.setCursor=[function(uu){var i=uu.cursor.idx;if(i==null){tip(null);return;}var r=uu.over.getBoundingClientRect();tip({clientX:r.left+uu.cursor.left,clientY:r.top+uu.cursor.top},fmt(i));}];}
 
 /* ---------- 탭3 추이 ---------- */
@@ -479,7 +482,7 @@ function viewTrend(){
   var pts=rangeFilter(T.points),fx=FX();
   w.appendChild(h('div',{class:'pbtns'},['1M','3M','6M','YTD','1Y','all'].map(function(r){return h('button',{class:'pbtn'+(RANGE===r?' on':''),onclick:function(){RANGE=r;localStorage.setItem('mp_range',r);render();}},r==='all'?'전체':r)})));
   if(T.points.length<5)w.appendChild(h('div',{class:'note'},'추적 시작 '+ymd(T.start)+' 이후 '+T.points.length+'일치 기록뿐입니다(과거 소급 없음). 기록은 하루 1건씩 쌓입니다.'));
-  if(T.est_all)w.appendChild(h('div',{class:'note'},bdg('est','추정'),' 입출금 미입력 계좌(',(T.missing_accounts||[]).join('·'),')가 있어 순투자원금·TWR 은 점선(추정)으로 표시합니다.'));
+  if(T.est_all)w.appendChild(h('div',{class:'note'},bdg('est','추정'),' 입출금 미입력 계좌(',(T.missing_accounts||[]).join('·'),')가 있어 기준자산+순입금·TWR 은 점선(추정)으로 표시합니다.'));
   var last=pts[pts.length-1]||{},first=pts[0]||{};
   var cv=function(k){return CUR==='USD'&&fx?(k/fx):k},fm=function(v){return CUR==='USD'?usdS(v):krwShort(v)};
   // 수익률 2종 + 환율 효과
@@ -490,14 +493,14 @@ function viewTrend(){
     h('div',{class:'kbox',title:T.defs.fx},h('div',{class:'l'},'환율 효과(누적) ⓘ'),h('div',{class:'v '+cls(last.fx_effect_cum)},amt(last.fx_effect_cum,true)),h('div',{class:'s'},'달러 자산 원화 환산분')),
     h('div',{class:'kbox'},h('div',{class:'l'},'고점 대비'),h('div',{class:'v '+cls(last.dd)},fr(last.dd)),h('div',{class:'s'},'현재 낙폭'))));
   w.appendChild(h('div',{class:'note'},'두 수익률이 다른 이유: TWR 은 입출금 시점의 영향을 빼고 운용 성과만 보고, 단순 수익률은 원금 대비 평가 차이라 입금 직후 수익률이 희석됩니다. 표의 ⓘ 를 길게 누르면 정의가 나옵니다.'));
-  // 1) 총자산 vs 순투자원금
+  // 1) 총자산 vs 기준자산+순입금
   var x=pts.map(function(p){return ts(p.date)});
-  var c1=h('div',{class:'chart'},h('div',{class:'ct'},'총자산 · 순투자원금',h('span',{class:'bdg est'},'원금선 추정')),h('div',{}),
-    h('div',{class:'legend2'},h('span',{},h('i',{style:'border-color:#2563EB'}),'총자산'),h('span',{},h('i',{class:'d',style:'border-color:#F59E0B'}),'순투자원금(추정)'),h('span',{},'두 선의 간격 = 평가손익')));
+  var c1=h('div',{class:'chart'},h('div',{class:'ct'},'총자산 · 기준자산+순입금',h('span',{class:'bdg est'},'원금선 추정')),h('div',{}),
+    h('div',{class:'legend2'},h('span',{},h('i',{style:'border-color:#2563EB'}),'총자산'),h('span',{},h('i',{class:'d',style:'border-color:#F59E0B'}),'기준자산+순입금(추정)'),h('span',{},'두 선의 간격 = 평가손익')));
   w.appendChild(c1);
-  mkChart(c1.children[1],{height:220,scales:{x:{time:false}},axes:[axisX(),axisY(fm)],cursor:{points:{size:6}},legend:{show:false},
+  mkChart(c1.children[1],{height:220,scales:{x:{time:false}},axes:[axisX(x),axisY(fm)],cursor:{points:{size:6}},legend:{show:false},
     series:[{},{label:'총자산',stroke:'#2563EB',width:2,points:{show:pts.length<40}},{label:'원금',stroke:'#F59E0B',width:2,dash:[6,4],points:{show:false}}],
-    hooks:{ready:[function(u){hoverTip(u,function(i){var p=pts[i];return '<b>'+p.date+'</b><br>총자산 '+fm(cv(p.total))+'<br>원금(추정) '+fm(cv(p.principal))+'<br>입출금 '+fm(cv(p.flow))+(p.stale?'<br>직전 값 포함':'');})}]}},
+    hooks:{ready:[function(u){hoverTip(u,function(i){var p=pts[i];return '<b>'+p.date+'</b><br>총자산 '+fm(cv(p.total))+'<br>기준자산+순입금(추정) '+fm(cv(p.principal))+'<br>입출금 '+fm(cv(p.flow))+(p.stale?'<br>직전 값 포함':'');})}]}},
     [x,pts.map(function(p){return cv(p.total)}),pts.map(function(p){return cv(p.principal)})]);
   // 2) 전략별 적층
   var CATS=[['cash','현금'],['mm','무매'],['vr','VR'],['dat','DAT'],['crypto','코인'],['ai','토스'],['owner','오너 직투'],['manual','수기']];
@@ -507,12 +510,12 @@ function viewTrend(){
   var ser=[{}],dat2=[x];for(var k=CATS.length-1;k>=0;k--){ser.push({label:CATS[k][1],stroke:colors[CATS[k][0]],fill:colors[CATS[k][0]]+'D9',width:1,points:{show:false}});dat2.push(cum[k]);}
   var c2=h('div',{class:'chart'},h('div',{class:'ct'},'전략별 적층'),h('div',{}),h('div',{class:'legend2'},CATS.map(function(c){return h('span',{},h('b',{style:'background:'+colors[c[0]]}),c[1])})));
   w.appendChild(c2);
-  mkChart(c2.children[1],{height:200,scales:{x:{time:false}},axes:[axisX(),axisY(fm)],legend:{show:false},series:ser,
+  mkChart(c2.children[1],{height:200,scales:{x:{time:false}},axes:[axisX(x),axisY(fm)],legend:{show:false},series:ser,
     hooks:{ready:[function(u){hoverTip(u,function(i){return '<b>'+pts[i].date+'</b><br>'+CATS.map(function(c,j){return c[1]+' '+fm(raw[j][i])}).join('<br>');})}]}},dat2);
   // 3) 낙폭
   var c3=h('div',{class:'chart'},h('div',{class:'ct'},'낙폭(고점 대비 %)'),h('div',{}));
   w.appendChild(c3);
-  mkChart(c3.children[1],{height:130,scales:{x:{time:false}},axes:[axisX(),axisY(function(v){return num(v,1)+'%'})],legend:{show:false},
+  mkChart(c3.children[1],{height:130,scales:{x:{time:false}},axes:[axisX(x),axisY(function(v){return num(v,1)+'%'})],legend:{show:false},
     series:[{},{label:'낙폭',stroke:'#DC2626',fill:'#DC262633',width:1.5,points:{show:pts.length<40}}],
     hooks:{ready:[function(u){hoverTip(u,function(i){return pts[i].date+' 낙폭 '+fr(pts[i].dd)})}]}},[x,pts.map(function(p){return p.dd*100})]);
   // 월별 표
@@ -529,11 +532,11 @@ function viewTrend(){
 function hbars(rows,lab,val,sub,col){var mx=Math.max.apply(null,rows.map(function(r){return Math.abs(val(r))}).concat([1]));
   return h('div',{},rows.map(function(r){var v=val(r);return h('div',{class:'hrow'},h('span',{},lab(r)),h('div',{class:'hb'},h('i',{style:'width:'+(Math.abs(v)/mx*100)+'%;background:'+(col||(v<0?'#3B82F6':'#10B981'))})),h('span',{class:'hv'},sub(r)));}));}
 function tickerTable(rows){
-  var st=sortState('tk','cum',-1),cols=[['symbol','종목',1],['n','건수'],['win','승률'],['mean','평균'],['median','중앙값'],['hold','평균 보유'],['cum','누적 실현'],['worst','최악 1건']];
-  var acc={symbol:function(r){return r.symbol},n:function(r){return r.n},win:function(r){return r.win_pct},mean:function(r){return r.mean_ret},median:function(r){return r.median_ret},hold:function(r){return r.avg_hold},cum:function(r){return r.cum_realized},worst:function(r){return r.worst.realized}};
+  var st=sortState('tk','cum',-1),cols=[['symbol','종목',1],['n','건수'],['ann','연환산 시드수익률(중앙값)'],['mean','평균'],['median','중앙값'],['hold','평균 보유'],['cum','누적 실현'],['worst','최악 1건']];
+  var acc={symbol:function(r){return r.symbol},n:function(r){return r.n},ann:function(r){return r.ann_median},mean:function(r){return r.mean_ret},median:function(r){return r.median_ret},hold:function(r){return r.avg_hold},cum:function(r){return r.cum_realized},worst:function(r){return r.worst.realized}};
   var srt=rows.slice().sort(function(a,b){var x=acc[st.k](a),y=acc[st.k](b);if(x==null)return 1;if(y==null)return -1;return (x<y?-1:x>y?1:0)*st.d;});
   var t=h('table',{class:'tbl'},h('tr',{},cols.map(function(c){return h('th',{onclick:function(){var n=st.k===c[0]?{k:c[0],d:-st.d}:{k:c[0],d:c[2]?1:-1};localStorage.setItem('mp_sort_tk',JSON.stringify(n));render();}},c[1]+(st.k===c[0]?(st.d<0?' ↓':' ↑'):''))})));
-  srt.forEach(function(r){t.appendChild(h('tr',{},h('td',{},r.symbol),h('td',{},String(r.n)),h('td',{},num(r.win_pct,0)+'%'),h('td',{},fr(r.mean_ret,1)),h('td',{},fr(r.median_ret,1)),h('td',{},num(r.avg_hold,1)+'일'),h('td',{class:cls(r.cum_realized)},amtU(r.cum_realized,true)),h('td',{class:cls(r.worst.realized)},sk(r.worst.realized,function(v){return '$'+num(v,0)})+' · '+ymd(r.worst.exit))))});
+  srt.forEach(function(r){t.appendChild(h('tr',{},h('td',{},r.symbol),h('td',{},String(r.n)),h('td',{},fr(r.ann_median,0)),h('td',{},fr(r.mean_ret,1)),h('td',{},fr(r.median_ret,1)),h('td',{},num(r.avg_hold,1)+'일'),h('td',{class:cls(r.cum_realized)},amtU(r.cum_realized,true)),h('td',{class:cls(r.worst.realized)},sk(r.worst.realized,function(v){return '$'+num(v,0)})+' · '+ymd(r.worst.exit))))});
   return h('div',{class:'hs'},t);
 }
 function timeline(TL){
@@ -563,24 +566,30 @@ function viewMumae(){
   w.appendChild(h('div',{class:'pbtns'},[['confirmed','확정(엑셀 87건)'],['with_restored','복원 포함']].map(function(s){return h('button',{class:'pbtn'+(MSET===s[0]?' on':''),onclick:function(){MSET=s[0];localStorage.setItem('mp_mset',s[0]);render();}},s[1])})));
   w.appendChild(h('div',{class:'note',style:'margin-top:-4px'},S.label+' · '+ymd(K.first)+' ~ '+ymd(K.last)+(MSET==='with_restored'?' · 복원분은 ':''),MSET==='with_restored'?bdg('rest','복원·미확인'):null,MSET==='with_restored'?' (앱 대조 전)':''));
   var kb=function(l,v,s,c){return h('div',{class:'kbox'},h('div',{class:'l'},l),h('div',{class:'v '+(c||'')},v),h('div',{class:'s'},s||''))};
-  w.appendChild(sect('mm-kpi','요약',function(){return h('div',{class:'kgrid'},
-    kb('청산 건수',K.n+'건'),kb('승률',num(K.win_pct,1)+'%'),kb('평균 회차수익률',fr(K.avg_ret_cycle,2)),kb('평균 시드대비',fr(K.avg_ret_seed,2)),
-    kb('평균 보유',num(K.avg_hold,1)+'일'),kb('최장 보유',K.max_hold+'일'),kb('총 실현',amtU(K.total_realized,true),'$'+num(K.total_realized,0),cls(K.total_realized)),kb('월평균 실현',amtU(K.monthly_avg_realized,true),K.months+'개월'));}));
+  w.appendChild(sect('mm-kpi','요약',function(){return h('div',{},h('div',{class:'kgrid'},
+    kb('청산 건수',K.n+'건'),kb('연환산 시드수익률',fr(K.ann_median,0),'중앙값 · '+K.ann_n+'건'),kb('평균 회차수익률',fr(K.avg_ret_cycle,2)),kb('평균 시드대비',fr(K.avg_ret_seed,2)),
+    kb('평균 보유',num(K.avg_hold,1)+'일'),kb('최장 보유',K.max_hold+'일'),kb('총 실현',amtU(K.total_realized,true),'$'+num(K.total_realized,0),cls(K.total_realized)),kb('월평균 실현',amtU(K.monthly_avg_realized,true),K.months+'개월'))
+    ,h('div',{class:'note',style:'margin-top:6px'},'원화 환산은 ',h('b',{},'현재 환율('+num(FX(),1)+') 일괄 환산'),'입니다 — 청산일별 환율 데이터가 없어 청산일 환율은 쓰지 않았습니다. 연환산 시드수익률 = 실현수익 ÷ 투입시드 ÷ 보유일 × 365. 무매 2.2는 손절이 없어 승률은 표시하지 않습니다.'));}));
   w.appendChild(sect('mm-ticker','종목별',function(){return tickerTable(S.by_ticker)}));
   w.appendChild(sect('mm-period','시기별 실현손익',function(){
     var b=h('div',{});b.appendChild(h('div',{class:'pbtns'},[['month','월별'],['quarter','분기별'],['year','연도별']].map(function(p){return h('button',{class:'pbtn'+(PER===p[0]?' on':''),onclick:function(){PER=p[0];localStorage.setItem('mp_per',p[0]);render();}},p[1])})));
     b.appendChild(card(hbars(S.periods[PER].slice().reverse(),function(r){return r.k},function(r){return r.realized},function(r){return '$'+num(r.realized,0)+' · '+r.n+'건'})));return b;}));
   w.appendChild(sect('mm-dist','분포',function(){return h('div',{},
     h('div',{class:'sec'},'보유일'),card(hbars(S.dist.hold,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#6366F1')),
-    h('div',{class:'sec'},'회차수익률'),card(hbars(S.dist.ret,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#0EA5E9')));}));
+    h('div',{class:'sec'},'회차수익률'),card(hbars(S.dist.ret,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#0EA5E9')),
+    h('div',{class:'sec'},'최대 도달 회차 분포'),card(hbars(X.turns.hist,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#F59E0B')),h('div',{class:'note'},X.turns.note+' (집계 '+X.turns.n+'건 / 복원 사이클 '+X.turns.n_total+'건)'));}));
+  w.appendChild(sect('mm-long','90일 초과 장기 사이클',function(){var L=K.long90;
+    return h('div',{},card(h('div',{class:'grid'},kv('건수',L.n+'건'),kv('시드 묶임 합계',L.seed_sum?'$'+num(L.seed_sum,0)+' · '+krwShort(L.seed_sum*FX()):'—'))),
+      L.items.length?h('div',{class:'hs'},h('table',{class:'tbl'},h('tr',{},['종목','진입','청산','보유','시드','실현'].map(function(x){return h('th',{},x)})),L.items.map(function(r){return h('tr',{},h('td',{},r.symbol),h('td',{},ymd(r.entry)),h('td',{},ymd(r.exit)),h('td',{},r.hold+'일'),h('td',{},r.seed?'$'+num(r.seed,0):'—'),h('td',{class:cls(r.realized)},sk(r.realized,function(v){return '$'+num(v,0)})))}))):null,
+      h('div',{class:'note'},'시드 묶임 합계 = 90일 넘게 열려 있던 사이클들의 시드 합'+(L.seed_missing?' (시드 가정이 없는 '+L.seed_missing+'건 제외)':'')+'.'));},true));
   w.appendChild(sect('mm-tl','타임라인 (세로=일자 · 가로=종목)',function(){return h('div',{},timeline(X.timeline),
     h('div',{class:'legend2'},h('span',{},h('b',{style:'background:#2563EB'}),'확정(엑셀) · 같은 종목 연속 회차는 진·연 교차, 시작일 굵은 윗선'),h('span',{},h('b',{style:'background:#2563EB59;outline:1px dashed #2563EB'}),'복원·미확인'),h('span',{},h('b',{style:'outline:1px dashed #64748B'}),'통계 제외'),h('span',{},'★ 확인요망')),
     h('div',{class:'note'},'막대를 누르거나(모바일) 올리면(PC) 상세가 나옵니다. 날짜는 미국장 추정일 기준.'));},false));
   w.appendChild(sect('mm-open','진행 중 사이클',function(){
     return h('div',{},X.open.map(function(o){var col=zoneColor(o.progress_pct||0);
-      return card(h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},o.symbol),bdg('ok','장부')),h('span',{class:'pct'},num(o.progress_pct,1)+'%')),
+      return card(h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},o.symbol),bdg('ok','장부'),(o.dist_to_target_pct!=null&&o.dist_to_target_pct<=0)?bdg('star','익절 대기'):null),h('span',{class:'pct'},num(o.progress_pct,1)+'%')),
         h('div',{class:'grid',style:'margin:8px 0 0'},kv('진입일',ymd(o.entry)),kv('경과일',o.elapsed_days+'일'),kv('회차',num(o.T,2)+' / '+o.cycle_len),kv('투입 시드',usd(o.used_seed,0)+' / '+usd(o.seed,0)),
-          kv('평단 → 현재가',usd(o.avg)+' → '+usd(o.last)),kv('평단 대비',pc(o.pnl_pct),cls(o.pnl_pct)),kv('익절가('+o.target_pct+'%)',usd(o.target_price)),kv('익절가까지',pc(o.dist_to_target_pct))));}));}));
+          kv('평단 → 현재가',usd(o.avg)+' → '+usd(o.last)),kv('평단 대비',pc(o.pnl_pct),cls(o.pnl_pct)),kv('익절가('+o.target_pct+'%)',usd(o.target_price)),kv('익절가까지',(o.dist_to_target_pct!=null&&o.dist_to_target_pct<=0)?'도달(익절 대기)':pc(o.dist_to_target_pct))));}));}));
   w.appendChild(sect('mm-gap','공백 구간 복원 (엑셀 마지막 청산 '+ymd(MM.meta.gap_cutoff_exclusive)+' 이후 종료)',function(){
     var t=h('table',{class:'tbl'},h('tr',{},['종목','진입','청산','기간','실현','수익률','상태'].map(function(s){return h('th',{},s)})));
     MM.gap.forEach(function(g){var ex=(X.excluded||[]).some(function(e){return e.symbol===g.symbol&&e.entry===g.entry});
