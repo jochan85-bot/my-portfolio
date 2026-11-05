@@ -563,6 +563,9 @@ function viewMumae(){
   var X=DATA.derived.mumae,MM=DATA.data.mumae,w=h('div',{});
   if(!X||!X.ok){w.appendChild(h('div',{class:'warn'},'무매 자료 없음 — '+((X||{}).why||'')));return w;}
   var S=X.sets[MSET]||X.sets.confirmed,K=S.kpi;
+  var nOpen=X.open.length,nEnd=(MM.ended||[]).length,nMis=(MM.missing||[]).length;
+  w.appendChild(h('div',{class:'dist',style:'margin:0 2px 8px'},[h('span',{class:'chip',style:'background:#10B981;color:#fff'},'무매 진행 중 '+nOpen+'종목')].concat(nEnd?[h('span',{class:'chip',style:'background:var(--track);color:var(--sub)'},'최근 종료 '+(MM.ended.map(function(e){return e.symbol}).join('·')))]:[]).concat(nMis?[h('span',{class:'chip',style:'background:#FFE4E6;color:#9F1239'},'데이터 결측 '+nMis)]:[])));
+  if(nMis)w.appendChild(sect('mm-missing','데이터 결측 '+nMis+'건',function(){return h('div',{},MM.missing.map(function(m){return card(h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#9F1239'},m.symbol),bdg('manual','데이터 결측')),h('span',{class:'pct'},m.last_cycle_start?ymd(m.last_cycle_start)+' 시작':'사이클 없음')),h('div',{class:'note',style:'margin:6px 0 0'},m.why+' · 장부 사용 시드 '+usd(m.used_seed,0)+'. 체결 원장·앱 화면 확인 후 정정이 필요합니다.'))}));},true));
   w.appendChild(h('div',{class:'pbtns'},[['confirmed','확정(엑셀 87건)'],['with_restored','복원 포함']].map(function(s){return h('button',{class:'pbtn'+(MSET===s[0]?' on':''),onclick:function(){MSET=s[0];localStorage.setItem('mp_mset',s[0]);render();}},s[1])})));
   w.appendChild(h('div',{class:'note',style:'margin-top:-4px'},S.label+' · '+ymd(K.first)+' ~ '+ymd(K.last)+(MSET==='with_restored'?' · 복원분은 ':''),MSET==='with_restored'?bdg('rest','복원·미확인'):null,MSET==='with_restored'?' (앱 대조 전)':''));
   var kb=function(l,v,s,c){return h('div',{class:'kbox'},h('div',{class:'l'},l),h('div',{class:'v '+(c||'')},v),h('div',{class:'s'},s||''))};
@@ -585,7 +588,7 @@ function viewMumae(){
   w.appendChild(sect('mm-tl','타임라인 (세로=일자 · 가로=종목)',function(){return h('div',{},timeline(X.timeline),
     h('div',{class:'legend2'},h('span',{},h('b',{style:'background:#2563EB'}),'확정(엑셀) · 같은 종목 연속 회차는 진·연 교차, 시작일 굵은 윗선'),h('span',{},h('b',{style:'background:#2563EB59;outline:1px dashed #2563EB'}),'복원·미확인'),h('span',{},h('b',{style:'outline:1px dashed #64748B'}),'통계 제외'),h('span',{},'★ 확인요망')),
     h('div',{class:'note'},'막대를 누르거나(모바일) 올리면(PC) 상세가 나옵니다. 날짜는 미국장 추정일 기준.'));},false));
-  w.appendChild(sect('mm-open','진행 중 사이클',function(){
+  w.appendChild(sect('mm-open','진행 중 사이클 ('+nOpen+'건)',function(){
     return h('div',{},X.open.map(function(o){var col=zoneColor(o.progress_pct||0);
       return card(h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},o.symbol),bdg('ok','장부'),(o.dist_to_target_pct!=null&&o.dist_to_target_pct<=0)?bdg('star','익절 대기'):null),h('span',{class:'pct'},num(o.progress_pct,1)+'%')),
         h('div',{class:'grid',style:'margin:8px 0 0'},kv('진입일',ymd(o.entry)),kv('경과일',o.elapsed_days+'일'),kv('회차',num(o.T,2)+' / '+o.cycle_len),kv('투입 시드',usd(o.used_seed,0)+' / '+usd(o.seed,0)),
@@ -593,7 +596,7 @@ function viewMumae(){
   w.appendChild(sect('mm-gap','공백 구간 복원 (엑셀 마지막 청산 '+ymd(MM.meta.gap_cutoff_exclusive)+' 이후 종료)',function(){
     var t=h('table',{class:'tbl'},h('tr',{},['종목','진입','청산','기간','실현','수익률','상태'].map(function(s){return h('th',{},s)})));
     MM.gap.forEach(function(g){var ex=(X.excluded||[]).some(function(e){return e.symbol===g.symbol&&e.entry===g.entry});
-      t.appendChild(h('tr',{class:ex?'dim':''},h('td',{},g.symbol),h('td',{},ymd(g.entry)),h('td',{},ymd(g.exit)),h('td',{},g.days+'일'),h('td',{class:cls(g.realized)},sk(g.realized,function(v){return '$'+num(v,2)})),h('td',{},pc(g.return_pct)),h('td',{},ex?bdg('mute','통계 제외'):bdg('rest','복원·미확인'))));});
+      t.appendChild(h('tr',{class:ex?'dim':''},h('td',{},g.symbol),h('td',{},ymd(g.entry)),h('td',{},ymd(g.exit)),h('td',{},g.days+'일'),h('td',{class:cls(g.realized)},sk(g.realized,function(v){return '$'+num(v,2)})),h('td',{},pc(g.return_pct)),h('td',{},ex?bdg('mute','통계 제외'):[bdg('rest','복원·미확인'),g.state==='종료'?' ':null,g.state==='종료'?bdg('ok','종료 처리'):null])));});
     return h('div',{},h('div',{class:'hs'},t),(X.excluded||[]).map(function(e){return h('div',{class:'note'},'통계 제외 '+e.symbol+' '+ymd(e.entry)+'→'+ymd(e.exit)+': '+e.excluded)}),
       h('div',{class:'note'},'정본 우선순위: ① 엑셀(~'+md(MM.meta.gap_cutoff_exclusive)+') ② 메리츠 장부(10-26~) ③ 체결 복원(공백만). 엑셀 ★ 확인요망 '+MM.closed.filter(function(c){return c.star}).length+'건은 타임라인에 ★.'));},false));
   w.appendChild(sect('mm-cards','현재 사이클 · 다음 접수 줄 (장부)',function(){return viewMMcards()},false));
