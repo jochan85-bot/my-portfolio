@@ -223,7 +223,7 @@ function render(){
   $('asof').textContent='최종 갱신 '+tstr(DATA.generated_at)+' KST · 환율 '+(M.fx?num(M.fx,1):'—')+' ('+tstr(M.fx_asof)+')';
   var v=$('view');v.replaceChildren();
   var ageH=(Date.now()-new Date(DATA.generated_at).getTime())/3600000;
-  if(ageH>36)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+Math.floor(ageH)+'시간 전 기준입니다 — 갱신이 멈췄을 수 있습니다.'));
+  if(ageH>24)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+Math.floor(ageH)+'시간 전 기준입니다 — 갱신이 멈췄을 수 있습니다.'));
   if(M.pending&&M.pending.length)v.appendChild(h('div',{class:'warn'},'대기 중(합계 제외): '+M.pending.join(', ')));
   if(M.missing_fx)v.appendChild(h('div',{class:'warn'},'환율 원천이 없어 USD 항목의 KRW 합산이 불가합니다.'));
   var d=M.dod,dtxt='전일 대비 —';

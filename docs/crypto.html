@@ -233,7 +233,7 @@ function render(){
   $('asof').textContent='최종 갱신 '+tstr(DATA.generated_at)+' KST · 기준 '+tstr(D.asof)+' · 환율 '+(D.fx?num(D.fx,1):'—');
   var v=$('view');v.replaceChildren();
   var ageH=(Date.now()-new Date(DATA.generated_at).getTime())/3600000;
-  if(ageH>36)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+Math.floor(ageH)+'시간 전 기준입니다 — 갱신이 멈췄을 수 있습니다.'));
+  if(ageH>24)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+Math.floor(ageH)+'시간 전 기준입니다 — 갱신이 멈췄을 수 있습니다.'));
   if(D.kind==='crypto'&&!D.ok){v.appendChild(h('div',{class:'warn'},'크립토 대기 — '+(D.why||'스냅샷 없음')+' (합계에서 제외됨)'));return finish();}
   var box=function(l,x,s){return h('div',{class:'sbox'},h('div',{class:'l'},l),h('div',{class:'v'},x),h('div',{class:'s'},s||''))};
   v.appendChild(h('div',{class:'sum'},h('div',{class:'tt'},D.title+(D.kind==='dat'?' · 봇 매매 없음(오너 수동)':D.kind==='crypto'?' · 업비트(짜장이 스냅샷)':' · 메리츠')),

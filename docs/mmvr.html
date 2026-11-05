@@ -343,7 +343,7 @@ function render(){
   $('tabs').replaceChildren.apply($('tabs'),secs.map(function(s){return h('button',{class:'tab'+(SEC===s.id?' on':''),onclick:function(){SEC=s.id;render();window.scrollTo(0,0);}},s.label)}));
   var v=$('view');v.replaceChildren();
   var ageH=(Date.now()-new Date(DATA.generated_at).getTime())/3600000;
-  if(ageH>36)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+Math.floor(ageH)+'시간 전 기준입니다 — 갱신이 멈췄을 수 있습니다.'));
+  if(ageH>24)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+Math.floor(ageH)+'시간 전 기준입니다 — 갱신이 멈췄을 수 있습니다.'));
   if(!src.plan_session_open)v.appendChild(h('div',{class:'warn'},'다음 접수일이 휴장으로 계산됨 — 줄 목록 없음'));
   v.appendChild(SEC==='mm'?viewMM():SEC==='vr'?viewVR():SEC==='rec'?viewRec():SEC==='cyc'?viewCyc():h('div',{class:'empty'},'준비 중'));
   $('foot').textContent='열람 전용 · 원장 seq '+dash(src.ledger_seq)+' · 현재가·평단·수량은 브로커 조회 시각 기준 · 매매 판단·주문 기능 없음';
