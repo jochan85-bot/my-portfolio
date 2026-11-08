@@ -307,13 +307,27 @@ function freshness(){
 /* ---------- 상단 고정 요약 바 ---------- */
 function sumbar(){
   var O=DATA.derived.overview,M=DATA.main,d=O.dod,box=function(l,v,s,c,t){return h('div',{class:'sb',title:t||''},h('div',{class:'l'},l),h('div',{class:'v'+(c?' '+c:'')},v),h('div',{class:'s'},s||''))};
-  var pl=O.pnl_vs_principal,bd=O.principal_base_date?md(O.principal_base_date):'—';
-  $('sumbar').replaceChildren(
-    box('총자산',amt(O.total_krw),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(O.total_usd)),
-    box('기준자산+순입금',amt(O.principal),bd+' 기준·추정',null,'추적 시작일('+bd+') 총자산에 그 뒤 외부 입출금을 더한 값. 입출금이 비어 있는 계좌가 있어 추정입니다.'),
-    box('평가손익 ⓘ',amt(pl,true),pc(O.pnl_vs_principal_pct),cls(pl),'총자산 − (기준자산+순입금). 「보유 미실현손익(현금 제외)」과 다른 이유: 이 값은 현금·환율 변동·이미 실현한 손익까지 포함한 전체 증감이고, 보유 미실현손익은 지금 들고 있는 종목의 평가차익만입니다(계좌 탭 상단).'),
-    box('현금 비중',(O.cash_pct==null?'—':num(O.cash_pct,1)+'%'),krwShort(O.cash_krw)),
-    box('오늘 변동',d?amt(d.delta_krw,true):'—',d?pc(d.pct)+(d.partial?' · 일부':''):'첫 기록',d?cls(d.delta_krw):''));
+  var N=DATA.derived.nav,R0=N&&N.ok&&((N.returns||{})['전체']||{}),A=R0&&R0['시작~오늘'],Y=R0&&R0['올해'];
+  var todayBox=box('오늘 변동',d?amt(d.delta_krw,true):'—',d?pc(d.pct)+(d.partial?' · 일부':''):'첫 기록',d?cls(d.delta_krw):'');
+  if(A&&!A.status){
+    var cp=A.cum_pnl!=null?A.cum_pnl:A.pnl;
+    $('sumbar').replaceChildren(
+      box('총자산',amt(O.total_krw),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(O.total_usd)),
+      box('누적손익 ⓘ',amt(cp,true),fr(A.simple),cls(cp),'시작~오늘. 총자산 − 순입금(본인 입금 − 출금, 입출금 원장 기준)으로, 현금·환율 변동·실현손익을 모두 포함합니다. 비율은 순입금 기준.'),
+      box('XIRR ⓘ',fr(A.xirr),'시작~오늘',cls(A.xirr),'입출금 시점을 반영한 연환산 내부수익률(시작 '+ymd(A.since)+').'),
+      box('올해 손익 ⓘ',Y&&!Y.status?amt(Y.pnl,true):'—',Y&&!Y.status?fr(Y.dietz):'',Y&&!Y.status?cls(Y.pnl):'','올해 구간 손익(입출금 제외)과 수정 Dietz 수익률.'),
+      box('올해 XIRR ⓘ',Y&&!Y.status?fr(Y.xirr):'—','연환산',Y&&!Y.status?cls(Y.xirr):'','올해 구간 현금흐름 기준 연환산 내부수익률.'));
+    var un=O.unrealized_krw,tr=N.transit&&N.transit.n?'  ·  이관 중 '+N.transit.n+'종'+(N.transit.value_krw?'('+krwShort(N.transit.value_krw)+'원)':'')+'은 수익률에 포함, 총자산에는 아직 미반영':'';
+    var nt=$('sumnote');if(!nt){nt=h('div',{id:'sumnote',class:'note',style:'margin:4px 2px 0'});$('sumbar').insertAdjacentElement('afterend',nt);}
+    nt.textContent='오늘 '+(d?sk(d.delta_krw,krwShort)+'원 ('+pc(d.pct)+')':'첫 기록')+'  ·  보유분 미실현 '+sk(un,krwShort)+'원 ('+pc(O.unrealized_pct)+', 현금 제외 평가차익)'+tr;
+  }else{
+    var pl=O.pnl_vs_principal,bd=O.principal_base_date?md(O.principal_base_date):'—';
+    $('sumbar').replaceChildren(
+      box('총자산',amt(O.total_krw),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(O.total_usd)),
+      box('기준자산+순입금',amt(O.principal),bd+' 기준·추정',null,'추적 시작일('+bd+') 총자산에 그 뒤 외부 입출금을 더한 값. 입출금이 비어 있는 계좌가 있어 추정입니다.'),
+      box('평가손익 ⓘ',amt(pl,true),pc(O.pnl_vs_principal_pct),cls(pl),'총자산 − (기준자산+순입금).'),
+      box('현금 비중',(O.cash_pct==null?'—':num(O.cash_pct,1)+'%'),krwShort(O.cash_krw)),todayBox);
+  }
   $('cur').textContent=CUR==='KRW'?'₩ → $':'$ → ₩';
 }
 
@@ -344,7 +358,7 @@ function viewOverview(){
       h('div',{class:'note'},'줄을 누르면 해당 계좌로 이동합니다.'));
   }));
   M.notes.forEach(function(n){w.appendChild(h('div',{class:'note'},n))});
-  w.appendChild(h('div',{class:'note'},'기준자산+순입금 = '+(DATA.derived.trend.defs?DATA.derived.trend.defs.principal:'—')+'. 입출금이 비어 있는 계좌가 있어 「추정」입니다. 평가손익 = 총자산 − (기준자산+순입금). 보유 종목만의 평가차익은 「계좌」 탭 상단의 보유 미실현손익(현금 제외)입니다.'));
+  w.appendChild(h('div',{class:'note'},'누적손익 = 총자산 − 순입금(입출금 원장 기준, 「추이」 탭). 보유 종목만의 평가차익은 「계좌」 탭 상단의 보유 미실현손익(현금 제외)입니다.'));
   return w;
 }
 
@@ -422,7 +436,7 @@ function viewAccounts(){
   var M=DATA.main,P=(DATA.data.positions||{}).rows||[],w=h('div',{}),cat=function(i){return (M.categories||[]).filter(function(c){return c.id===i})[0]||{}};
   var O0=DATA.derived.overview;
   w.appendChild(card(h('div',{class:'ctop'},h('b',{},'보유 미실현손익 (현금 제외)'),h('span',{class:'pct '+cls(O0.unrealized_krw)},amt(O0.unrealized_krw,true))),
-    h('div',{class:'note',style:'margin:4px 0 0'},'지금 보유한 종목의 평가차익 합 '+pc(O0.unrealized_pct)+' · 상단 「평가손익」은 총자산 − 기준자산+순입금이라 값이 다릅니다.')));
+    h('div',{class:'note',style:'margin:4px 0 0'},'지금 보유한 종목의 평가차익 합 '+pc(O0.unrealized_pct)+' · 상단 「누적손익」은 순입금 기준 전체 손익(현금·환율·실현분 포함)이라 값이 다릅니다.')));
   var mkv=['mm','vr','dat','owner'].reduce(function(s,i){return s+(cat(i).value_krw||0)},0);
   var mcash=(M.cash||[]).filter(function(c){return c.account.indexOf('메리츠')===0}).reduce(function(s,c){return s+(c.krw||0)},0);
   w.appendChild(acctCard('meritz','메리츠',amt(mkv+mcash),'무매·VR·DAT·오너 직투 + 현금 · 현금 비중 '+(mkv+mcash?num(mcash/(mkv+mcash)*100,1):'—')+'%',function(){
@@ -578,7 +592,7 @@ function viewNav(){
     var t=h('table',{class:'tbl'},h('tr',{},['계좌',full?'순입금':'창 순유입','기말 자산','누적 손익'].map(function(s,j){return h('th',{title:j===1?N.defs.net_deposit:''},s)})));
     RA.forEach(function(a){
       var r=(N.returns[a]||{})[NAVWIN];if(!r||r.status){t.appendChild(h('tr',{},h('td',{},a,navBadges(N,a)),h('td',{colspan:3},'—')));return;}
-      t.appendChild(h('tr',{},h('td',{},h('b',{},a),navBadges(N,a)),h('td',{},amt(full?r.net_deposit:r.net_flow,true)),h('td',{},amt(r.end_nav)),h('td',{class:cls(r.cum_pnl!=null?r.cum_pnl:r.pnl)},amt(r.cum_pnl!=null?r.cum_pnl:r.pnl,true))));
+      t.appendChild(h('tr',{},h('td',{},h('b',{},a),(N.badges[a]||[]).length||((N.checks||{})[a]||{}).prov?h('div',{style:'margin-top:3px'},navBadges(N,a).slice(1)):null),h('td',{},amt(full?r.net_deposit:r.net_flow,true)),h('td',{},amt(r.end_nav)),h('td',{class:cls(r.cum_pnl!=null?r.cum_pnl:r.pnl)},amt(r.cum_pnl!=null?r.cum_pnl:r.pnl,true))));
       if(r.usd){var u=r.usd;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{},sk(full?u.net_deposit:u.net_flow,function(v){return '$'+num(v,0)})),h('td',{},usd(u.end_nav,0)),h('td',{class:cls(u.pnl)},sk(u.pnl,function(v){return '$'+num(v,0)}))));}
     });
     return t;})()));
@@ -587,11 +601,11 @@ function viewNav(){
     RA.forEach(function(a){
       var r=(N.returns[a]||{})[NAVWIN];if(!r||r.status){t.appendChild(h('tr',{},h('td',{},a),h('td',{colspan:3},'—')));return;}
       var sm=full?r.simple:r.dietz;
-      t.appendChild(h('tr',{},h('td',{},h('b',{},a)),h('td',{class:cls(sm),title:sm==null?(r.simple_note||''):''},fr(sm)),h('td',{class:cls(r.xirr),title:r.xirr==null?(r.xirr_note||''):''},fr(r.xirr)),h('td',{class:cls(r.twr)},fr(r.twr))));
-      if(r.usd){var u=r.usd,us=full?u.simple:u.dietz;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{class:cls(us)},fr(us)),h('td',{class:cls(u.xirr)},fr(u.xirr)),h('td',{class:cls(u.twr)},fr(u.twr))));}
+      t.appendChild(h('tr',{},h('td',{},h('b',{},a)),h('td',{class:cls(sm),title:sm==null?(r.simple_note||''):(full&&r.simple_basis?'누적손익 ÷ 역대 최대 누적 순입금('+krwShort(r.peak_net_deposit)+'원)':'')},fr(sm),full&&r.simple_basis?[' ',bdg('mute',r.simple_basis)]:null),h('td',{class:cls(r.xirr),title:r.xirr==null?(r.xirr_note||''):''},fr(r.xirr)),h('td',{class:cls(r.twr)},fr(r.twr))));
+      if(r.usd){var u=r.usd,us=full?u.simple:u.dietz;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{class:cls(us)},fr(us),full&&u.simple_basis?[' ',bdg('mute',u.simple_basis)]:null),h('td',{class:cls(u.xirr)},fr(u.xirr)),h('td',{class:cls(u.twr)},fr(u.twr))));}
     });
     return t;})()));
-  w.appendChild(h('div',{class:'note'},'원화 기준(환율 효과 포함) 위주, 달러 계좌는 └ USD 줄에 병기. 순입금 = 본인 입금 − 출금(수수료·세금은 비용, 배당·이자는 기타수익으로 제외). 전체 XIRR 은 계좌 흐름을 합산해 다시 구한 값이며 계좌별 가중평균이 아닙니다. 순입금이 0 이하면 단순 수익률은 정의되지 않아 — 로 표시하고 누적 손익 금액만 보입니다. '+NAVWIN+(full?'':' 구간의 단순 값은 수정 Dietz 입니다.')));
+  w.appendChild(h('div',{class:'note'},'원화 기준(환율 효과 포함) 위주, 달러 계좌는 └ USD 줄에 병기. 순입금 = 본인 입금 − 출금(수수료·세금은 비용, 배당·이자는 기타수익으로 제외). 전체 XIRR 은 계좌 흐름을 합산해 다시 구한 값이며 계좌별 가중평균이 아닙니다. 순입금이 0 이하인 청산 계좌는 누적손익 ÷ 역대 최대 누적 순입금으로 「청산 계좌 기준」 표기를 붙여 보여줍니다. '+(N.transit&&N.transit.n?'이관 중 '+N.transit.n+'종(토스 출고 → 메리츠 입고 대기)은 어느 계좌에도 넣지 않고 「전체」에만 포함합니다. ':'')+NAVWIN+(full?'':' 구간의 단순 값은 수정 Dietz 입니다.')));
   // 계좌별 상세
   NAVACCT.forEach(function(a){w.appendChild(sect('nav-'+a,a+' 상세',function(){return navDetail(N,a)},false,navBadges(N,a)));});
   return w;
@@ -599,7 +613,7 @@ function viewNav(){
 function navDetail(N,a){
   var d=N.detail[a],b=h('div',{});
   var carried=0;d.daily.forEach(function(r){carried+=r[6]});
-  var inc=[];Object.keys(d.income||{}).forEach(function(k){var p=k.split(':'),nm={DIVIDEND:'배당',TAX:'세금(−=납부)',INTEREST:'이자·이용료'}[p[0]];inc.push(kv(nm+' '+p[1],p[1]==='USD'?sk(d.income[k],function(v){return '$'+num(v,2)}):sk(d.income[k],function(v){return num(v,0)+'원'})));});
+  var inc=[];Object.keys(d.income||{}).forEach(function(k){var p=k.split(':'),nm={DIVIDEND:'배당',TAX:'세금(−=납부)',INTEREST:'이자·이용료',FEE:'수수료·소액 출금(−)'}[p[0]];inc.push(kv(nm+' '+p[1],p[1]==='USD'?sk(d.income[k],function(v){return '$'+num(v,2)}):sk(d.income[k],function(v){return num(v,0)+'원'})));});
   b.appendChild(h('div',{class:'grid'},kv('기록 구간',ymd(d.start)+' ~ '+ymd(d.last)),kv('가격 이월일 비율',d.daily.length?num(carried/d.daily.length*100,1)+'% ('+carried+'/'+d.daily.length+'일)':'—'),inc));
   if(a==='삼성')b.appendChild(h('div',{class:'note'},bdg('mute','청산 계좌(2024-05~2025-02)'),' 보유 종목을 모두 정리한 뒤 잔액 위주로 남은 계좌입니다. 한투 입고분은 원가를 알 수 없어 이체일 종가로 평가했습니다.'));
   b.appendChild(h('div',{class:'ct',style:'margin:8px 0 4px'},'입출금 · 이체 ('+d.flows.length+'건)'));
