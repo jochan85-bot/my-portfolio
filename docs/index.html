@@ -528,6 +528,97 @@ function viewTrend(){
   return w;
 }
 
+/* ---------- 탭3 추이 — 입출금 원장 기반 재구축 (MYPORT-NAV-REBUILD-20261108) ---------- */
+var NAVA=(function(){try{var a=JSON.parse(localStorage.getItem('mp_nav_acc')||'["전체"]');return a.length?a:['전체'];}catch(e){return ['전체'];}})();
+var NAVLOG=localStorage.getItem('mp_nav_log')==='1',NAVWIN=localStorage.getItem('mp_nav_win')||'시작~오늘',NAVR=localStorage.getItem('mp_nav_rng')||'all';
+var NAVC={'전체':'#1E3A8A','삼성':'#2563EB','메리츠':'#059669','토스KR':'#D97706','토스US':'#DC2626','업비트':'#7C3AED'};
+var NAVACCT=['삼성','메리츠','토스KR','토스US','업비트'],NAVTYPE={DEPOSIT:'입금',WITHDRAW:'출금',TRANSFER_IN:'이체 입',TRANSFER_OUT:'이체 출'};
+function navSave(){localStorage.setItem('mp_nav_acc',JSON.stringify(NAVA));localStorage.setItem('mp_nav_log',NAVLOG?'1':'0');localStorage.setItem('mp_nav_win',NAVWIN);localStorage.setItem('mp_nav_rng',NAVR);}
+function navBadges(N,a){var out=[];(N.badges[a]||[]).forEach(function(b){out.push(' ',bdg(/추정/.test(b)?'est':'mute',b));});var c=(N.checks||{})[a];if(c&&c.prov)out.push(' ',bdg('stale','잠정',c.note||''));return out;}
+function navFlowTxt(c,m){return c==='USD'?sk(m,function(v){return '$'+num(v,2)}):sk(m,function(v){return num(v,0)+'원'});}
+function viewNav(){
+  var N=DATA.derived.nav,w=h('div',{}),fxNow=FX();
+  var D=N.dates,n=D.length;
+  var from=0;if(NAVR!=='all'){var last=new Date(D[n-1]+'T00:00:00Z'),f={'1Y':new Date(last-365*864e5),'3M':new Date(last-91*864e5),'YTD':new Date(Date.UTC(last.getUTCFullYear(),0,1))}[NAVR].toISOString().slice(0,10);while(from<n-1&&D[from]<f)from++;}
+  var idx=[];for(var i=from;i<n;i++)idx.push(i);
+  var x=idx.map(function(i){return ts(D[i])});
+  var cv=function(v,i){return v==null?null:(CUR==='USD'?v/N.fx[i]:v)},fm=function(v){return CUR==='USD'?usdS(v):krwShort(v)};
+  // 컨트롤
+  w.appendChild(h('div',{class:'pbtns'},[['all','전체'],['1Y','1년'],['YTD','올해'],['3M','3개월']].map(function(r){return h('button',{class:'pbtn'+(NAVR===r[0]?' on':''),onclick:function(){NAVR=r[0];navSave();render();}},r[1])}),
+    h('button',{class:'pbtn'+(NAVLOG?' on':''),style:'margin-left:auto',onclick:function(){NAVLOG=!NAVLOG;navSave();render();}},NAVLOG?'로그':'선형')));
+  w.appendChild(h('div',{class:'pbtns'},['전체'].concat(NAVACCT).map(function(a){var on=NAVA.indexOf(a)>=0;return h('button',{class:'pbtn'+(on?' on':''),style:on?'background:'+NAVC[a]+';border-color:'+NAVC[a]:'',onclick:function(){if(a==='전체')NAVA=['전체'];else{NAVA=NAVA.filter(function(q){return q!=='전체'});var j=NAVA.indexOf(a);if(j>=0)NAVA.splice(j,1);else NAVA.push(a);if(!NAVA.length)NAVA=['전체'];}navSave();render();}},a)})));
+  // 차트: 선택 계정 × (자산 실선, 순입금 점선)
+  var ser=[{}],dat=[x],leg=[];
+  NAVA.forEach(function(a){
+    var as=N.series[a],cn=N.cum_net_deposit[a];
+    var ya=idx.map(function(i){var v=cv(as[i],i);return v==null||(NAVLOG&&v<=0)?null:v});
+    var yn=idx.map(function(i){var v=cv(cn[i],i);return v==null||v<=0||as[i]==null?null:v});
+    ser.push({label:a+' 자산',stroke:NAVC[a],width:2,points:{show:false}});dat.push(ya);
+    ser.push({label:a+' 순입금',stroke:NAVC[a],width:1.5,dash:[6,4],points:{show:false}});dat.push(yn);
+    leg.push(h('span',{},h('i',{style:'border-color:'+NAVC[a]}),a+' 자산'),h('span',{},h('i',{class:'d',style:'border-color:'+NAVC[a]}),a+' 순입금'));
+  });
+  var marks=N.marks.filter(function(m){return (NAVA.indexOf('전체')>=0||NAVA.indexOf(m.a)>=0)&&m.d>=D[from]});
+  var c1=h('div',{class:'chart'},h('div',{class:'ct'},'총자산 · 누적 순입금 · 입출금 마커',CUR==='USD'?h('span',{class:'bdg mute'},'일별 환율로 환산'):null),h('div',{}),
+    h('div',{class:'legend2'},leg,h('span',{},h('b',{style:'background:#059669'}),'입금 ▲'),h('span',{},h('b',{style:'background:#DC2626'}),'출금 ▼'),h('span',{},'두 선의 간격 = 누적 손익')));
+  w.appendChild(c1);
+  var span=(ts(D[n-1])-x[0])/86400;
+  mkChart(c1.children[1],{height:260,scales:{x:{time:false},y:NAVLOG?{distr:3}:{}},axes:[
+      {stroke:cssv('--sub'),grid:{show:false},ticks:{show:false},values:function(u,vs){return vs.map(function(v){var d=new Date(v*1000);return span>400?String(d.getUTCFullYear()).slice(2)+'.'+(d.getUTCMonth()+1):(d.getUTCMonth()+1)+'/'+d.getUTCDate();})}},axisY(fm)],
+    cursor:{points:{size:5}},legend:{show:false},series:ser,
+    hooks:{draw:[function(u){var ctx=u.ctx,r=window.devicePixelRatio||1,yb=u.bbox.top+u.bbox.height-8*r;ctx.save();marks.forEach(function(m){var xp=u.valToPos(ts(m.d),'x',true);if(xp<u.bbox.left||xp>u.bbox.left+u.bbox.width)return;var s=(3+Math.min(5,Math.sqrt(Math.abs(m.k)/2e7)*1.6))*r;ctx.beginPath();if(m.t==='DEPOSIT'){ctx.moveTo(xp,yb-s);ctx.lineTo(xp-s,yb+s);ctx.lineTo(xp+s,yb+s);ctx.fillStyle='rgba(5,150,105,.75)';}else{ctx.moveTo(xp,yb+s);ctx.lineTo(xp-s,yb-s);ctx.lineTo(xp+s,yb-s);ctx.fillStyle='rgba(220,38,38,.75)';}ctx.closePath();ctx.fill();});ctx.restore();}],
+      ready:[function(u){hoverTip(u,function(j){var i=idx[j],t='<b>'+D[i]+'</b>';NAVA.forEach(function(a){t+='<br><span style="color:'+NAVC[a]+'">●</span> '+a+' '+fm(cv(N.series[a][i],i))+' <span style="opacity:.7">(순입금 '+fm(cv(N.cum_net_deposit[a][i],i))+')</span>';});
+        marks.filter(function(m){return m.d===D[i]}).forEach(function(m){t+='<br>'+(m.t==='DEPOSIT'?'▲ 입금 ':'▼ 출금 ')+m.a+' '+krwShort(m.k)+'원'+(m.est?' (추정)':'');});return t;})}]}},dat);
+  w.appendChild(h('div',{class:'note'},'마커는 외부 입출금(본인 은행·타사 계좌 ↔ 본 계좌)만 표시합니다. 계좌 간 이체는 마커 없이 해당 계좌의 순입금 선에만 반영됩니다. '+(NAVLOG?'로그 축에서는 0 이하 값은 그리지 않습니다. ':'')+'기준 '+N.asof+'.'));
+  // 수익률 카드
+  var WINS=['시작~오늘','올해','최근 1년','최근 3개월'];
+  w.appendChild(h('div',{class:'pbtns'},WINS.map(function(k){return h('button',{class:'pbtn'+(NAVWIN===k?' on':''),onclick:function(){NAVWIN=k;navSave();render();}},k)})));
+  var full=NAVWIN==='시작~오늘';
+  var RA=['전체'].concat(NAVACCT);
+  w.appendChild(h('div',{class:'hs'},(function(){
+    var t=h('table',{class:'tbl'},h('tr',{},['계좌',full?'순입금':'창 순유입','기말 자산','누적 손익'].map(function(s,j){return h('th',{title:j===1?N.defs.net_deposit:''},s)})));
+    RA.forEach(function(a){
+      var r=(N.returns[a]||{})[NAVWIN];if(!r||r.status){t.appendChild(h('tr',{},h('td',{},a,navBadges(N,a)),h('td',{colspan:3},'—')));return;}
+      t.appendChild(h('tr',{},h('td',{},h('b',{},a),navBadges(N,a)),h('td',{},amt(full?r.net_deposit:r.net_flow,true)),h('td',{},amt(r.end_nav)),h('td',{class:cls(r.cum_pnl!=null?r.cum_pnl:r.pnl)},amt(r.cum_pnl!=null?r.cum_pnl:r.pnl,true))));
+      if(r.usd){var u=r.usd;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{},sk(full?u.net_deposit:u.net_flow,function(v){return '$'+num(v,0)})),h('td',{},usd(u.end_nav,0)),h('td',{class:cls(u.pnl)},sk(u.pnl,function(v){return '$'+num(v,0)}))));}
+    });
+    return t;})()));
+  w.appendChild(h('div',{class:'hs',style:'margin-top:6px'},(function(){
+    var t=h('table',{class:'tbl'},h('tr',{},[['계좌',''],[full?'단순 ⓘ':'창 단순 ⓘ',full?N.defs.simple:N.defs.dietz],['XIRR ⓘ',N.defs.xirr],['TWR ⓘ',N.defs.twr]].map(function(s){return h('th',{title:s[1]},s[0])})));
+    RA.forEach(function(a){
+      var r=(N.returns[a]||{})[NAVWIN];if(!r||r.status){t.appendChild(h('tr',{},h('td',{},a),h('td',{colspan:3},'—')));return;}
+      var sm=full?r.simple:r.dietz;
+      t.appendChild(h('tr',{},h('td',{},h('b',{},a)),h('td',{class:cls(sm),title:sm==null?(r.simple_note||''):''},fr(sm)),h('td',{class:cls(r.xirr),title:r.xirr==null?(r.xirr_note||''):''},fr(r.xirr)),h('td',{class:cls(r.twr)},fr(r.twr))));
+      if(r.usd){var u=r.usd,us=full?u.simple:u.dietz;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{class:cls(us)},fr(us)),h('td',{class:cls(u.xirr)},fr(u.xirr)),h('td',{class:cls(u.twr)},fr(u.twr))));}
+    });
+    return t;})()));
+  w.appendChild(h('div',{class:'note'},'원화 기준(환율 효과 포함) 위주, 달러 계좌는 └ USD 줄에 병기. 순입금 = 본인 입금 − 출금(수수료·세금은 비용, 배당·이자는 기타수익으로 제외). 전체 XIRR 은 계좌 흐름을 합산해 다시 구한 값이며 계좌별 가중평균이 아닙니다. 순입금이 0 이하면 단순 수익률은 정의되지 않아 — 로 표시하고 누적 손익 금액만 보입니다. '+NAVWIN+(full?'':' 구간의 단순 값은 수정 Dietz 입니다.')));
+  // 계좌별 상세
+  NAVACCT.forEach(function(a){w.appendChild(sect('nav-'+a,a+' 상세',function(){return navDetail(N,a)},false,navBadges(N,a)));});
+  return w;
+}
+function navDetail(N,a){
+  var d=N.detail[a],b=h('div',{});
+  var carried=0;d.daily.forEach(function(r){carried+=r[6]});
+  var inc=[];Object.keys(d.income||{}).forEach(function(k){var p=k.split(':'),nm={DIVIDEND:'배당',TAX:'세금(−=납부)',INTEREST:'이자·이용료'}[p[0]];inc.push(kv(nm+' '+p[1],p[1]==='USD'?sk(d.income[k],function(v){return '$'+num(v,2)}):sk(d.income[k],function(v){return num(v,0)+'원'})));});
+  b.appendChild(h('div',{class:'grid'},kv('기록 구간',ymd(d.start)+' ~ '+ymd(d.last)),kv('가격 이월일 비율',d.daily.length?num(carried/d.daily.length*100,1)+'% ('+carried+'/'+d.daily.length+'일)':'—'),inc));
+  if(a==='삼성')b.appendChild(h('div',{class:'note'},bdg('mute','청산 계좌(2024-05~2025-02)'),' 보유 종목을 모두 정리한 뒤 잔액 위주로 남은 계좌입니다. 한투 입고분은 원가를 알 수 없어 이체일 종가로 평가했습니다.'));
+  b.appendChild(h('div',{class:'ct',style:'margin:8px 0 4px'},'입출금 · 이체 ('+d.flows.length+'건)'));
+  var t=h('table',{class:'tbl'},h('tr',{},['날짜','종류','금액','구분','메모'].map(function(s){return h('th',{},s)})));
+  d.flows.slice().reverse().forEach(function(f){t.appendChild(h('tr',{},h('td',{},ymd(f.d)),h('td',{},NAVTYPE[f.t]||f.t),h('td',{class:cls(f.m)},navFlowTxt(f.c,f.m)),h('td',{},f.e?'외부':'내부',f.est?[' ',bdg('est','추정')]:null),h('td',{style:'text-align:left;white-space:normal;min-width:180px'},f.memo)))});
+  b.appendChild(h('div',{class:'hs'},t));
+  b.appendChild(h('div',{class:'ct',style:'margin:10px 0 4px'},'일별 자산 (월별로 접힘)'));
+  var months={},order=[];d.daily.forEach(function(r){var m=r[0].slice(0,7);if(!months[m]){months[m]=[];order.push(m);}months[m].push(r);});
+  order.slice().reverse().forEach(function(m,k){
+    var rows=months[m],end=rows[rows.length-1];
+    var dt=h('details',{style:'margin:3px 0'});if(k===0)dt.setAttribute('open','');
+    dt.appendChild(h('summary',{style:'cursor:pointer;font-size:12px;padding:4px 2px'},m+' · 월말 '+krwShort(end[1])+'원'));
+    var tb=h('table',{class:'tbl'},h('tr',{},['날짜','총자산','현금 KRW','현금 USD','보유평가','환율','가격'].map(function(s){return h('th',{},s)})));
+    rows.slice().reverse().forEach(function(r){tb.appendChild(h('tr',{},h('td',{},md(r[0])),h('td',{},num(r[1],0)),h('td',{},num(r[2],0)),h('td',{},num(r[3],2)),h('td',{},num(r[4],0)),h('td',{},num(r[5],1)),h('td',{},r[6]?bdg('mute','이월'):'')))});
+    dt.appendChild(h('div',{class:'hs'},tb));b.appendChild(dt);
+  });
+  return b;
+}
+
 /* ---------- 탭4 무매 ---------- */
 function hbars(rows,lab,val,sub,col){var mx=Math.max.apply(null,rows.map(function(r){return Math.abs(val(r))}).concat([1]));
   return h('div',{},rows.map(function(r){var v=val(r);return h('div',{class:'hrow'},h('span',{},lab(r)),h('div',{class:'hb'},h('i',{style:'width:'+(Math.abs(v)/mx*100)+'%;background:'+(col||(v<0?'#3B82F6':'#10B981'))})),h('span',{class:'hv'},sub(r)));}));}
@@ -755,7 +846,7 @@ function render(){
   sumbar();
   var v=$('view');v.replaceChildren();
   if(F&&F.stale)v.appendChild(h('div',{class:'warn'},'⚠ 예정된 갱신('+dw(F.last)+')이 '+((DATA.derived.schedule||{}).grace_h||3)+'시간 넘게 반영되지 않았습니다 — 갱신이 멈췄을 수 있습니다.'));
-  v.appendChild(TAB==='overview'?viewOverview():TAB==='accounts'?viewAccounts():TAB==='trend'?viewTrend():TAB==='mumae'?viewMumae():viewVR());
+  v.appendChild(TAB==='overview'?viewOverview():TAB==='accounts'?viewAccounts():TAB==='trend'?(DATA.derived.nav&&DATA.derived.nav.ok?viewNav():viewTrend()):TAB==='mumae'?viewMumae():viewVR());
   $('foot').textContent='열람 전용 · 원장 seq '+dash(src.ledger_seq)+' · 브로커 조회 '+tstr(src.snapshot_asof)+' · 매매 판단·주문 기능 없음 · 차트 uPlot(MIT)';
   requestAnimationFrame(function(){LIVE.forEach(function(f){try{f()}catch(e){console.error(e)}});LIVE=[];});
 }
