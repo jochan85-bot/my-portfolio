@@ -329,8 +329,7 @@ function viewBO(){
   w.appendChild(sect('bo-kpi','요약',function(){return h('div',{},h('div',{class:'kgrid'},
     kbx('누적 실현손익',cur(K.realized),K.fees!=null?'수수료·세금 '+(ccy==='USD'?'$'+num(K.fees,0):krwShort(K.fees)+'원')+' ('+K.fees_n+'건 확인)':'',cls(K.realized)),
     kbx('보유분 미실현',cur(K.unrealized),K.n_open+'종목',cls(K.unrealized)),kbx('총 손익',cur(tot),'실현 + 미실현',cls(tot)),
-    kbx('수익률 ① 장부 기준',pc(p1),'초기 투입금 대비('+(BOM==='KR'?'₩4천만':BOM==='US'?'$4만':'합산')+')',cls(p1)),
-    kbx('수익률 ② 계좌 순입금',BOM==='KR'?fr(nk.simple):BOM==='US'?fr((nu.usd||{}).simple):'—',BOM==='KR'?'토스 KR 누적손익 '+krwShort(nk.cum_pnl)+'원':BOM==='US'?'토스 US 누적손익 $'+num((nu.usd||{}).pnl,0):'시장별로 보세요','dn'),
+    kbx('수익률 (섹터 장부 기준)',pc(p1),'초기 투입금 대비('+(BOM==='KR'?'₩4천만':BOM==='US'?'$4만':'합산')+')',cls(p1)),
     kbx('거래 수 · 승률',K.n+'건 · '+(K.win_rate==null?'—':num(K.win_rate,1)+'%'),'승 '+K.wins+' / 패 '+K.losses),
     kbx('평균 수익 · 손실',pc(K.avg_win_pct,2)+' · '+pc(K.avg_loss_pct,2),'손익비 '+(K.payoff==null?'—':num(K.payoff,2))),
     kbx('기대값(거래당)',pc(K.expectancy_pct,2),[cur(K.expectancy_amt)],cls(K.expectancy_pct)),
@@ -338,10 +337,12 @@ function viewBO(){
     kbx('최대 낙폭',K.max_dd==null?'—':cur(K.max_dd),'누적 손익 곡선 기준'+(BOP==='all'?'':' (전 구간)'),'dn'),
     kbx('최고 · 최저 1건',pc(K.best,1)+' · '+pc(K.worst,1),''),
     kbx('오너 재량 청산',[K.owner_liq.n+'건 · ',cur(K.owner_liq.realized)],'통계 분리(승률·평균 제외)',cls(K.owner_liq.realized))),
-    h('div',{class:'note',style:'margin-top:6px'},'통계 대상 = 청산 완료 거래 중 오너 재량 청산·IPM 개설분('+K.ipm_excluded+'건)·이사 제외분을 뺀 '+K.n+'건. ② 계좌 순입금 기준은 「추이」 탭 토스 계좌 값 재사용 — '+X.notes[2].split('—')[1]));}));
+    h('div',{class:'note',style:'margin-top:6px'},'통계 대상 = 청산 완료 거래 중 오너 재량 청산·IPM 개설분('+K.ipm_excluded+'건)·이사 제외분을 뺀 '+K.n+'건.'),
+    h('div',{class:'note'},'참고 — 토스 구간(이관 전) 계좌 순입금 기준 수익률: KR '+fr(nk.simple)+' (누적손익 '+krwShort(nk.cum_pnl)+'원) · US '+fr((nu.usd||{}).simple)+' (누적손익 $'+num((nu.usd||{}).pnl,0)+'). 「추이」 탭 토스 계좌 값 재사용. 메리츠는 무매·VR·DAT 와 공용 현금이라 계좌 기준 수익률을 정의할 수 없습니다.'));}));
   w.appendChild(sect('bo-curve','누적 손익 곡선 (실현+미실현) · QQQ·KOSPI 참고선',function(){
-    var ser=[{name:'돌파 손익(% 초기 투입금)',color:'#F97316',vals:C.pct,w:2.2,fill:true},{name:'QQQ',color:'#2563EB',vals:C.bench.QQQ,dash:'5 4'},{name:'KOSPI',color:'#DC2626',vals:C.bench.KOSPI,dash:'5 4'}];
-    return h('div',{},card(svgLine(C.dates,ser,{h:230,fmt:function(v){return num(v,1)+'%'},zero:true})),h('div',{class:'note'},'단순 비교: 지수 선은 '+md(X.start)+' 이후 지수 수익률이고 돌파 손익은 초기 투입금 대비 누적 손익(현금 비중·입출금 시점 미반영). 마지막 '+C.dates[C.dates.length-1]+' 손익 '+(BOM==='US'?'$'+num(C.pnl[C.pnl.length-1],0):krwShort(C.pnl[C.pnl.length-1])+'원')+'.'));}));
+    var BM=X.bench_meta||{},kv=(BM.KOSPI||{}).verified,ser=[{name:'돌파 손익(% 초기 투입금)',color:'#F97316',vals:C.pct,w:2.2,fill:true},{name:'QQQ',color:'#2563EB',vals:C.bench.QQQ,dash:'5 4'},{name:'KOSPI'+(kv?'':' (검증 필요)'),color:'#DC2626',vals:C.bench.KOSPI,dash:'5 4'}];
+    return h('div',{},card(svgLine(C.dates,ser,{h:230,fmt:function(v){return num(v,1)+'%'},zero:true})),h('div',{class:'note'},'단순 비교: 지수 선은 '+md(X.start)+' 이후 지수 수익률이고 돌파 손익은 초기 투입금 대비 누적 손익(현금 비중·입출금 시점 미반영). 마지막 '+C.dates[C.dates.length-1]+' 손익 '+(BOM==='US'?'$'+num(C.pnl[C.pnl.length-1],0):krwShort(C.pnl[C.pnl.length-1])+'원')+'.'),
+      h('div',{class:'note'},'지수 원천: QQQ = '+((BM.QQQ||{}).source||'종가 캐시')+((BM.QQQ||{}).verified?' · 검증 '+(BM.QQQ||{}).verified:'')+' / KOSPI = '+((BM.KOSPI||{}).source||'^KS11')+(kv?' · 검증 '+kv:' · 검증 필요')+'.'));}));
   w.appendChild(sect('bo-month','월별 실현손익',function(){return card(svgBars(CH.monthly.map(function(m){return {label:m.k,v:m.realized,sub:m.n+'건'+(m.owner_liq?' · 오너 청산 '+(ccy==='USD'?'$'+num(m.owner_liq,0):krwShort(m.owner_liq)+'원'):'')}}),{fmt:function(v){return ccy==='USD'?usdS(v):krwShort(v)}}))}));
   w.appendChild(sect('bo-hist','거래별 수익률 분포',function(){return card(hbars(CH.hist,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#0EA5E9'))},false));
   w.appendChild(sect('bo-reason','청산 사유별',function(){
@@ -489,7 +490,7 @@ function xirrCell(r){var n=xirrNote(r);return n?[fr(r.xirr),h('div',{style:'font
 function sumbar(){
   var O=DATA.derived.overview,M=DATA.main,d=O.dod,box=function(l,v,s,c,t){return h('div',{class:'sb',title:t||''},h('div',{class:'l'},l),h('div',{class:'v'+(c?' '+c:'')},v),h('div',{class:'s'},s||''))};
   var N=DATA.derived.nav,R0=N&&N.ok&&((N.returns||{})['전체']||{}),A=R0&&R0['시작~오늘'],Y=R0&&R0['올해'];
-  var todayBox=box('오늘 변동',d?amt(d.delta_krw,true):'—',d?pc(d.pct)+(d.partial?' · 일부':''):'첫 기록',d?cls(d.delta_krw):'');
+  var todayBox=d&&d.basis_change?box('오늘 변동','—','집계 기준 정정','', '전일 기록('+md(d.base_date)+')이 구 집계 기준(돌파매매 이중 계상)이라 비교하지 않습니다. 익일부터 정상 표시.'):box('오늘 변동',d?amt(d.delta_krw,true):'—',d?pc(d.pct)+(d.partial?' · 일부':''):'첫 기록',d?cls(d.delta_krw):'');
   if(A&&!A.status){
     var cp=A.cum_pnl!=null?A.cum_pnl:A.pnl;
     $('sumbar').replaceChildren(
@@ -500,7 +501,7 @@ function sumbar(){
       box('올해 XIRR ⓘ',Y&&!Y.status?fr(Y.xirr):'—',Y&&!Y.status?xirrSub(Y,'연환산'):'',Y&&!Y.status?cls(Y.xirr):'','올해 구간 현금흐름 기준 연환산 내부수익률.'));
     var un=O.unrealized_krw,T0=transitInfo(),tr=T0?'  ·  이관 중 '+T0.n+'종 '+krwShort(T0.value_krw)+'원 포함(토스 출고 → 메리츠 입고 대기, 마지막 종가 평가)':'';
     var nt=$('sumnote');if(!nt){nt=h('div',{id:'sumnote',class:'note',style:'margin:4px 2px 0'});$('sumbar').insertAdjacentElement('afterend',nt);}
-    nt.textContent='오늘 '+(d?sk(d.delta_krw,krwShort)+'원 ('+pc(d.pct)+')':'첫 기록')+'  ·  보유분 미실현 '+sk(un,krwShort)+'원 ('+pc(O.unrealized_pct)+', 현금 제외 평가차익)'+tr;
+    nt.textContent='오늘 '+(d&&d.basis_change?'— (집계 기준 정정)':d?sk(d.delta_krw,krwShort)+'원 ('+pc(d.pct)+')':'첫 기록')+'  ·  보유분 미실현 '+sk(un,krwShort)+'원 ('+pc(O.unrealized_pct)+', 현금 제외 평가차익)'+tr;
   }else{
     var pl=O.pnl_vs_principal,bd=O.principal_base_date?md(O.principal_base_date):'—';
     $('sumbar').replaceChildren(
