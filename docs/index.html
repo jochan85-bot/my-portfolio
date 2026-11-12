@@ -495,7 +495,7 @@ function sumbar(){
     var cp=A.cum_pnl!=null?A.cum_pnl:A.pnl;
     $('sumbar').replaceChildren(
       box('총자산',amt(totalWithTransit()),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(totalWithTransit()/O.fx),null,transitInfo()?'이관 중 '+transitInfo().n+'종('+krwShort(transitInfo().value_krw)+'원) 포함':''),
-      box('누적손익 ⓘ',amt(cp,true),fr(A.simple),cls(cp),'시작~오늘. 총자산 − 순입금(본인 입금 − 출금, 입출금 원장 기준)으로, 현금·환율 변동·실현손익을 모두 포함합니다. 비율은 순입금 기준.'),
+      box('누적손익 ⓘ',amt(cp,true),fr(A.simple),cls(cp),'시작~오늘. 총자산(위 칸과 같은 브로커 스냅샷 합) − 순입금(본인 입금 − 출금, 입출금 원장 기준)으로, 현금·환율 변동·실현손익을 모두 포함합니다. 비율은 순입금 기준. 빌드 시 「총자산 − 순입금 = 누적손익」 항등식을 검사합니다.'),
       box('XIRR ⓘ',fr(A.xirr),xirrSub(A,'시작~오늘'),cls(A.xirr),'입출금 시점을 반영한 연환산 내부수익률(시작 '+ymd(A.since)+').'),
       box('올해 손익 ⓘ',Y&&!Y.status?amt(Y.pnl,true):'—',Y&&!Y.status?fr(Y.dietz):'',Y&&!Y.status?cls(Y.pnl):'','올해 구간 손익(입출금 제외)과 수정 Dietz 수익률.'),
       box('올해 XIRR ⓘ',Y&&!Y.status?fr(Y.xirr):'—',Y&&!Y.status?xirrSub(Y,'연환산'):'',Y&&!Y.status?cls(Y.xirr):'','올해 구간 현금흐름 기준 연환산 내부수익률.'));
@@ -776,7 +776,9 @@ function viewNav(){
     hooks:{draw:[function(u){var ctx=u.ctx,r=window.devicePixelRatio||1,yb=u.bbox.top+u.bbox.height-8*r;ctx.save();marks.forEach(function(m){var xp=u.valToPos(ts(m.d),'x',true);if(xp<u.bbox.left||xp>u.bbox.left+u.bbox.width)return;var s=(3+Math.min(5,Math.sqrt(Math.abs(m.k)/2e7)*1.6))*r;ctx.beginPath();if(m.t==='DEPOSIT'){ctx.moveTo(xp,yb-s);ctx.lineTo(xp-s,yb+s);ctx.lineTo(xp+s,yb+s);ctx.fillStyle='rgba(5,150,105,.75)';}else{ctx.moveTo(xp,yb+s);ctx.lineTo(xp-s,yb-s);ctx.lineTo(xp+s,yb-s);ctx.fillStyle='rgba(220,38,38,.75)';}ctx.closePath();ctx.fill();});ctx.restore();}],
       ready:[function(u){hoverTip(u,function(j){var i=idx[j],t='<b>'+D[i]+'</b>';NAVA.forEach(function(a){t+='<br><span style="color:'+NAVC[a]+'">●</span> '+a+' '+fm(cv(N.series[a][i],i))+' <span style="opacity:.7">(순입금 '+fm(cv(N.cum_net_deposit[a][i],i))+')</span>';});
         marks.filter(function(m){return m.d===D[i]}).forEach(function(m){t+='<br>'+(m.t==='DEPOSIT'?'▲ 입금 ':'▼ 출금 ')+m.a+' '+krwShort(m.k)+'원'+(m.est?' (추정)':'');});return t;})}]}},dat);
-  w.appendChild(h('div',{class:'note'},'마커는 외부 입출금(본인 은행·타사 계좌 ↔ 본 계좌)만 표시합니다. 계좌 간 이체는 마커 없이 해당 계좌의 순입금 선에만 반영됩니다. '+(NAVLOG?'로그 축에서는 0 이하 값은 그리지 않습니다. ':'')+'기준 '+N.asof+'.'));
+  var EP=N.endpoint||{};
+  w.appendChild(h('div',{class:'note'},'마커는 외부 입출금(본인 은행·타사 계좌 ↔ 본 계좌)만 표시합니다. 계좌 간 이체는 마커 없이 해당 계좌의 순입금 선에만 반영됩니다. '+(NAVLOG?'로그 축에서는 0 이하 값은 그리지 않습니다. ':'')+'기준 '+N.asof+'.'+(EP.date?' 「전체」 오늘 점('+md(EP.date)+') = 브로커 스냅샷 합(개요 총자산과 동일) — 그 전 구간은 거래내역 재생값, 계좌별 선은 재생값 그대로입니다.':'')));
+  if((N.unclassified||[]).length)w.appendChild(h('div',{class:'warn'},'분류 보류(UNCLASSIFIED) '+N.unclassified.length+'행 — 짝 없는 이체성 행은 순입금·수익률에 넣지 않습니다(추정 0): '+N.unclassified.map(function(u){return u.account+' '+u.ref}).join(', ')));
   // 수익률 카드
   var WINS=['시작~오늘','올해','최근 1년','최근 3개월'];
   w.appendChild(h('div',{class:'pbtns'},WINS.map(function(k){return h('button',{class:'pbtn'+(NAVWIN===k?' on':''),onclick:function(){NAVWIN=k;navSave();render();}},k)})));
