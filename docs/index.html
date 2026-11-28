@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0F172A">
+<title>내 투자자산</title>
+<style>
+.uplot, .uplot *, .uplot *::before, .uplot *::after {box-sizing: border-box;}.uplot {font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";line-height: 1.5;width: min-content;}.u-title {text-align: center;font-size: 18px;font-weight: bold;}.u-wrap {position: relative;user-select: none;}.u-over, .u-under {position: absolute;}.u-under {overflow: hidden;}.uplot canvas {display: block;position: relative;width: 100%;height: 100%;}.u-axis {position: absolute;}.u-legend {font-size: 14px;margin: auto;text-align: center;}.u-inline {display: block;}.u-inline * {display: inline-block;}.u-inline tr {margin-right: 16px;}.u-legend th {font-weight: 600;}.u-legend th > * {vertical-align: middle;display: inline-block;}.u-legend .u-marker {width: 1em;height: 1em;margin-right: 4px;background-clip: padding-box !important;}.u-inline.u-live th::after {content: ":";vertical-align: middle;}.u-inline:not(.u-live) .u-value {display: none;}.u-series > * {padding: 4px;}.u-series th {cursor: pointer;}.u-legend .u-off > * {opacity: 0.3;}.u-select {background: rgba(0,0,0,0.07);position: absolute;pointer-events: none;}.u-cursor-x, .u-cursor-y {position: absolute;left: 0;top: 0;pointer-events: none;will-change: transform;}.u-hz .u-cursor-x, .u-vt .u-cursor-y {height: 100%;border-right: 1px dashed #607D8B;}.u-hz .u-cursor-y, .u-vt .u-cursor-x {width: 100%;border-bottom: 1px dashed #607D8B;}.u-cursor-pt {position: absolute;top: 0;left: 0;border-radius: 50%;border: 0 solid;pointer-events: none;will-change: transform;/*this has to be !important since we set inline "background" shorthand */background-clip: padding-box !important;}.u-axis.u-off, .u-select.u-off, .u-cursor-x.u-off, .u-cursor-y.u-off, .u-cursor-pt.u-off {display: none;}
+:root{--bg:#F1F5F9;--card:#fff;--ink:#111827;--sub:#6B7280;--line:#E5E7EB;--track:#E2E8F0;--soft:#F8FAFC;--acc:#34D399;--buy:#EF4444;--sell:#3B82F6;--warn:#F59E0B;--hdr:#0F172A;--chip:#1E293B;--chipink:#94A3B8}
+html[data-theme=dark]{--bg:#0B1220;--card:#111C33;--ink:#E5E7EB;--sub:#94A3B8;--line:#22304F;--track:#1E293B;--soft:#0F192E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;max-width:640px;margin:0 auto;padding-bottom:60px;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+#lock{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px;background:var(--hdr);color:#E2E8F0;max-width:640px;margin:0 auto}
+#lock .t{font-size:20px;font-weight:800;color:#fff}
+#lock .s{font-size:12px;color:#94A3B8}
+#lock input{width:100%;max-width:300px;padding:12px 14px;border-radius:10px;border:1px solid #334155;background:#0B1220;color:#fff;font-size:16px;text-align:center;letter-spacing:.08em}
+#lock button{width:100%;max-width:300px;padding:12px;border-radius:10px;border:0;background:var(--acc);color:#0F172A;font-weight:800;font-size:15px;cursor:pointer}
+#lock .err{color:#FCA5A5;font-size:12.5px;min-height:18px;text-align:center}
+.hdr{position:sticky;top:0;z-index:50;background:var(--hdr)}
+.hdr-in{padding:10px 15px 6px}
+.hdr-label{font-size:10px;color:#64748B;letter-spacing:.12em;font-weight:600;text-transform:uppercase}
+.hdr-row{display:flex;justify-content:space-between;align-items:center;margin-top:2px;gap:8px}
+.hdr-title{font-size:18px;font-weight:800;color:#fff}
+.hdr-title .n{color:var(--acc)}
+.hdr-btns{display:flex;gap:6px}
+.hbtn{font-size:11px;color:#94A3B8;border:1px solid #334155;border-radius:6px;padding:3px 9px;background:transparent;cursor:pointer;white-space:nowrap}
+.tabs{display:flex;gap:4px;padding:5px 12px 8px;overflow-x:auto}
+.tab{flex-shrink:0;padding:5px 12px;border-radius:15px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--chip);color:var(--chipink)}
+.tab.on{background:var(--acc);color:#0F172A}
+.wrap{padding:10px 13px 0}
+.sum{background:linear-gradient(135deg,#1E3A5F,#1D4ED8 160%);border-radius:12px;padding:12px 13px;margin-bottom:12px;color:#DBEAFE}
+.sum .tt{font-size:12px;font-weight:800;color:#93C5FD;margin-bottom:7px;line-height:1.5}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.sbox{background:rgba(0,0,0,.22);border-radius:7px;padding:7px 9px}
+.sbox .l{font-size:9.5px;color:#BFDBFE}.sbox .v{font-size:14px;font-weight:800;margin-top:1px;color:#fff}.sbox .s{font-size:9.5px;color:#DBEAFE;margin-top:1px}
+.dist{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(0,0,0,.25);color:#E0F2FE}
+.note{font-size:11.5px;color:var(--sub);line-height:1.6;margin:2px 2px 10px}
+.warn{background:#FEF3C7;color:#92400E;border-radius:10px;padding:9px 12px;font-size:12px;margin-bottom:10px;line-height:1.5}
+html[data-theme=dark] .warn{background:#3B2A0B;color:#FCD34D}
+.card{background:var(--card);border-radius:15px;overflow:hidden;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.chead{border-left:4px solid var(--c,#34D399);padding:12px 13px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ctop{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.cleft{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
+.tpill{background:var(--c,#34D399);color:#fff;font-weight:800;font-size:14.5px;padding:4px 8px;border-radius:7px}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px;background:#FEF3C7;color:#92400E}
+html[data-theme=dark] .badge{background:#3B2A0B;color:#FCD34D}
+.pct{font-size:17px;font-weight:800}
+.bars{margin:8px 0 6px;display:flex;flex-direction:column;gap:4px}
+.bar{height:9px;border-radius:5px;background:var(--track);position:relative;overflow:hidden}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.mark{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.55}
+.key{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:11px;color:var(--sub)}
+.key b{display:block;font-size:13px;color:var(--ink);font-weight:700}
+.up{color:var(--buy)}.dn{color:var(--sell)}
+.cbody{border-top:1px solid var(--line);padding:10px 13px 12px;background:var(--soft)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.kv span:first-child{color:var(--sub)}.kv span:last-child{font-weight:700;text-align:right}
+.sec{font-size:11.5px;font-weight:800;margin:10px 0 5px;color:var(--ink)}
+.tag{display:inline-block;font-size:10.5px;font-weight:800;color:#fff;border-radius:5px;padding:2px 7px;margin-right:6px}
+.tag.b{background:var(--buy)}.tag.s{background:var(--sell)}
+.ln{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line)}
+.ln .l{color:var(--sub)}.ln .r{font-weight:700;font-variant-numeric:tabular-nums}
+.sub{display:flex;gap:6px;margin:0 0 10px}
+.subtab{font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer}
+.subtab.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.day{font-size:11px;font-weight:800;color:var(--sub);margin:12px 2px 4px}
+.row{background:var(--card);border-radius:10px;padding:8px 12px;margin-bottom:4px;font-size:12.5px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.row .m{color:var(--sub);font-size:11px}
+.chg{background:var(--card);border-radius:10px;padding:9px 12px;margin-bottom:6px;font-size:12px;line-height:1.6}
+.chg .h{font-weight:800}.chg .m{color:var(--sub);font-size:11px}
+.foot{margin:18px 14px 0;font-size:11px;color:var(--sub);line-height:1.7;text-align:center}
+.empty{color:var(--sub);font-size:12.5px;padding:18px;text-align:center}
+
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.dwrap{position:relative;width:130px;height:130px;flex:none}
+.donut{width:130px;height:130px;transform:rotate(0deg)}
+.dc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.legend{flex:1;min-width:150px;display:flex;flex-direction:column;gap:5px}
+.lg{display:flex;align-items:center;gap:6px;font-size:12px}
+.lgl{flex:1;color:var(--ink)}.lgv{color:var(--sub);font-variant-numeric:tabular-nums;font-size:11.5px}
+a{-webkit-tap-highlight-color:transparent}
+.sortRow{display:flex;flex-wrap:wrap;gap:4px;padding:0 2px 8px;align-items:center}
+.sortRow .slab{font-size:10.5px;color:var(--sub);font-weight:700;margin-right:2px}
+.sbtn{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer}
+.sbtn.on{background:#1E3A8A;border-color:#1E3A8A;color:#fff}.sbtn .ar{margin-left:3px;font-weight:800}
+
+.zpanel{margin-bottom:10px}
+/* ---- Phase 2 (MYPORT-P2-20261105) ---- */
+#sumbar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px}
+.sb{background:rgba(255,255,255,.06);border-radius:7px;padding:5px 6px;min-width:0;cursor:pointer}
+.sb .l{font-size:9px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .v{font-size:12.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .s{font-size:9.5px;color:#CBD5E1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .v.up{color:#FCA5A5}.sb .v.dn{color:#93C5FD}
+@media (max-width:380px){#sumbar{grid-template-columns:repeat(3,1fr)}}
+.stalebar{display:inline-block;margin-left:4px}
+/* 배지 통일: 같은 크기·모양, 색만 다름 */
+.bdg{display:inline-flex;align-items:center;gap:2px;font-size:10px;font-weight:800;line-height:1;padding:3px 7px;border-radius:9px;white-space:nowrap;vertical-align:middle;border:1px solid transparent}
+.bdg.star{background:#FEF3C7;color:#92400E;border-color:#FCD34D}
+.bdg.rest{background:#EDE9FE;color:#5B21B6;border-color:#C4B5FD}
+.bdg.manual{background:#FFE4E6;color:#9F1239;border-color:#FDA4AF}
+.bdg.est{background:#E0F2FE;color:#075985;border-color:#7DD3FC}
+.bdg.stale{background:#FFEDD5;color:#9A3412;border-color:#FDBA74}
+.bdg.ok{background:#D1FAE5;color:#065F46;border-color:#6EE7B7}
+.bdg.mute{background:var(--track);color:var(--sub);border-color:var(--line)}
+html[data-theme=dark] .bdg.star{background:#3B2A0B;color:#FCD34D;border-color:#92400E}
+html[data-theme=dark] .bdg.rest{background:#2E1065;color:#DDD6FE;border-color:#5B21B6}
+html[data-theme=dark] .bdg.manual{background:#4C0519;color:#FECDD3;border-color:#9F1239}
+html[data-theme=dark] .bdg.est{background:#082F49;color:#BAE6FD;border-color:#075985}
+html[data-theme=dark] .bdg.stale{background:#431407;color:#FED7AA;border-color:#9A3412}
+html[data-theme=dark] .bdg.ok{background:#022C22;color:#A7F3D0;border-color:#065F46}
+/* 접기·펼치기 섹션 */
+.secW{margin-bottom:10px}
+.secH{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800;padding:8px 4px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.secH .chev{color:var(--sub);font-size:12px}
+/* 표(가로 스크롤) */
+.hs{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;background:var(--card)}
+table.tbl{border-collapse:collapse;font-size:11.5px;min-width:100%;white-space:nowrap}
+.tbl th{position:sticky;top:0;background:var(--soft);color:var(--sub);font-weight:700;text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);cursor:pointer}
+.tbl th:first-child,.tbl td:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:1}
+.tbl th:first-child{background:var(--soft)}
+.tbl td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tbl tr.dim td{opacity:.6}
+/* 버튼 줄 */
+.pbtns{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.pbtn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer}
+.pbtn.on{background:#1E3A8A;border-color:#1E3A8A;color:#fff}
+/* 차트 */
+.chart{background:var(--card);border-radius:12px;padding:6px 4px 2px;margin-bottom:6px;overflow:hidden}
+.chart .ct{font-size:11.5px;font-weight:800;padding:2px 8px 4px;display:flex;justify-content:space-between;gap:6px;align-items:center;flex-wrap:wrap}
+.legend2{display:flex;flex-wrap:wrap;gap:8px;font-size:10.5px;color:var(--sub);padding:2px 8px 6px}
+.legend2 i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:3px}
+.legend2 i.d{border-top-style:dashed}
+.legend2 b{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:3px}
+.uplot{font-family:inherit}.u-legend{display:none}
+.u-axis{color:var(--sub)}
+/* 막대(HTML) */
+.hrow{display:grid;grid-template-columns:62px 1fr 92px;gap:6px;align-items:center;font-size:11.5px;padding:3px 0}
+.hrow .hb{height:12px;border-radius:3px;background:var(--track);position:relative;overflow:hidden}
+.hrow .hb i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.hrow .hv{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+/* KPI */
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+@media (max-width:420px){.kgrid{grid-template-columns:repeat(2,1fr)}}
+.kbox{background:var(--card);border-radius:9px;padding:7px 8px}
+.kbox .l{font-size:10px;color:var(--sub)}.kbox .v{font-size:14px;font-weight:800;margin-top:1px}.kbox .s{font-size:10px;color:var(--sub)}
+/* 타임라인 */
+.tlw{background:var(--card);border-radius:12px;overflow:auto;max-height:640px;-webkit-overflow-scrolling:touch}
+.tip{position:fixed;z-index:200;max-width:280px;background:#0F172A;color:#E2E8F0;font-size:11.5px;line-height:1.55;border-radius:8px;padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.35);pointer-events:none}
+.amt{cursor:pointer;border-bottom:1px dotted transparent}
+.amt:active{border-bottom-color:var(--sub)}
+/* [MYPORT-SECTORS-20261112] 섹터 탭 — 인라인 SVG 차트·일지 링크 */
+.svw{background:var(--card);border-radius:12px;padding:6px 4px 2px;margin-bottom:4px;overflow:hidden}
+.sv{display:block;font-family:inherit}
+.jl{font-size:11px;font-weight:700;color:#2563EB;text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:2px 8px;white-space:nowrap}
+html[data-theme=dark] .jl{color:#93C5FD}
+.tabs .tab{min-width:0}
+</style>
+</head>
+<body>
+<div id="lock">
+  <div class="t">내 투자자산</div>
+  <div class="s">열람 전용 · 비밀번호를 입력하세요(처음 한 번만, 이 기기에 저장)</div>
+  <input id="pw" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호">
+  <button id="go" type="button">열기</button>
+  <div class="err" id="err"></div>
+</div>
+<div id="app" hidden>
+  <div class="hdr"><div class="hdr-in">
+    <div class="hdr-row"><div class="hdr-title" id="title">내 투자자산</div>
+      <div class="hdr-btns"><button class="hbtn" id="cur" type="button">₩ / $</button><button class="hbtn" id="theme" type="button">테마</button><button class="hbtn" id="relock" type="button">잠금</button></div></div>
+    <div class="hdr-label" id="asof" style="margin-top:3px;text-transform:none;letter-spacing:0"></div>
+    <div id="sumbar"></div>
+  </div><div class="tabs" id="tabs"></div></div>
+  <div class="wrap" id="view"></div>
+  <div class="foot" id="foot"></div>
+  <div class="tip" id="tip" hidden></div>
+</div>
+<script>
+/*! https://github.com/leeoniya/uPlot (v1.6.32) */
+var uPlot=function(){"use strict";const l="u-off",e="u-label",t="width",n="height",i="top",o="bottom",s="left",r="right",u="#000",a=u+"0",f="mousemove",c="mousedown",h="mouseup",d="mouseenter",p="mouseleave",m="dblclick",g="change",x="dppxchange",w="--",_="undefined"!=typeof window,b=_?document:null,v=_?window:null,k=_?navigator:null;let y,M;function S(l,e){if(null!=e){let t=l.classList;!t.contains(e)&&t.add(e)}}function T(l,e){let t=l.classList;t.contains(e)&&t.remove(e)}function E(l,e,t){l.style[e]=t+"px"}function z(l,e,t,n){let i=b.createElement(l);return null!=e&&S(i,e),null!=t&&t.insertBefore(i,n),i}function D(l,e){return z("div",l,e)}const P=new WeakMap;function A(e,t,n,i,o){let s="translate("+t+"px,"+n+"px)";s!=P.get(e)&&(e.style.transform=s,P.set(e,s),0>t||0>n||t>i||n>o?S(e,l):T(e,l))}const W=new WeakMap;function Y(l,e,t){let n=e+t;n!=W.get(l)&&(W.set(l,n),l.style.background=e,l.style.borderColor=t)}const C=new WeakMap;function H(l,e,t,n){let i=e+""+t;i!=C.get(l)&&(C.set(l,i),l.style.height=t+"px",l.style.width=e+"px",l.style.marginLeft=n?-e/2+"px":0,l.style.marginTop=n?-t/2+"px":0)}const F={passive:!0},R={...F,capture:!0};function G(l,e,t,n){e.addEventListener(l,t,n?R:F)}function I(l,e,t){e.removeEventListener(l,t,F)}function L(l,e,t,n){let i;t=t||0;let o=2147483647>=(n=n||e.length-1);for(;n-t>1;)i=o?t+n>>1:sl((t+n)/2),l>e[i]?t=i:n=i;return l-e[t]>e[n]-l?n:t}function O(l){return(e,t,n)=>{let i=-1,o=-1;for(let o=t;n>=o;o++)if(l(e[o])){i=o;break}for(let i=n;i>=t;i--)if(l(e[i])){o=i;break}return[i,o]}}_&&function l(){let e=devicePixelRatio;y!=e&&(y=e,M&&I(g,M,l),M=matchMedia(`(min-resolution: ${y-.001}dppx) and (max-resolution: ${y+.001}dppx)`),G(g,M,l),v.dispatchEvent(new CustomEvent(x)))}();const N=l=>null!=l,j=l=>null!=l&&l>0,U=O(N),V=O(j);function B(l,e,t,n){let i=hl(l),o=hl(e);l==e&&(-1==i?(l*=t,e/=t):(l/=t,e*=t));let s=10==t?dl:pl,r=1==o?ul:sl,u=(1==i?sl:ul)(s(ol(l))),a=r(s(ol(e))),f=cl(t,u),c=cl(t,a);return 10==t&&(0>u&&(f=Al(f,-u)),0>a&&(c=Al(c,-a))),n||2==t?(l=f*i,e=c*o):(l=Pl(l,f),e=Dl(e,c)),[l,e]}function $(l,e,t,n){let i=B(l,e,t,n);return 0==l&&(i[0]=0),0==e&&(i[1]=0),i}const J=.1,q={mode:3,pad:J},K={pad:0,soft:null,mode:0},X={min:K,max:K};function Z(l,e,t,n){return Ol(t)?ll(l,e,t):(K.pad=t,K.soft=n?0:null,K.mode=n?3:0,ll(l,e,X))}function Q(l,e){return null==l?e:l}function ll(l,e,t){let n=t.min,i=t.max,o=Q(n.pad,0),s=Q(i.pad,0),r=Q(n.hard,-gl),u=Q(i.hard,gl),a=Q(n.soft,gl),f=Q(i.soft,-gl),c=Q(n.mode,0),h=Q(i.mode,0),d=e-l,p=dl(d),m=fl(ol(l),ol(e)),g=dl(m),x=ol(g-p);(1e-24>d||x>10)&&(d=0,0!=l&&0!=e||(d=1e-24,2==c&&a!=gl&&(o=0),2==h&&f!=-gl&&(s=0)));let w=d||m||1e3,_=dl(w),b=cl(10,sl(_)),v=Al(Pl(l-w*(0==d?0==l?.1:1:o),b/10),24),k=a>l||1!=c&&(3!=c||v>a)&&(2!=c||a>v)?gl:a,y=fl(r,k>v&&l>=k?k:al(k,v)),M=Al(Dl(e+w*(0==d?0==e?.1:1:s),b/10),24),S=e>f||1!=h&&(3!=h||f>M)&&(2!=h||M>f)?-gl:f,T=al(u,M>S&&S>=e?S:fl(S,M));return y==T&&0==y&&(T=100),[y,T]}const el=new Intl.NumberFormat(_?k.language:"en-US"),tl=l=>el.format(l),nl=Math,il=nl.PI,ol=nl.abs,sl=nl.floor,rl=nl.round,ul=nl.ceil,al=nl.min,fl=nl.max,cl=nl.pow,hl=nl.sign,dl=nl.log10,pl=nl.log2,ml=(l,e=1)=>nl.asinh(l/e),gl=1/0;function xl(l){return 1+(0|dl((l^l>>31)-(l>>31)))}function wl(l,e,t){return al(fl(l,e),t)}function _l(l){return"function"==typeof l}function bl(l){return _l(l)?l:()=>l}const vl=l=>l,kl=(l,e)=>e,yl=()=>null,Ml=()=>!0,Sl=(l,e)=>l==e,Tl=/\.\d*?(?=9{6,}|0{6,})/gm,El=l=>{if(Il(l)||Wl.has(l))return l;const e=""+l,t=e.match(Tl);if(null==t)return l;let n=t[0].length-1;if(-1!=e.indexOf("e-")){let[l,t]=e.split("e");return+`${El(l)}e${t}`}return Al(l,n)};function zl(l,e){return El(Al(El(l/e))*e)}function Dl(l,e){return El(ul(El(l/e))*e)}function Pl(l,e){return El(sl(El(l/e))*e)}function Al(l,e=0){if(Il(l))return l;let t=10**e;return rl(l*t*(1+Number.EPSILON))/t}const Wl=new Map;function Yl(l){return((""+l).split(".")[1]||"").length}function Cl(l,e,t,n){let i=[],o=n.map(Yl);for(let s=e;t>s;s++){let e=ol(s),t=Al(cl(l,s),e);for(let r=0;n.length>r;r++){let u=10==l?+`${n[r]}e${s}`:n[r]*t,a=(0>s?e:0)+(o[r]>s?o[r]:0),f=10==l?u:Al(u,a);i.push(f),Wl.set(f,a)}}return i}const Hl={},Fl=[],Rl=[null,null],Gl=Array.isArray,Il=Number.isInteger;function Ll(l){return"string"==typeof l}function Ol(l){let e=!1;if(null!=l){let t=l.constructor;e=null==t||t==Object}return e}function Nl(l){return null!=l&&"object"==typeof l}const jl=Object.getPrototypeOf(Uint8Array),Ul="__proto__";function Vl(l,e=Ol){let t;if(Gl(l)){let n=l.find((l=>null!=l));if(Gl(n)||e(n)){t=Array(l.length);for(let n=0;l.length>n;n++)t[n]=Vl(l[n],e)}else t=l.slice()}else if(l instanceof jl)t=l.slice();else if(e(l)){t={};for(let n in l)n!=Ul&&(t[n]=Vl(l[n],e))}else t=l;return t}function Bl(l){let e=arguments;for(let t=1;e.length>t;t++){let n=e[t];for(let e in n)e!=Ul&&(Ol(l[e])?Bl(l[e],Vl(n[e])):l[e]=Vl(n[e]))}return l}function $l(l,e,t){for(let n,i=0,o=-1;e.length>i;i++){let s=e[i];if(s>o){for(n=s-1;n>=0&&null==l[n];)l[n--]=null;for(n=s+1;t>n&&null==l[n];)l[o=n++]=null}}}const Jl="undefined"==typeof queueMicrotask?l=>Promise.resolve().then(l):queueMicrotask,ql=["January","February","March","April","May","June","July","August","September","October","November","December"],Kl=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];function Xl(l){return l.slice(0,3)}const Zl=Kl.map(Xl),Ql=ql.map(Xl),le={MMMM:ql,MMM:Ql,WWWW:Kl,WWW:Zl};function ee(l){return(10>l?"0":"")+l}const te={YYYY:l=>l.getFullYear(),YY:l=>(l.getFullYear()+"").slice(2),MMMM:(l,e)=>e.MMMM[l.getMonth()],MMM:(l,e)=>e.MMM[l.getMonth()],MM:l=>ee(l.getMonth()+1),M:l=>l.getMonth()+1,DD:l=>ee(l.getDate()),D:l=>l.getDate(),WWWW:(l,e)=>e.WWWW[l.getDay()],WWW:(l,e)=>e.WWW[l.getDay()],HH:l=>ee(l.getHours()),H:l=>l.getHours(),h:l=>{let e=l.getHours();return 0==e?12:e>12?e-12:e},AA:l=>12>l.getHours()?"AM":"PM",aa:l=>12>l.getHours()?"am":"pm",a:l=>12>l.getHours()?"a":"p",mm:l=>ee(l.getMinutes()),m:l=>l.getMinutes(),ss:l=>ee(l.getSeconds()),s:l=>l.getSeconds(),fff:l=>function(l){return(10>l?"00":100>l?"0":"")+l}(l.getMilliseconds())};function ne(l,e){e=e||le;let t,n=[],i=/\{([a-z]+)\}|[^{]+/gi;for(;t=i.exec(l);)n.push("{"==t[0][0]?te[t[1]]:t[0]);return l=>{let t="";for(let i=0;n.length>i;i++)t+="string"==typeof n[i]?n[i]:n[i](l,e);return t}}const ie=(new Intl.DateTimeFormat).resolvedOptions().timeZone,oe=l=>l%1==0,se=[1,2,2.5,5],re=Cl(10,-32,0,se),ue=Cl(10,0,32,se),ae=ue.filter(oe),fe=re.concat(ue),ce="{YYYY}",he="\n"+ce,de="{M}/{D}",pe="\n"+de,me=pe+"/{YY}",ge="{aa}",xe="{h}:{mm}"+ge,we="\n"+xe,_e=":{ss}",be=null;function ve(l){let e=1e3*l,t=60*e,n=60*t,i=24*n,o=30*i,s=365*i;return[(1==l?Cl(10,0,3,se).filter(oe):Cl(10,-3,0,se)).concat([e,5*e,10*e,15*e,30*e,t,5*t,10*t,15*t,30*t,n,2*n,3*n,4*n,6*n,8*n,12*n,i,2*i,3*i,4*i,5*i,6*i,7*i,8*i,9*i,10*i,15*i,o,2*o,3*o,4*o,6*o,s,2*s,5*s,10*s,25*s,50*s,100*s]),[[s,ce,be,be,be,be,be,be,1],[28*i,"{MMM}",he,be,be,be,be,be,1],[i,de,he,be,be,be,be,be,1],[n,"{h}"+ge,me,be,pe,be,be,be,1],[t,xe,me,be,pe,be,be,be,1],[e,_e,me+" "+xe,be,pe+" "+xe,be,we,be,1],[l,_e+".{fff}",me+" "+xe,be,pe+" "+xe,be,we,be,1]],function(e){return(r,u,a,f,c,h)=>{let d=[],p=c>=s,m=c>=o&&s>c,g=e(a),x=Al(g*l,3),w=Pe(g.getFullYear(),p?0:g.getMonth(),m||p?1:g.getDate()),_=Al(w*l,3);if(m||p){let t=m?c/o:0,n=p?c/s:0,i=x==_?x:Al(Pe(w.getFullYear()+n,w.getMonth()+t,1)*l,3),r=new Date(rl(i/l)),u=r.getFullYear(),a=r.getMonth();for(let o=0;f>=i;o++){let s=Pe(u+n*o,a+t*o,1),r=s-e(Al(s*l,3));i=Al((+s+r)*l,3),i>f||d.push(i)}}else{let o=i>c?c:i,s=_+(sl(a)-sl(x))+Dl(x-_,o);d.push(s);let p=e(s),m=p.getHours()+p.getMinutes()/t+p.getSeconds()/n,g=c/n,w=h/r.axes[u]._space;for(;s=Al(s+c,1==l?0:3),f>=s;)if(g>1){let l=sl(Al(m+g,6))%24,t=e(s).getHours()-l;t>1&&(t=-1),s-=t*n,m=(m+g)%24,.7>Al((s-d[d.length-1])/c,3)*w||d.push(s)}else d.push(s)}return d}}]}const[ke,ye,Me]=ve(1),[Se,Te,Ee]=ve(.001);function ze(l,e){return l.map((l=>l.map(((t,n)=>0==n||8==n||null==t?t:e(1==n||0==l[8]?t:l[1]+t)))))}function De(l,e){return(t,n,i,o,s)=>{let r,u,a,f,c,h,d=e.find((l=>s>=l[0]))||e[e.length-1];return n.map((e=>{let t=l(e),n=t.getFullYear(),i=t.getMonth(),o=t.getDate(),s=t.getHours(),p=t.getMinutes(),m=t.getSeconds(),g=n!=r&&d[2]||i!=u&&d[3]||o!=a&&d[4]||s!=f&&d[5]||p!=c&&d[6]||m!=h&&d[7]||d[1];return r=n,u=i,a=o,f=s,c=p,h=m,g(t)}))}}function Pe(l,e,t){return new Date(l,e,t)}function Ae(l,e){return e(l)}function We(l,e){return(t,n,i,o)=>null==o?w:e(l(n))}Cl(2,-53,53,[1]);const Ye={show:!0,live:!0,isolate:!1,mount:()=>{},markers:{show:!0,width:2,stroke:function(l,e){let t=l.series[e];return t.width?t.stroke(l,e):t.points.width?t.points.stroke(l,e):null},fill:function(l,e){return l.series[e].fill(l,e)},dash:"solid"},idx:null,idxs:null,values:[]},Ce=[0,0];function He(l,e,t,n=!0){return l=>{0==l.button&&(!n||l.target==e)&&t(l)}}function Fe(l,e,t,n=!0){return l=>{(!n||l.target==e)&&t(l)}}const Re={show:!0,x:!0,y:!0,lock:!1,move:function(l,e,t){return Ce[0]=e,Ce[1]=t,Ce},points:{one:!1,show:function(l,e){let i=l.cursor.points,o=D(),s=i.size(l,e);E(o,t,s),E(o,n,s);let r=s/-2;E(o,"marginLeft",r),E(o,"marginTop",r);let u=i.width(l,e,s);return u&&E(o,"borderWidth",u),o},size:function(l,e){return l.series[e].points.size},width:0,stroke:function(l,e){let t=l.series[e].points;return t._stroke||t._fill},fill:function(l,e){let t=l.series[e].points;return t._fill||t._stroke}},bind:{mousedown:He,mouseup:He,click:He,dblclick:He,mousemove:Fe,mouseleave:Fe,mouseenter:Fe},drag:{setScale:!0,x:!0,y:!1,dist:0,uni:null,click:(l,e)=>{e.stopPropagation(),e.stopImmediatePropagation()},_x:!1,_y:!1},focus:{dist:(l,e,t,n,i)=>n-i,prox:-1,bias:0},hover:{skip:[void 0],prox:null,bias:0},left:-10,top:-10,idx:null,dataIdx:null,idxs:null,event:null},Ge={show:!0,stroke:"rgba(0,0,0,0.07)",width:2},Ie=Bl({},Ge,{filter:kl}),Le=Bl({},Ie,{size:10}),Oe=Bl({},Ge,{show:!1}),Ne='12px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',je="bold "+Ne,Ue={show:!0,scale:"x",stroke:u,space:50,gap:5,alignTo:1,size:50,labelGap:0,labelSize:30,labelFont:je,side:2,grid:Ie,ticks:Le,border:Oe,font:Ne,lineGap:1.5,rotate:0},Ve={show:!0,scale:"x",auto:!1,sorted:1,min:gl,max:-gl,idxs:[]};function Be(l,e){return e.map((l=>null==l?"":tl(l)))}function $e(l,e,t,n,i,o,s){let r=[],u=Wl.get(i)||0;for(let l=t=s?t:Al(Dl(t,i),u);n>=l;l=Al(l+i,u))r.push(Object.is(l,-0)?0:l);return r}function Je(l,e,t,n,i){const o=[],s=l.scales[l.axes[e].scale].log,r=sl((10==s?dl:pl)(t));i=cl(s,r),10==s&&(i=fe[L(i,fe)]);let u=t,a=i*s;10==s&&(a=fe[L(a,fe)]);do{o.push(u),u+=i,10!=s||Wl.has(u)||(u=Al(u,Wl.get(i))),a>u||(a=(i=u)*s,10==s&&(a=fe[L(a,fe)]))}while(n>=u);return o}function qe(l,e,t,n,i){let o=l.scales[l.axes[e].scale].asinh,s=n>o?Je(l,e,fl(o,t),n,i):[o],r=0>n||t>0?[]:[0];return(-o>t?Je(l,e,fl(o,-n),-t,i):[o]).reverse().map((l=>-l)).concat(r,s)}const Ke=/./,Xe=/[12357]/,Ze=/[125]/,Qe=/1/,lt=(l,e,t,n)=>l.map(((l,i)=>4==e&&0==l||i%n==0&&t.test(l.toExponential()[0>l?1:0])?l:null));function et(l,e,t){let n=l.axes[t],i=n.scale,o=l.scales[i],s=l.valToPos,r=n._space,u=s(10,i),a=s(9,i)-u<r?s(7,i)-u<r?s(5,i)-u<r?Qe:Ze:Xe:Ke;if(a==Qe){let l=ol(s(1,i)-u);if(r>l)return lt(e.slice().reverse(),o.distr,a,ul(r/l)).reverse()}return lt(e,o.distr,a,1)}function tt(l,e,t){let n=l.axes[t],i=n.scale,o=n._space,s=l.valToPos,r=ol(s(1,i)-s(2,i));return o>r?lt(e.slice().reverse(),3,Ke,ul(o/r)).reverse():e}function nt(l,e,t,n){return null==n?w:null==e?"":tl(e)}const it={show:!0,scale:"y",stroke:u,space:30,gap:5,alignTo:1,size:50,labelGap:0,labelSize:30,labelFont:je,side:3,grid:Ie,ticks:Le,border:Oe,font:Ne,lineGap:1.5,rotate:0},ot={scale:null,auto:!0,sorted:0,min:gl,max:-gl},st=(l,e,t,n,i)=>i,rt={show:!0,auto:!0,sorted:0,gaps:st,alpha:1,facets:[Bl({},ot,{scale:"x"}),Bl({},ot,{scale:"y"})]},ut={scale:"y",auto:!0,sorted:0,show:!0,spanGaps:!1,gaps:st,alpha:1,points:{show:function(l,e){let{scale:t,idxs:n}=l.series[0],i=l._data[0],o=l.valToPos(i[n[0]],t,!0),s=l.valToPos(i[n[1]],t,!0);return ol(s-o)/(l.series[e].points.space*y)>=n[1]-n[0]},filter:null},values:null,min:gl,max:-gl,idxs:[],path:null,clip:null};function at(l,e,t){return t/10}const ft={time:!0,auto:!0,distr:1,log:10,asinh:1,min:null,max:null,dir:1,ori:0},ct=Bl({},ft,{time:!1,ori:1}),ht={};function dt(l){let e=ht[l];return e||(e={key:l,plots:[],sub(l){e.plots.push(l)},unsub(l){e.plots=e.plots.filter((e=>e!=l))},pub(l,t,n,i,o,s,r){for(let u=0;e.plots.length>u;u++)e.plots[u]!=t&&e.plots[u].pub(l,t,n,i,o,s,r)}},null!=l&&(ht[l]=e)),e}function pt(l,e,t){const n=l.mode,i=l.series[e],o=2==n?l._data[e]:l._data,s=l.scales,r=l.bbox;let u=o[0],a=2==n?o[1]:o[e],f=2==n?s[i.facets[0].scale]:s[l.series[0].scale],c=2==n?s[i.facets[1].scale]:s[i.scale],h=r.left,d=r.top,p=r.width,m=r.height,g=l.valToPosH,x=l.valToPosV;return 0==f.ori?t(i,u,a,f,c,g,x,h,d,p,m,kt,Mt,Tt,zt,Pt):t(i,u,a,f,c,x,g,d,h,m,p,yt,St,Et,Dt,At)}function mt(l,e){let t=0,n=0,i=Q(l.bands,Fl);for(let l=0;i.length>l;l++){let o=i[l];o.series[0]==e?t=o.dir:o.series[1]==e&&(n|=1==o.dir?1:2)}return[t,1==n?-1:2==n?1:3==n?2:0]}function gt(l,e,t,n,i){let o=l.series[e],s=l.scales[2==l.mode?o.facets[1].scale:o.scale];return-1==i?s.min:1==i?s.max:3==s.distr?1==s.dir?s.min:s.max:0}function xt(l,e,t,n,i,o){return pt(l,e,((l,e,s,r,u,a,f,c,h,d,p)=>{let m=l.pxRound;const g=0==r.ori?Mt:St;let x,w;1==r.dir*(0==r.ori?1:-1)?(x=t,w=n):(x=n,w=t);let _=m(a(e[x],r,d,c)),b=m(f(s[x],u,p,h)),v=m(a(e[w],r,d,c)),k=m(f(1==o?u.max:u.min,u,p,h)),y=new Path2D(i);return g(y,v,k),g(y,_,k),g(y,_,b),y}))}function wt(l,e,t,n,i,o){let s=null;if(l.length>0){s=new Path2D;const r=0==e?Tt:Et;let u=t;for(let e=0;l.length>e;e++){let t=l[e];if(t[1]>t[0]){let l=t[0]-u;l>0&&r(s,u,n,l,n+o),u=t[1]}}let a=t+i-u,f=10;a>0&&r(s,u,n-f/2,a,n+o+f)}return s}function _t(l,e,t,n,i,o,s){let r=[],u=l.length;for(let a=1==i?t:n;a>=t&&n>=a;a+=i)if(null===e[a]){let f=a,c=a;if(1==i)for(;++a<=n&&null===e[a];)c=a;else for(;--a>=t&&null===e[a];)c=a;let h=o(l[f]),d=c==f?h:o(l[c]),p=f-i;h=s>0||0>p||p>=u?h:o(l[p]);let m=c+i;d=0>s||0>m||m>=u?d:o(l[m]),h>d||r.push([h,d])}return r}function bt(l){return 0==l?vl:1==l?rl:e=>zl(e,l)}function vt(l){let e=0==l?kt:yt,t=0==l?(l,e,t,n,i,o)=>{l.arcTo(e,t,n,i,o)}:(l,e,t,n,i,o)=>{l.arcTo(t,e,i,n,o)},n=0==l?(l,e,t,n,i)=>{l.rect(e,t,n,i)}:(l,e,t,n,i)=>{l.rect(t,e,i,n)};return(l,i,o,s,r,u=0,a=0)=>{0==u&&0==a?n(l,i,o,s,r):(u=al(u,s/2,r/2),a=al(a,s/2,r/2),e(l,i+u,o),t(l,i+s,o,i+s,o+r,u),t(l,i+s,o+r,i,o+r,a),t(l,i,o+r,i,o,a),t(l,i,o,i+s,o,u),l.closePath())}}const kt=(l,e,t)=>{l.moveTo(e,t)},yt=(l,e,t)=>{l.moveTo(t,e)},Mt=(l,e,t)=>{l.lineTo(e,t)},St=(l,e,t)=>{l.lineTo(t,e)},Tt=vt(0),Et=vt(1),zt=(l,e,t,n,i,o)=>{l.arc(e,t,n,i,o)},Dt=(l,e,t,n,i,o)=>{l.arc(t,e,n,i,o)},Pt=(l,e,t,n,i,o,s)=>{l.bezierCurveTo(e,t,n,i,o,s)},At=(l,e,t,n,i,o,s)=>{l.bezierCurveTo(t,e,i,n,s,o)};function Wt(){return(l,e,t,n,i)=>pt(l,e,((e,o,s,r,u,a,f,c,h,d,p)=>{let m,g,{pxRound:x,points:w}=e;0==r.ori?(m=kt,g=zt):(m=yt,g=Dt);const _=Al(w.width*y,3);let b=(w.size-w.width)/2*y,v=Al(2*b,3),k=new Path2D,M=new Path2D,{left:S,top:T,width:E,height:z}=l.bbox;Tt(M,S-v,T-v,E+2*v,z+2*v);const D=l=>{if(null!=s[l]){let e=x(a(o[l],r,d,c)),t=x(f(s[l],u,p,h));m(k,e+b,t),g(k,e,t,b,0,2*il)}};if(i)i.forEach(D);else for(let l=t;n>=l;l++)D(l);return{stroke:_>0?k:null,fill:k,clip:M,flags:3}}))}function Yt(l){return(e,t,n,i,o,s)=>{n!=i&&(o!=n&&s!=n&&l(e,t,n),o!=i&&s!=i&&l(e,t,i),l(e,t,s))}}const Ct=Yt(Mt),Ht=Yt(St);function Ft(l){const e=Q(l?.alignGaps,0);return(l,t,n,i)=>pt(l,t,((o,s,r,u,a,f,c,h,d,p,m)=>{[n,i]=U(r,n,i);let g,x,w=o.pxRound,_=l=>w(f(l,u,p,h)),b=l=>w(c(l,a,m,d));0==u.ori?(g=Mt,x=Ct):(g=St,x=Ht);const v=u.dir*(0==u.ori?1:-1),k={stroke:new Path2D,fill:null,clip:null,band:null,gaps:null,flags:1},y=k.stroke;let M=!1;if(i-n<4*p)for(let l=1==v?n:i;l>=n&&i>=l;l+=v){let e=r[l];null===e?M=!0:null!=e&&g(y,_(s[l]),b(e))}else{let e,t,o,a=e=>l.posToVal(e,u.key,!0),f=null,c=null,h=_(s[1==v?n:i]),d=_(s[n]),p=_(s[i]),m=a(1==v?d+1:p-1);for(let l=1==v?n:i;l>=n&&i>=l;l+=v){let n=s[l],i=(1==v?m>n:n>m)?h:_(n),o=r[l];i==h?null!=o?(t=o,null==f?(g(y,i,b(t)),e=f=c=t):f>t?f=t:t>c&&(c=t)):null===o&&(M=!0):(null!=f&&x(y,h,b(f),b(c),b(e),b(t)),null!=o?(t=o,g(y,i,b(t)),f=c=e=t):(f=c=null,null===o&&(M=!0)),h=i,m=a(h+v))}null!=f&&f!=c&&o!=h&&x(y,h,b(f),b(c),b(e),b(t))}let[S,T]=mt(l,t);if(null!=o.fill||0!=S){let e=k.fill=new Path2D(y),r=b(o.fillTo(l,t,o.min,o.max,S)),u=_(s[n]),a=_(s[i]);-1==v&&([a,u]=[u,a]),g(e,a,r),g(e,u,r)}if(!o.spanGaps){let a=[];M&&a.push(..._t(s,r,n,i,v,_,e)),k.gaps=a=o.gaps(l,t,n,i,a),k.clip=wt(a,u.ori,h,d,p,m)}return 0!=T&&(k.band=2==T?[xt(l,t,n,i,y,-1),xt(l,t,n,i,y,1)]:xt(l,t,n,i,y,T)),k}))}function Rt(l,e,t,n,i,o,s=gl){if(l.length>1){let r=null;for(let u=0,a=1/0;l.length>u;u++)if(void 0!==e[u]){if(null!=r){let e=ol(l[u]-l[r]);a>e&&(a=e,s=ol(t(l[u],n,i,o)-t(l[r],n,i,o)))}r=u}}return s}function Gt(l,e,t,n,i){const o=l.length;if(2>o)return null;const s=new Path2D;if(t(s,l[0],e[0]),2==o)n(s,l[1],e[1]);else{let t=Array(o),n=Array(o-1),r=Array(o-1),u=Array(o-1);for(let t=0;o-1>t;t++)r[t]=e[t+1]-e[t],u[t]=l[t+1]-l[t],n[t]=r[t]/u[t];t[0]=n[0];for(let l=1;o-1>l;l++)0===n[l]||0===n[l-1]||n[l-1]>0!=n[l]>0?t[l]=0:(t[l]=3*(u[l-1]+u[l])/((2*u[l]+u[l-1])/n[l-1]+(u[l]+2*u[l-1])/n[l]),isFinite(t[l])||(t[l]=0));t[o-1]=n[o-2];for(let n=0;o-1>n;n++)i(s,l[n]+u[n]/3,e[n]+t[n]*u[n]/3,l[n+1]-u[n]/3,e[n+1]-t[n+1]*u[n]/3,l[n+1],e[n+1])}return s}const It=new Set;function Lt(){for(let l of It)l.syncRect(!0)}_&&(G("resize",v,Lt),G("scroll",v,Lt,!0),G(x,v,(()=>{en.pxRatio=y})));const Ot=Ft(),Nt=Wt();function jt(l,e,t,n){return(n?[l[0],l[1]].concat(l.slice(2)):[l[0]].concat(l.slice(1))).map(((l,n)=>Ut(l,n,e,t)))}function Ut(l,e,t,n){return Bl({},0==e?t:n,l)}function Vt(l,e,t){return null==e?Rl:[e,t]}const Bt=Vt;function $t(l,e,t){return null==e?Rl:Z(e,t,J,!0)}function Jt(l,e,t,n){return null==e?Rl:B(e,t,l.scales[n].log,!1)}const qt=Jt;function Kt(l,e,t,n){return null==e?Rl:$(e,t,l.scales[n].log,!1)}const Xt=Kt;function Zt(l,e,t,n,i){let o=fl(xl(l),xl(e)),s=e-l,r=L(i/n*s,t);do{let l=t[r],e=n*l/s;if(e>=i&&17>=o+(5>l?Wl.get(l):0))return[l,e]}while(++r<t.length);return[0,0]}function Qt(l){let e,t;return[l=l.replace(/(\d+)px/,((l,n)=>(e=rl((t=+n)*y))+"px")),e,t]}function ln(l){l.show&&[l.font,l.labelFont].forEach((l=>{let e=Al(l[2]*y,1);l[0]=l[0].replace(/[0-9.]+px/,e+"px"),l[1]=e}))}function en(u,g,_){const k={mode:Q(u.mode,1)},M=k.mode;function P(l,e,t,n){let i=e.valToPct(l);return n+t*(-1==e.dir?1-i:i)}function W(l,e,t,n){let i=e.valToPct(l);return n+t*(-1==e.dir?i:1-i)}function C(l,e,t,n){return 0==e.ori?P(l,e,t,n):W(l,e,t,n)}k.valToPosH=P,k.valToPosV=W;let F=!1;k.status=0;const R=k.root=D("uplot");null!=u.id&&(R.id=u.id),S(R,u.class),u.title&&(D("u-title",R).textContent=u.title);const O=z("canvas"),K=k.ctx=O.getContext("2d"),X=D("u-wrap",R);G("click",X,(l=>{l.target===el&&(Nn!=Gn||jn!=In)&&Zn.click(k,l)}),!0);const ll=k.under=D("u-under",X);X.appendChild(O);const el=k.over=D("u-over",X),tl=+Q((u=Vl(u)).pxAlign,1),sl=bt(tl);(u.plugins||[]).forEach((l=>{l.opts&&(u=l.opts(k,u)||u)}));const hl=u.ms||.001,pl=k.series=1==M?jt(u.series||[],Ve,ut,!1):function(l,e){return l.map(((l,t)=>0==t?{}:Bl({},e,l)))}(u.series||[null],rt),xl=k.axes=jt(u.axes||[],Ue,it,!0),vl=k.scales={},Tl=k.bands=u.bands||[];Tl.forEach((l=>{l.fill=bl(l.fill||null),l.dir=Q(l.dir,-1)}));const El=2==M?pl[1].facets[0].scale:pl[0].scale,Dl={axes:function(){for(let l=0;xl.length>l;l++){let e=xl[l];if(!e.show||!e._show)continue;let t,n,u=e.side,a=u%2,f=e.stroke(k,l),c=0==u||3==u?-1:1,[h,d]=e._found;if(null!=e.label){let s=rl((e._lpos+e.labelGap*c)*y);_n(e.labelFont[0],f,"center",2==u?i:o),K.save(),1==a?(t=n=0,K.translate(s,rl(lt+st/2)),K.rotate((3==u?-il:il)/2)):(t=rl(Qe+ot/2),n=s);let r=_l(e.label)?e.label(k,l,h,d):e.label;K.fillText(r,t,n),K.restore()}if(0==d)continue;let p=vl[e.scale],m=0==a?ot:st,g=0==a?Qe:lt,x=e._splits,w=2==p.distr?x.map((l=>pn[l])):x,_=2==p.distr?pn[x[1]]-pn[x[0]]:h,b=e.ticks,v=e.border,M=b.show?b.size:0,S=rl(M*y),T=rl((2==e.alignTo?e._size-M-e.gap:e.gap)*y),E=e._rotate*-il/180,z=sl(e._pos*y),D=z+(S+T)*c;n=0==a?D:0,t=1==a?D:0,_n(e.font[0],f,1==e.align?s:2==e.align?r:E>0?s:0>E?r:0==a?"center":3==u?r:s,E||1==a?"middle":2==u?i:o);let P=e.font[1]*e.lineGap,A=x.map((l=>sl(C(l,p,m,g)))),W=e._values;for(let l=0;W.length>l;l++){let e=W[l];if(null!=e){0==a?t=A[l]:n=A[l],e=""+e;let i=-1==e.indexOf("\n")?[e]:e.split(/\n/gm);for(let l=0;i.length>l;l++){let e=i[l];E?(K.save(),K.translate(t,n+l*P),K.rotate(E),K.fillText(e,0,0),K.restore()):K.fillText(e,t,n+l*P)}}}b.show&&zn(A,b.filter(k,w,l,d,_),a,u,z,S,Al(b.width*y,3),b.stroke(k,l),b.dash,b.cap);let Y=e.grid;Y.show&&zn(A,Y.filter(k,w,l,d,_),a,0==a?2:1,0==a?lt:Qe,0==a?st:ot,Al(Y.width*y,3),Y.stroke(k,l),Y.dash,Y.cap),v.show&&zn([z],[1],0==a?1:0,0==a?1:2,1==a?lt:Qe,1==a?st:ot,Al(v.width*y,3),v.stroke(k,l),v.dash,v.cap)}Ci("drawAxes")},series:function(){if(Gt>0){let l=pl.some((l=>l._focus))&&dn!=Tt.alpha;l&&(K.globalAlpha=dn=Tt.alpha),pl.forEach(((l,e)=>{if(e>0&&l.show&&(kn(e,!1),kn(e,!0),null==l._paths)){let t=dn;dn!=l.alpha&&(K.globalAlpha=dn=l.alpha);let n=2==M?[0,g[e][0].length-1]:function(l){let e=wl(Lt-1,0,Gt-1),t=wl(en+1,0,Gt-1);for(;null==l[e]&&e>0;)e--;for(;null==l[t]&&Gt-1>t;)t++;return[e,t]}(g[e]);l._paths=l.paths(k,e,n[0],n[1]),dn!=t&&(K.globalAlpha=dn=t)}})),pl.forEach(((l,e)=>{if(e>0&&l.show){let t=dn;dn!=l.alpha&&(K.globalAlpha=dn=l.alpha),null!=l._paths&&yn(e,!1);{let t=null!=l._paths?l._paths.gaps:null,n=l.points.show(k,e,Lt,en,t),i=l.points.filter(k,e,n,t);(n||i)&&(l.points._paths=l.points.paths(k,e,Lt,en,i),yn(e,!0))}dn!=t&&(K.globalAlpha=dn=t),Ci("drawSeries",e)}})),l&&(K.globalAlpha=dn=1)}}},Pl=(u.drawOrder||["axes","series"]).map((l=>Dl[l]));function Cl(l){const e=3==l.distr?e=>dl(e>0?e:l.clamp(k,e,l.min,l.max,l.key)):4==l.distr?e=>ml(e,l.asinh):100==l.distr?e=>l.fwd(e):l=>l;return t=>{let n=e(t),{_min:i,_max:o}=l;return(n-i)/(o-i)}}function Il(l){let e=vl[l];if(null==e){let t=(u.scales||Hl)[l]||Hl;if(null!=t.from){Il(t.from);let e=Bl({},vl[t.from],t,{key:l});e.valToPct=Cl(e),vl[l]=e}else{e=vl[l]=Bl({},l==El?ft:ct,t),e.key=l;let n=e.time,i=e.range,o=Gl(i);if((l!=El||2==M&&!n)&&(!o||null!=i[0]&&null!=i[1]||(i={min:null==i[0]?q:{mode:1,hard:i[0],soft:i[0]},max:null==i[1]?q:{mode:1,hard:i[1],soft:i[1]}},o=!1),!o&&Ol(i))){let l=i;i=(e,t,n)=>null==t?Rl:Z(t,n,l)}e.range=bl(i||(n?Bt:l==El?3==e.distr?qt:4==e.distr?Xt:Vt:3==e.distr?Jt:4==e.distr?Kt:$t)),e.auto=bl(!o&&e.auto),e.clamp=bl(e.clamp||at),e._min=e._max=null,e.valToPct=Cl(e)}}}Il("x"),Il("y"),1==M&&pl.forEach((l=>{Il(l.scale)})),xl.forEach((l=>{Il(l.scale)}));for(let l in u.scales)Il(l);const jl=vl[El],Ul=jl.distr;let $l,ql;0==jl.ori?(S(R,"u-hz"),$l=P,ql=W):(S(R,"u-vt"),$l=W,ql=P);const Kl={};for(let l in vl){let e=vl[l];null==e.min&&null==e.max||(Kl[l]={min:e.min,max:e.max},e.min=e.max=null)}const Xl=u.tzDate||(l=>new Date(rl(l/hl))),Zl=u.fmtDate||ne,Ql=1==hl?Me(Xl):Ee(Xl),le=De(Xl,ze(1==hl?ye:Te,Zl)),ee=We(Xl,Ae("{YYYY}-{MM}-{DD} {h}:{mm}{aa}",Zl)),te=[],ie=k.legend=Bl({},Ye,u.legend),oe=k.cursor=Bl({},Re,{drag:{y:2==M}},u.cursor),se=ie.show,re=oe.show,ue=ie.markers;let ce,he,de;ie.idxs=te,ue.width=bl(ue.width),ue.dash=bl(ue.dash),ue.stroke=bl(ue.stroke),ue.fill=bl(ue.fill);let pe,me=[],ge=[],xe=!1,we={};if(ie.live){const l=pl[1]?pl[1].values:null;xe=null!=l,pe=xe?l(k,1,0):{_:0};for(let l in pe)we[l]=w}if(se)if(ce=z("table","u-legend",R),de=z("tbody",null,ce),ie.mount(k,ce),xe){he=z("thead",null,ce,de);let l=z("tr",null,he);for(var _e in z("th",null,l),pe)z("th",e,l).textContent=_e}else S(ce,"u-inline"),ie.live&&S(ce,"u-live");const be={show:!0},ve={show:!1},Pe=new Map;function Ce(l,e,t,n=!0){const i=Pe.get(e)||{},o=oe.bind[l](k,e,t,n);o&&(G(l,e,i[l]=o),Pe.set(e,i))}function He(l,e){const t=Pe.get(e)||{};for(let n in t)null!=l&&n!=l||(I(n,e,t[n]),delete t[n]);null==l&&Pe.delete(e)}let Fe=0,Ge=0,Ie=0,Le=0,Oe=0,Ne=0,je=Oe,Ke=Ne,Xe=Ie,Ze=Le,Qe=0,lt=0,ot=0,st=0;k.bbox={};let ht=!1,pt=!1,mt=!1,xt=!1,wt=!1,_t=!1;function vt(l,e,t){(t||l!=k.width||e!=k.height)&&kt(l,e),An(!1),mt=!0,pt=!0,Jn()}function kt(l,e){k.width=Fe=Ie=l,k.height=Ge=Le=e,Oe=Ne=0,function(){let l=!1,e=!1,t=!1,n=!1;xl.forEach((i=>{if(i.show&&i._show){let{side:o,_size:s}=i,r=s+(null!=i.label?i.labelSize:0);r>0&&(o%2?(Ie-=r,3==o?(Oe+=r,n=!0):t=!0):(Le-=r,0==o?(Ne+=r,l=!0):e=!0))}})),Ct[0]=l,Ct[1]=t,Ct[2]=e,Ct[3]=n,Ie-=Rt[1]+Rt[3],Oe+=Rt[3],Le-=Rt[2]+Rt[0],Ne+=Rt[0]}(),function(){let l=Oe+Ie,e=Ne+Le,t=Oe,n=Ne;function i(i,o){switch(i){case 1:return l+=o,l-o;case 2:return e+=o,e-o;case 3:return t-=o,t+o;case 0:return n-=o,n+o}}xl.forEach((l=>{if(l.show&&l._show){let e=l.side;l._pos=i(e,l._size),null!=l.label&&(l._lpos=i(e,l.labelSize))}}))}();let t=k.bbox;Qe=t.left=zl(Oe*y,.5),lt=t.top=zl(Ne*y,.5),ot=t.width=zl(Ie*y,.5),st=t.height=zl(Le*y,.5)}const yt=3;if(k.setSize=function({width:l,height:e}){vt(l,e)},null==oe.dataIdx){let l=oe.hover,e=l.skip=new Set(l.skip??[]);e.add(void 0);let t=l.prox=bl(l.prox),n=l.bias??=0;oe.dataIdx=(l,i,o,s)=>{if(0==i)return o;let r=o,u=t(l,i,o,s)??gl,a=u>=0&&gl>u,f=0==jl.ori?Ie:Le,c=oe.left,h=g[0],d=g[i];if(e.has(d[o])){r=null;let l,t=null,i=null;if(0==n||-1==n)for(l=o;null==t&&l-- >0;)e.has(d[l])||(t=l);if(0==n||1==n)for(l=o;null==i&&l++<d.length;)e.has(d[l])||(i=l);if(null!=t||null!=i)if(a){let l=c-(null==t?-1/0:$l(h[t],jl,f,0)),e=(null==i?1/0:$l(h[i],jl,f,0))-c;l>e?e>u||(r=i):l>u||(r=t)}else r=null==i?t:null==t||o-t>i-o?i:t}else a&&ol(c-$l(h[o],jl,f,0))>u&&(r=null);return r}}const Mt=l=>{oe.event=l};oe.idxs=te,oe._lock=!1;let St=oe.points;St.show=bl(St.show),St.size=bl(St.size),St.stroke=bl(St.stroke),St.width=bl(St.width),St.fill=bl(St.fill);const Tt=k.focus=Bl({},u.focus||{alpha:.3},oe.focus),Et=Tt.prox>=0,zt=Et&&St.one;let Dt=[],Pt=[],At=[];function Wt(l,e){let t=St.show(k,e);if(t instanceof HTMLElement)return S(t,"u-cursor-pt"),S(t,l.class),A(t,-10,-10,Ie,Le),el.insertBefore(t,Dt[e]),t}function Yt(t,n){if(1==M||n>0){let l=1==M&&vl[t.scale].time,e=t.value;t.value=l?Ll(e)?We(Xl,Ae(e,Zl)):e||ee:e||nt,t.label=t.label||(l?"Time":"Value")}if(zt||n>0){t.width=null==t.width?1:t.width,t.paths=t.paths||Ot||yl,t.fillTo=bl(t.fillTo||gt),t.pxAlign=+Q(t.pxAlign,tl),t.pxRound=bt(t.pxAlign),t.stroke=bl(t.stroke||null),t.fill=bl(t.fill||null),t._stroke=t._fill=t._paths=t._focus=null;let l=function(l){return Al(1*(3+2*(l||1)),3)}(fl(1,t.width)),e=t.points=Bl({},{size:l,width:fl(1,.2*l),stroke:t.stroke,space:2*l,paths:Nt,_stroke:null,_fill:null},t.points);e.show=bl(e.show),e.filter=bl(e.filter),e.fill=bl(e.fill),e.stroke=bl(e.stroke),e.paths=bl(e.paths),e.pxAlign=t.pxAlign}if(se){let i=function(t,n){if(0==n&&(xe||!ie.live||2==M))return Rl;let i=[],o=z("tr","u-series",de,de.childNodes[n]);S(o,t.class),t.show||S(o,l);let s=z("th",null,o);if(ue.show){let l=D("u-marker",s);if(n>0){let e=ue.width(k,n);e&&(l.style.border=e+"px "+ue.dash(k,n)+" "+ue.stroke(k,n)),l.style.background=ue.fill(k,n)}}let r=D(e,s);for(var u in t.label instanceof HTMLElement?r.appendChild(t.label):r.textContent=t.label,n>0&&(ue.show||(r.style.color=t.width>0?ue.stroke(k,n):ue.fill(k,n)),Ce("click",s,(l=>{if(oe._lock)return;Mt(l);let e=pl.indexOf(t);if((l.ctrlKey||l.metaKey)!=ie.isolate){let l=pl.some(((l,t)=>t>0&&t!=e&&l.show));pl.forEach(((t,n)=>{n>0&&oi(n,l?n==e?be:ve:be,!0,Fi.setSeries)}))}else oi(e,{show:!t.show},!0,Fi.setSeries)}),!1),Et&&Ce(d,s,(l=>{oe._lock||(Mt(l),oi(pl.indexOf(t),ai,!0,Fi.setSeries))}),!1)),pe){let l=z("td","u-value",o);l.textContent="--",i.push(l)}return[o,i]}(t,n);me.splice(n,0,i[0]),ge.splice(n,0,i[1]),ie.values.push(null)}if(re){te.splice(n,0,null);let l=null;zt?0==n&&(l=Wt(t,n)):n>0&&(l=Wt(t,n)),Dt.splice(n,0,l),Pt.splice(n,0,0),At.splice(n,0,0)}Ci("addSeries",n)}k.addSeries=function(l,e){e=null==e?pl.length:e,l=1==M?Ut(l,e,Ve,ut):Ut(l,e,{},rt),pl.splice(e,0,l),Yt(pl[e],e)},k.delSeries=function(l){if(pl.splice(l,1),se){ie.values.splice(l,1),ge.splice(l,1);let e=me.splice(l,1)[0];He(null,e.firstChild),e.remove()}re&&(te.splice(l,1),Dt.splice(l,1)[0].remove(),Pt.splice(l,1),At.splice(l,1)),Ci("delSeries",l)};const Ct=[!1,!1,!1,!1];function Ht(l,e,t){let[n,i,o,s]=t,r=e%2,u=0;return 0==r&&(s||i)&&(u=0==e&&!n||2==e&&!o?rl(Ue.size/3):0),1==r&&(n||o)&&(u=1==e&&!i||3==e&&!s?rl(it.size/2):0),u}const Ft=k.padding=(u.padding||[Ht,Ht,Ht,Ht]).map((l=>bl(Q(l,Ht)))),Rt=k._padding=Ft.map(((l,e)=>l(k,e,Ct,0)));let Gt,Lt=null,en=null;const tn=1==M?pl[0].idxs:null;let nn,on,sn,rn,un,an,fn,cn,hn,dn,pn=null,mn=!1;function gn(l,e){if(k.data=k._data=g=null==l?[]:l,2==M){Gt=0;for(let l=1;pl.length>l;l++)Gt+=g[l][0].length}else{0==g.length&&(k.data=k._data=g=[[]]),pn=g[0],Gt=pn.length;let l=g;if(2==Ul){l=g.slice();let e=l[0]=Array(Gt);for(let l=0;Gt>l;l++)e[l]=l}k._data=g=l}if(An(!0),Ci("setData"),2==Ul&&(mt=!0),!1!==e){let l=jl;l.auto(k,mn)?xn():ii(El,l.min,l.max),xt=xt||oe.left>=0,_t=!0,Jn()}}function xn(){let l,e;mn=!0,1==M&&(Gt>0?(Lt=tn[0]=0,en=tn[1]=Gt-1,l=g[0][Lt],e=g[0][en],2==Ul?(l=Lt,e=en):l==e&&(3==Ul?[l,e]=B(l,l,jl.log,!1):4==Ul?[l,e]=$(l,l,jl.log,!1):jl.time?e=l+rl(86400/hl):[l,e]=Z(l,e,J,!0))):(Lt=tn[0]=l=null,en=tn[1]=e=null)),ii(El,l,e)}function wn(l,e,t,n,i,o){l??=a,t??=Fl,n??="butt",i??=a,o??="round",l!=nn&&(K.strokeStyle=nn=l),i!=on&&(K.fillStyle=on=i),e!=sn&&(K.lineWidth=sn=e),o!=un&&(K.lineJoin=un=o),n!=an&&(K.lineCap=an=n),t!=rn&&K.setLineDash(rn=t)}function _n(l,e,t,n){e!=on&&(K.fillStyle=on=e),l!=fn&&(K.font=fn=l),t!=cn&&(K.textAlign=cn=t),n!=hn&&(K.textBaseline=hn=n)}function bn(l,e,t,n,i=0){if(n.length>0&&l.auto(k,mn)&&(null==e||null==e.min)){let e=Q(Lt,0),o=Q(en,n.length-1),s=null==t.min?function(l,e,t,n=0,i=!1){let o=i?V:U,s=i?j:N;[e,t]=o(l,e,t);let r=l[e],u=l[e];if(e>-1)if(1==n)r=l[e],u=l[t];else if(-1==n)r=l[t],u=l[e];else for(let n=e;t>=n;n++){let e=l[n];s(e)&&(r>e?r=e:e>u&&(u=e))}return[r??gl,u??-gl]}(n,e,o,i,3==l.distr):[t.min,t.max];l.min=al(l.min,t.min=s[0]),l.max=fl(l.max,t.max=s[1])}}k.setData=gn;const vn={min:null,max:null};function kn(l,e){let t=e?pl[l].points:pl[l];t._stroke=t.stroke(k,l),t._fill=t.fill(k,l)}function yn(l,e){let t=e?pl[l].points:pl[l],{stroke:n,fill:i,clip:o,flags:s,_stroke:r=t._stroke,_fill:u=t._fill,_width:a=t.width}=t._paths;a=Al(a*y,3);let f=null,c=a%2/2;e&&null==u&&(u=a>0?"#fff":r);let h=1==t.pxAlign&&c>0;if(h&&K.translate(c,c),!e){let l=Qe-a/2,e=lt-a/2,t=ot+a,n=st+a;f=new Path2D,f.rect(l,e,t,n)}e?Sn(r,a,t.dash,t.cap,u,n,i,s,o):function(l,e,t,n,i,o,s,r,u,a,f){let c=!1;0!=u&&Tl.forEach(((h,d)=>{if(h.series[0]==l){let l,p=pl[h.series[1]],m=g[h.series[1]],x=(p._paths||Hl).band;Gl(x)&&(x=1==h.dir?x[0]:x[1]);let w=null;p.show&&x&&function(l,e,t){for(e=Q(e,0),t=Q(t,l.length-1);t>=e;){if(null!=l[e])return!0;e++}return!1}(m,Lt,en)?(w=h.fill(k,d)||o,l=p._paths.clip):x=null,Sn(e,t,n,i,w,s,r,u,a,f,l,x),c=!0}})),c||Sn(e,t,n,i,o,s,r,u,a,f)}(l,r,a,t.dash,t.cap,u,n,i,s,f,o),h&&K.translate(-c,-c)}const Mn=3;function Sn(l,e,t,n,i,o,s,r,u,a,f,c){wn(l,e,t,n,i),(u||a||c)&&(K.save(),u&&K.clip(u),a&&K.clip(a)),c?(r&Mn)==Mn?(K.clip(c),f&&K.clip(f),En(i,s),Tn(l,o,e)):2&r?(En(i,s),K.clip(c),Tn(l,o,e)):1&r&&(K.save(),K.clip(c),f&&K.clip(f),En(i,s),K.restore(),Tn(l,o,e)):(En(i,s),Tn(l,o,e)),(u||a||c)&&K.restore()}function Tn(l,e,t){t>0&&(e instanceof Map?e.forEach(((l,e)=>{K.strokeStyle=nn=e,K.stroke(l)})):null!=e&&l&&K.stroke(e))}function En(l,e){e instanceof Map?e.forEach(((l,e)=>{K.fillStyle=on=e,K.fill(l)})):null!=e&&l&&K.fill(e)}function zn(l,e,t,n,i,o,s,r,u,a){let f=s%2/2;1==tl&&K.translate(f,f),wn(r,s,u,a,r),K.beginPath();let c,h,d,p,m=i+(0==n||3==n?-o:o);0==t?(h=i,p=m):(c=i,d=m);for(let n=0;l.length>n;n++)null!=e[n]&&(0==t?c=d=l[n]:h=p=l[n],K.moveTo(c,h),K.lineTo(d,p));K.stroke(),1==tl&&K.translate(-f,-f)}function Dn(l){let e=!0;return xl.forEach(((t,n)=>{if(!t.show)return;let i=vl[t.scale];if(null==i.min)return void(t._show&&(e=!1,t._show=!1,An(!1)));t._show||(e=!1,t._show=!0,An(!1));let o=t.side,s=o%2,{min:r,max:u}=i,[a,f]=function(l,e,t,n){let i,o=xl[l];if(n>0){let s=o._space=o.space(k,l,e,t,n);i=Zt(e,t,o._incrs=o.incrs(k,l,e,t,n,s),n,s)}else i=[0,0];return o._found=i}(n,r,u,0==s?Ie:Le);if(0==f)return;let c=t._splits=t.splits(k,n,r,u,a,f,2==i.distr),h=2==i.distr?c.map((l=>pn[l])):c,d=2==i.distr?pn[c[1]]-pn[c[0]]:a,p=t._values=t.values(k,t.filter(k,h,n,f,d),n,f,d);t._rotate=2==o?t.rotate(k,p,n,f):0;let m=t._size;t._size=ul(t.size(k,p,n,l)),null!=m&&t._size!=m&&(e=!1)})),e}function Pn(l){let e=!0;return Ft.forEach(((t,n)=>{let i=t(k,n,Ct,l);i!=Rt[n]&&(e=!1),Rt[n]=i})),e}function An(l){pl.forEach(((e,t)=>{t>0&&(e._paths=null,l&&(1==M?(e.min=null,e.max=null):e.facets.forEach((l=>{l.min=null,l.max=null}))))}))}let Wn,Yn,Cn,Hn,Fn,Rn,Gn,In,Ln,On,Nn,jn,Un=!1,Vn=!1,Bn=[];function $n(){Vn=!1;for(let l=0;Bn.length>l;l++)Ci(...Bn[l]);Bn.length=0}function Jn(){Un||(Jl(qn),Un=!0)}function qn(){if(ht&&(function(){for(let l in vl){let e=vl[l];null==Kl[l]&&(null==e.min||null!=Kl[El]&&e.auto(k,mn))&&(Kl[l]=vn)}for(let l in vl){let e=vl[l];null==Kl[l]&&null!=e.from&&null!=Kl[e.from]&&(Kl[l]=vn)}null!=Kl[El]&&An(!0);let l={};for(let e in Kl){let t=Kl[e];if(null!=t){let n=l[e]=Vl(vl[e],Nl);if(null!=t.min)Bl(n,t);else if(e!=El||2==M)if(0==Gt&&null==n.from){let l=n.range(k,null,null,e);n.min=l[0],n.max=l[1]}else n.min=gl,n.max=-gl}}if(Gt>0){pl.forEach(((e,t)=>{if(1==M){let n=e.scale,i=Kl[n];if(null==i)return;let o=l[n];if(0==t){let l=o.range(k,o.min,o.max,n);o.min=l[0],o.max=l[1],Lt=L(o.min,g[0]),en=L(o.max,g[0]),en-Lt>1&&(o.min>g[0][Lt]&&Lt++,g[0][en]>o.max&&en--),e.min=pn[Lt],e.max=pn[en]}else e.show&&e.auto&&bn(o,i,e,g[t],e.sorted);e.idxs[0]=Lt,e.idxs[1]=en}else if(t>0&&e.show&&e.auto){let[n,i]=e.facets,o=n.scale,s=i.scale,[r,u]=g[t],a=l[o],f=l[s];null!=a&&bn(a,Kl[o],n,r,n.sorted),null!=f&&bn(f,Kl[s],i,u,i.sorted),e.min=i.min,e.max=i.max}}));for(let e in l){let t=l[e],n=Kl[e];if(null==t.from&&(null==n||null==n.min)){let l=t.range(k,t.min==gl?null:t.min,t.max==-gl?null:t.max,e);t.min=l[0],t.max=l[1]}}}for(let e in l){let t=l[e];if(null!=t.from){let n=l[t.from];if(null==n.min)t.min=t.max=null;else{let l=t.range(k,n.min,n.max,e);t.min=l[0],t.max=l[1]}}}let e={},t=!1;for(let n in l){let i=l[n],o=vl[n];if(o.min!=i.min||o.max!=i.max){o.min=i.min,o.max=i.max;let l=o.distr;o._min=3==l?dl(o.min):4==l?ml(o.min,o.asinh):100==l?o.fwd(o.min):o.min,o._max=3==l?dl(o.max):4==l?ml(o.max,o.asinh):100==l?o.fwd(o.max):o.max,e[n]=t=!0}}if(t){pl.forEach(((l,t)=>{2==M?t>0&&e.y&&(l._paths=null):e[l.scale]&&(l._paths=null)}));for(let l in e)mt=!0,Ci("setScale",l);re&&oe.left>=0&&(xt=_t=!0)}for(let l in Kl)Kl[l]=null}(),ht=!1),mt&&(function(){let l=!1,e=0;for(;!l;){e++;let t=Dn(e),n=Pn(e);l=e==yt||t&&n,l||(kt(k.width,k.height),pt=!0)}}(),mt=!1),pt){if(E(ll,s,Oe),E(ll,i,Ne),E(ll,t,Ie),E(ll,n,Le),E(el,s,Oe),E(el,i,Ne),E(el,t,Ie),E(el,n,Le),E(X,t,Fe),E(X,n,Ge),O.width=rl(Fe*y),O.height=rl(Ge*y),xl.forEach((({_el:e,_show:t,_size:n,_pos:i,side:o})=>{if(null!=e)if(t){let t=o%2==1;E(e,t?"left":"top",i-(3===o||0===o?n:0)),E(e,t?"width":"height",n),E(e,t?"top":"left",t?Ne:Oe),E(e,t?"height":"width",t?Le:Ie),T(e,l)}else S(e,l)})),nn=on=sn=un=an=fn=cn=hn=rn=null,dn=1,_i(!0),Oe!=je||Ne!=Ke||Ie!=Xe||Le!=Ze){An(!1);let l=Ie/Xe,e=Le/Ze;if(re&&!xt&&oe.left>=0){oe.left*=l,oe.top*=e,Cn&&A(Cn,rl(oe.left),0,Ie,Le),Hn&&A(Hn,0,rl(oe.top),Ie,Le);for(let t=0;Dt.length>t;t++){let n=Dt[t];null!=n&&(Pt[t]*=l,At[t]*=e,A(n,ul(Pt[t]),ul(At[t]),Ie,Le))}}if(ei.show&&!wt&&ei.left>=0&&ei.width>0){ei.left*=l,ei.width*=l,ei.top*=e,ei.height*=e;for(let l in ki)E(ti,l,ei[l])}je=Oe,Ke=Ne,Xe=Ie,Ze=Le}Ci("setSize"),pt=!1}Fe>0&&Ge>0&&(K.clearRect(0,0,O.width,O.height),Ci("drawClear"),Pl.forEach((l=>l())),Ci("draw")),ei.show&&wt&&(ni(ei),wt=!1),re&&xt&&(xi(null,!0,!1),xt=!1),ie.show&&ie.live&&_t&&(mi(),_t=!1),F||(F=!0,k.status=1,Ci("ready")),mn=!1,Un=!1}function Kn(l,e){let t=vl[l];if(null==t.from){if(0==Gt){let n=t.range(k,e.min,e.max,l);e.min=n[0],e.max=n[1]}if(e.min>e.max){let l=e.min;e.min=e.max,e.max=l}if(Gt>1&&null!=e.min&&null!=e.max&&1e-16>e.max-e.min)return;l==El&&2==t.distr&&Gt>0&&(e.min=L(e.min,g[0]),e.max=L(e.max,g[0]),e.min==e.max&&e.max++),Kl[l]=e,ht=!0,Jn()}}k.batch=function(l,e=!1){Un=!0,Vn=e,l(k),qn(),e&&Bn.length>0&&queueMicrotask($n)},k.redraw=(l,e)=>{mt=e||!1,!1!==l?ii(El,jl.min,jl.max):Jn()},k.setScale=Kn;let Xn=!1;const Zn=oe.drag;let Qn=Zn.x,li=Zn.y;re&&(oe.x&&(Wn=D("u-cursor-x",el)),oe.y&&(Yn=D("u-cursor-y",el)),0==jl.ori?(Cn=Wn,Hn=Yn):(Cn=Yn,Hn=Wn),Nn=oe.left,jn=oe.top);const ei=k.select=Bl({show:!0,over:!0,left:0,width:0,top:0,height:0},u.select),ti=ei.show?D("u-select",ei.over?el:ll):null;function ni(l,e){if(ei.show){for(let e in l)ei[e]=l[e],e in ki&&E(ti,e,l[e]);!1!==e&&Ci("setSelect")}}function ii(l,e,t){Kn(l,{min:e,max:t})}function oi(e,t,n,i){null!=t.focus&&function(l){if(l!=ui){let e=null==l,t=1!=Tt.alpha;pl.forEach(((n,i)=>{if(1==M||i>0){let o=e||0==i||i==l;n._focus=e?null:o,t&&function(l,e){pl[l].alpha=e,re&&null!=Dt[l]&&(Dt[l].style.opacity=e),se&&me[l]&&(me[l].style.opacity=e)}(i,o?1:Tt.alpha)}})),ui=l,t&&Jn()}}(e),null!=t.show&&pl.forEach(((n,i)=>{0>=i||e!=i&&null!=e||(n.show=t.show,function(e){if(pl[e].show)se&&T(me[e],l);else if(se&&S(me[e],l),re){let l=zt?Dt[0]:Dt[e];null!=l&&A(l,-10,-10,Ie,Le)}}(i),2==M?(ii(n.facets[0].scale,null,null),ii(n.facets[1].scale,null,null)):ii(n.scale,null,null),Jn())})),!1!==n&&Ci("setSeries",e,t),i&&Ii("setSeries",k,e,t)}let si,ri,ui;k.setSelect=ni,k.setSeries=oi,k.addBand=function(l,e){l.fill=bl(l.fill||null),l.dir=Q(l.dir,-1),Tl.splice(e=null==e?Tl.length:e,0,l)},k.setBand=function(l,e){Bl(Tl[l],e)},k.delBand=function(l){null==l?Tl.length=0:Tl.splice(l,1)};const ai={focus:!0};function fi(l,e,t){let n=vl[e];t&&(l=l/y-(1==n.ori?Ne:Oe));let i=Ie;1==n.ori&&(i=Le,l=i-l),-1==n.dir&&(l=i-l);let o=n._min,s=o+l/i*(n._max-o),r=n.distr;return 3==r?cl(10,s):4==r?((l,e=1)=>nl.sinh(l)*e)(s,n.asinh):100==r?n.bwd(s):s}function ci(l,e){E(ti,s,ei.left=l),E(ti,t,ei.width=e)}function hi(l,e){E(ti,i,ei.top=l),E(ti,n,ei.height=e)}se&&Et&&Ce(p,ce,(l=>{oe._lock||(Mt(l),null!=ui&&oi(null,ai,!0,Fi.setSeries))})),k.valToIdx=l=>L(l,g[0]),k.posToIdx=function(l,e){return L(fi(l,El,e),g[0],Lt,en)},k.posToVal=fi,k.valToPos=(l,e,t)=>0==vl[e].ori?P(l,vl[e],t?ot:Ie,t?Qe:0):W(l,vl[e],t?st:Le,t?lt:0),k.setCursor=(l,e,t)=>{Nn=l.left,jn=l.top,xi(null,e,t)};let di=0==jl.ori?ci:hi,pi=1==jl.ori?ci:hi;function mi(l,e){if(null!=l&&(l.idxs?l.idxs.forEach(((l,e)=>{te[e]=l})):(l=>void 0===l)(l.idx)||te.fill(l.idx),ie.idx=te[0]),se&&ie.live){for(let l=0;pl.length>l;l++)(l>0||1==M&&!xe)&&gi(l,te[l]);!function(){if(se&&ie.live)for(let l=2==M?1:0;pl.length>l;l++){if(0==l&&xe)continue;let e=ie.values[l],t=0;for(let n in e)ge[l][t++].firstChild.nodeValue=e[n]}}()}_t=!1,!1!==e&&Ci("setLegend")}function gi(l,e){let t,n=pl[l],i=0==l&&2==Ul?pn:g[l];xe?t=n.values(k,l,e)??we:(t=n.value(k,null==e?null:i[e],l,e),t=null==t?we:{_:t}),ie.values[l]=t}function xi(l,e,t){let n;Ln=Nn,On=jn,[Nn,jn]=oe.move(k,Nn,jn),oe.left=Nn,oe.top=jn,re&&(Cn&&A(Cn,rl(Nn),0,Ie,Le),Hn&&A(Hn,0,rl(jn),Ie,Le)),si=gl,ri=null;let i=0==jl.ori?Ie:Le,o=1==jl.ori?Ie:Le;if(0>Nn||0==Gt||Lt>en){n=oe.idx=null;for(let l=0;pl.length>l;l++){let e=Dt[l];null!=e&&A(e,-10,-10,Ie,Le)}Et&&oi(null,ai,!0,null==l&&Fi.setSeries),ie.live&&(te.fill(n),_t=!0)}else{let l,e,t;1==M&&(l=0==jl.ori?Nn:jn,e=fi(l,El),n=oe.idx=L(e,g[0],Lt,en),t=$l(g[0][n],jl,i,0));let s=-10,r=-10,u=0,a=0,f=!0,c="",h="";for(let l=2==M?1:0;pl.length>l;l++){let d=pl[l],p=te[l],m=null==p?null:1==M?g[l][p]:g[l][1][p],x=oe.dataIdx(k,l,n,e),w=null==x?null:1==M?g[l][x]:g[l][1][x];if(_t=_t||w!=m||x!=p,te[l]=x,l>0&&d.show){let e=null==x?-10:x==n?t:$l(1==M?g[0][x]:g[l][0][x],jl,i,0),p=null==w?-10:ql(w,1==M?vl[d.scale]:vl[d.facets[1].scale],o,0);if(Et&&null!=w){let e=1==jl.ori?Nn:jn,t=ol(Tt.dist(k,l,x,p,e));if(si>t){let n=Tt.bias;if(0!=n){let i=fi(e,d.scale),o=0>i?-1:1;o!=(0>w?-1:1)||(1==o?1==n?i>w:w>i:1==n?w>i:i>w)||(si=t,ri=l)}else si=t,ri=l}}if(_t||zt){let t,n;0==jl.ori?(t=e,n=p):(t=p,n=e);let i,o,d,m,g,x,w=!0,_=St.bbox;if(null!=_){w=!1;let e=_(k,l);d=e.left,m=e.top,i=e.width,o=e.height}else d=t,m=n,i=o=St.size(k,l);if(x=St.fill(k,l),g=St.stroke(k,l),zt)l!=ri||si>Tt.prox||(s=d,r=m,u=i,a=o,f=w,c=x,h=g);else{let e=Dt[l];null!=e&&(Pt[l]=d,At[l]=m,H(e,i,o,w),Y(e,x,g),A(e,ul(d),ul(m),Ie,Le))}}}}if(zt){let l=Tt.prox;if(_t||(null==ui?l>=si:si>l||ri!=ui)){let l=Dt[0];null!=l&&(Pt[0]=s,At[0]=r,H(l,u,a,f),Y(l,c,h),A(l,ul(s),ul(r),Ie,Le))}}}if(ei.show&&Xn)if(null!=l){let[e,t]=Fi.scales,[n,s]=Fi.match,[r,u]=l.cursor.sync.scales,a=l.cursor.drag;if(Qn=a._x,li=a._y,Qn||li){let a,f,c,h,d,{left:p,top:m,width:g,height:x}=l.select,w=l.scales[r].ori,_=l.posToVal,b=null!=e&&n(e,r),v=null!=t&&s(t,u);b&&Qn?(0==w?(a=p,f=g):(a=m,f=x),c=vl[e],h=$l(_(a,r),c,i,0),d=$l(_(a+f,r),c,i,0),di(al(h,d),ol(d-h))):di(0,i),v&&li?(1==w?(a=p,f=g):(a=m,f=x),c=vl[t],h=ql(_(a,u),c,o,0),d=ql(_(a+f,u),c,o,0),pi(al(h,d),ol(d-h))):pi(0,o)}else yi()}else{let l=ol(Ln-Fn),e=ol(On-Rn);if(1==jl.ori){let t=l;l=e,e=t}Qn=Zn.x&&l>=Zn.dist,li=Zn.y&&e>=Zn.dist;let t,n,s=Zn.uni;null!=s?Qn&&li&&(Qn=l>=s,li=e>=s,Qn||li||(e>l?li=!0:Qn=!0)):Zn.x&&Zn.y&&(Qn||li)&&(Qn=li=!0),Qn&&(0==jl.ori?(t=Gn,n=Nn):(t=In,n=jn),di(al(t,n),ol(n-t)),li||pi(0,o)),li&&(1==jl.ori?(t=Gn,n=Nn):(t=In,n=jn),pi(al(t,n),ol(n-t)),Qn||di(0,i)),Qn||li||(di(0,0),pi(0,0))}if(Zn._x=Qn,Zn._y=li,null==l){if(t){if(null!=Ri){let[l,e]=Fi.scales;Fi.values[0]=null!=l?fi(0==jl.ori?Nn:jn,l):null,Fi.values[1]=null!=e?fi(1==jl.ori?Nn:jn,e):null}Ii(f,k,Nn,jn,Ie,Le,n)}if(Et){let l=t&&Fi.setSeries,e=Tt.prox;null==ui?si>e||oi(ri,ai,!0,l):si>e?oi(null,ai,!0,l):ri!=ui&&oi(ri,ai,!0,l)}}_t&&(ie.idx=n,mi()),!1!==e&&Ci("setCursor")}k.setLegend=mi;let wi=null;function _i(l=!1){l?wi=null:(wi=el.getBoundingClientRect(),Ci("syncRect",wi))}function bi(l,e,t,n,i,o){oe._lock||Xn&&null!=l&&0==l.movementX&&0==l.movementY||(vi(l,e,t,n,i,o,0,!1,null!=l),null!=l?xi(null,!0,!0):xi(e,!0,!1))}function vi(l,e,t,n,i,o,s,r,u){if(null==wi&&_i(!1),Mt(l),null!=l)t=l.clientX-wi.left,n=l.clientY-wi.top;else{if(0>t||0>n)return Nn=-10,void(jn=-10);let[l,s]=Fi.scales,r=e.cursor.sync,[u,a]=r.values,[f,c]=r.scales,[h,d]=Fi.match,p=e.axes[0].side%2==1,m=0==jl.ori?Ie:Le,g=1==jl.ori?Ie:Le,x=p?o:i,w=p?i:o,_=p?n:t,b=p?t:n;if(t=null!=f?h(l,f)?C(u,vl[l],m,0):-10:m*(_/x),n=null!=c?d(s,c)?C(a,vl[s],g,0):-10:g*(b/w),1==jl.ori){let l=t;t=n,n=l}}!u||null!=e&&e.cursor.event.type!=f||(t>1&&Ie-1>t||(t=zl(t,Ie)),n>1&&Le-1>n||(n=zl(n,Le))),r?(Fn=t,Rn=n,[Gn,In]=oe.move(k,t,n)):(Nn=t,jn=n)}Object.defineProperty(k,"rect",{get:()=>(null==wi&&_i(!1),wi)});const ki={width:0,height:0,left:0,top:0};function yi(){ni(ki,!1)}let Mi,Si,Ti,Ei;function zi(l,e,t,n,i,o){Xn=!0,Qn=li=Zn._x=Zn._y=!1,vi(l,e,t,n,i,o,0,!0,!1),null!=l&&(Ce(h,b,Di,!1),Ii(c,k,Gn,In,Ie,Le,null));let{left:s,top:r,width:u,height:a}=ei;Mi=s,Si=r,Ti=u,Ei=a}function Di(l,e,t,n,i,o){Xn=Zn._x=Zn._y=!1,vi(l,e,t,n,i,o,0,!1,!0);let{left:s,top:r,width:u,height:a}=ei,f=u>0||a>0,c=Mi!=s||Si!=r||Ti!=u||Ei!=a;if(f&&c&&ni(ei),Zn.setScale&&f&&c){let l=s,e=u,t=r,n=a;if(1==jl.ori&&(l=r,e=a,t=s,n=u),Qn&&ii(El,fi(l,El),fi(l+e,El)),li)for(let l in vl){let e=vl[l];l!=El&&null==e.from&&e.min!=gl&&ii(l,fi(t+n,l),fi(t,l))}yi()}else oe.lock&&(oe._lock=!oe._lock,xi(e,!0,null!=l));null!=l&&(He(h,b),Ii(h,k,Nn,jn,Ie,Le,null))}function Pi(l){oe._lock||(Mt(l),xn(),yi(),null!=l&&Ii(m,k,Nn,jn,Ie,Le,null))}function Ai(){xl.forEach(ln),vt(k.width,k.height,!0)}G(x,v,Ai);const Wi={};Wi.mousedown=zi,Wi.mousemove=bi,Wi.mouseup=Di,Wi.dblclick=Pi,Wi.setSeries=(l,e,t,n)=>{-1!=(t=(0,Fi.match[2])(k,e,t))&&oi(t,n,!0,!1)},re&&(Ce(c,el,zi),Ce(f,el,bi),Ce(d,el,(l=>{Mt(l),_i(!1)})),Ce(p,el,(function(l){if(oe._lock)return;Mt(l);let e=Xn;if(Xn){let l,e,t=!0,n=!0,i=10;0==jl.ori?(l=Qn,e=li):(l=li,e=Qn),l&&e&&(t=i>=Nn||Nn>=Ie-i,n=i>=jn||jn>=Le-i),l&&t&&(Nn=Gn>Nn?0:Ie),e&&n&&(jn=In>jn?0:Le),xi(null,!0,!0),Xn=!1}Nn=-10,jn=-10,te.fill(null),xi(null,!0,!0),e&&(Xn=e)})),Ce(m,el,Pi),It.add(k),k.syncRect=_i);const Yi=k.hooks=u.hooks||{};function Ci(l,e,t){Vn?Bn.push([l,e,t]):l in Yi&&Yi[l].forEach((l=>{l.call(null,k,e,t)}))}(u.plugins||[]).forEach((l=>{for(let e in l.hooks)Yi[e]=(Yi[e]||[]).concat(l.hooks[e])}));const Hi=(l,e,t)=>t,Fi=Bl({key:null,setSeries:!1,filters:{pub:Ml,sub:Ml},scales:[El,pl[1]?pl[1].scale:null],match:[Sl,Sl,Hi],values:[null,null]},oe.sync);2==Fi.match.length&&Fi.match.push(Hi),oe.sync=Fi;const Ri=Fi.key,Gi=dt(Ri);function Ii(l,e,t,n,i,o,s){Fi.filters.pub(l,e,t,n,i,o,s)&&Gi.pub(l,e,t,n,i,o,s)}function Li(){Ci("init",u,g),gn(g||u.data,!1),Kl[El]?Kn(El,Kl[El]):xn(),wt=ei.show&&(ei.width>0||ei.height>0),xt=_t=!0,vt(u.width,u.height)}return Gi.sub(k),k.pub=function(l,e,t,n,i,o,s){Fi.filters.sub(l,e,t,n,i,o,s)&&Wi[l](null,e,t,n,i,o,s)},k.destroy=function(){Gi.unsub(k),It.delete(k),Pe.clear(),I(x,v,Ai),R.remove(),ce?.remove(),Ci("destroy")},pl.forEach(Yt),xl.forEach((function(l,e){if(l._show=l.show,l.show){let t=vl[l.scale];null==t&&(l.scale=l.side%2?pl[1].scale:El,t=vl[l.scale]);let n=t.time;l.size=bl(l.size),l.space=bl(l.space),l.rotate=bl(l.rotate),Gl(l.incrs)&&l.incrs.forEach((l=>{!Wl.has(l)&&Wl.set(l,Yl(l))})),l.incrs=bl(l.incrs||(2==t.distr?ae:n?1==hl?ke:Se:fe)),l.splits=bl(l.splits||(n&&1==t.distr?Ql:3==t.distr?Je:4==t.distr?qe:$e)),l.stroke=bl(l.stroke),l.grid.stroke=bl(l.grid.stroke),l.ticks.stroke=bl(l.ticks.stroke),l.border.stroke=bl(l.border.stroke);let i=l.values;l.values=Gl(i)&&!Gl(i[0])?bl(i):n?Gl(i)?De(Xl,ze(i,Zl)):Ll(i)?function(l,e){let t=ne(e);return(e,n)=>n.map((e=>t(l(e))))}(Xl,i):i||le:i||Be,l.filter=bl(l.filter||(3>t.distr||10!=t.log?3==t.distr&&2==t.log?tt:kl:et)),l.font=Qt(l.font),l.labelFont=Qt(l.labelFont),l._size=l.size(k,null,e,0),l._space=l._rotate=l._incrs=l._found=l._splits=l._values=null,l._size>0&&(Ct[e]=!0,l._el=D("u-axis",X))}})),_?_ instanceof HTMLElement?(_.appendChild(R),Li()):_(k,Li):Li(),k}en.assign=Bl,en.fmtNum=tl,en.rangeNum=Z,en.rangeLog=B,en.rangeAsinh=$,en.orient=pt,en.pxRatio=y,en.join=function(l,e){if(function(l){let e=l[0][0],t=e.length;for(let n=1;l.length>n;n++){let i=l[n][0];if(i.length!=t)return!1;if(i!=e)for(let l=0;t>l;l++)if(i[l]!=e[l])return!1}return!0}(l)){let e=l[0].slice();for(let t=1;l.length>t;t++)e.push(...l[t].slice(1));return function(l,e=100){const t=l.length;if(1>=t)return!0;let n=0,i=t-1;for(;i>=n&&null==l[n];)n++;for(;i>=n&&null==l[i];)i--;if(n>=i)return!0;const o=fl(1,sl((i-n+1)/e));for(let e=l[n],t=n+o;i>=t;t+=o){const n=l[t];if(null!=n){if(e>=n)return!1;e=n}}return!0}(e[0])||(e=function(l){let e=l[0],t=e.length,n=Array(t);for(let l=0;n.length>l;l++)n[l]=l;n.sort(((l,t)=>e[l]-e[t]));let i=[];for(let e=0;l.length>e;e++){let o=l[e],s=Array(t);for(let l=0;t>l;l++)s[l]=o[n[l]];i.push(s)}return i}(e)),e}let t=new Set;for(let e=0;l.length>e;e++){let n=l[e][0],i=n.length;for(let l=0;i>l;l++)t.add(n[l])}let n=[Array.from(t).sort(((l,e)=>l-e))],i=n[0].length,o=new Map;for(let l=0;i>l;l++)o.set(n[0][l],l);for(let t=0;l.length>t;t++){let s=l[t],r=s[0];for(let l=1;s.length>l;l++){let u=s[l],a=Array(i).fill(void 0),f=e?e[t][l]:1,c=[];for(let l=0;u.length>l;l++){let e=u[l],t=o.get(r[l]);null===e?0!=f&&(a[t]=e,2==f&&c.push(t)):a[t]=e}$l(a,c,i),n.push(a)}}return n},en.fmtDate=ne,en.tzDate=function(l,e){let t;return"UTC"==e||"Etc/UTC"==e?t=new Date(+l+6e4*l.getTimezoneOffset()):e==ie?t=l:(t=new Date(l.toLocaleString("en-US",{timeZone:e})),t.setMilliseconds(l.getMilliseconds())),t},en.sync=dt;{en.addGap=function(l,e,t){let n=l[l.length-1];n&&n[0]==e?n[1]=t:l.push([e,t])},en.clipGaps=wt;let l=en.paths={points:Wt};l.linear=Ft,l.stepped=function(l){const e=Q(l.align,1),t=Q(l.ascDesc,!1),n=Q(l.alignGaps,0),i=Q(l.extend,!1);return(l,o,s,r)=>pt(l,o,((u,a,f,c,h,d,p,m,g,x,w)=>{[s,r]=U(f,s,r);let _=u.pxRound,{left:b,width:v}=l.bbox,k=l=>_(d(l,c,x,m)),M=l=>_(p(l,h,w,g)),S=0==c.ori?Mt:St;const T={stroke:new Path2D,fill:null,clip:null,band:null,gaps:null,flags:1},E=T.stroke,z=c.dir*(0==c.ori?1:-1);let D=M(f[1==z?s:r]),P=k(a[1==z?s:r]),A=P,W=P;i&&-1==e&&(W=b,S(E,W,D)),S(E,P,D);for(let l=1==z?s:r;l>=s&&r>=l;l+=z){let t=f[l];if(null==t)continue;let n=k(a[l]),i=M(t);1==e?S(E,n,D):S(E,A,i),S(E,n,i),D=i,A=n}let Y=A;i&&1==e&&(Y=b+v,S(E,Y,D));let[C,H]=mt(l,o);if(null!=u.fill||0!=C){let e=T.fill=new Path2D(E),t=M(u.fillTo(l,o,u.min,u.max,C));S(e,Y,t),S(e,W,t)}if(!u.spanGaps){let i=[];i.push(..._t(a,f,s,r,z,k,n));let h=u.width*y/2,d=t||1==e?h:-h,p=t||-1==e?-h:h;i.forEach((l=>{l[0]+=d,l[1]+=p})),T.gaps=i=u.gaps(l,o,s,r,i),T.clip=wt(i,c.ori,m,g,x,w)}return 0!=H&&(T.band=2==H?[xt(l,o,s,r,E,-1),xt(l,o,s,r,E,1)]:xt(l,o,s,r,E,H)),T}))},l.bars=function(l){const e=Q((l=l||Hl).size,[.6,gl,1]),t=l.align||0,n=l.gap||0;let i=l.radius;i=null==i?[0,0]:"number"==typeof i?[i,0]:i;const o=bl(i),s=1-e[0],r=Q(e[1],gl),u=Q(e[2],1),a=Q(l.disp,Hl),f=Q(l.each,(()=>{})),{fill:c,stroke:h}=a;return(l,e,i,d)=>pt(l,e,((p,m,g,x,w,_,b,v,k,M,S)=>{let T,E,z=p.pxRound,D=t,P=n*y,A=r*y,W=u*y;0==x.ori?[T,E]=o(l,e):[E,T]=o(l,e);const Y=x.dir*(0==x.ori?1:-1);let C,H,F,R=0==x.ori?Tt:Et,G=0==x.ori?f:(l,e,t,n,i,o,s)=>{f(l,e,t,i,n,s,o)},I=Q(l.bands,Fl).find((l=>l.series[0]==e)),L=p.fillTo(l,e,p.min,p.max,null!=I?I.dir:0),O=z(b(L,w,S,k)),N=M,j=z(p.width*y),U=!1,V=null,B=null,$=null,J=null;null==c||0!=j&&null==h||(U=!0,V=c.values(l,e,i,d),B=new Map,new Set(V).forEach((l=>{null!=l&&B.set(l,new Path2D)})),j>0&&($=h.values(l,e,i,d),J=new Map,new Set($).forEach((l=>{null!=l&&J.set(l,new Path2D)}))));let{x0:q,size:K}=a;if(null!=q&&null!=K){D=1,m=q.values(l,e,i,d),2==q.unit&&(m=m.map((e=>l.posToVal(v+e*M,x.key,!0))));let t=K.values(l,e,i,d);H=2==K.unit?t[0]*M:_(t[0],x,M,v)-_(0,x,M,v),N=Rt(m,g,_,x,M,v,N),F=N-H+P}else N=Rt(m,g,_,x,M,v,N),F=N*s+P,H=N-F;1>F&&(F=0),H/2>j||(j=0),5>F&&(z=vl);let X=F>0;H=z(wl(N-F-(X?j:0),W,A)),C=(0==D?H/2:D==Y?0:H)-D*Y*((0==D?P/2:0)+(X?j/2:0));const Z={stroke:null,fill:null,clip:null,band:null,gaps:null,flags:0},ll=U?null:new Path2D;let el=null;if(null!=I)el=l.data[I.series[1]];else{let{y0:t,y1:n}=a;null!=t&&null!=n&&(g=n.values(l,e,i,d),el=t.values(l,e,i,d))}let tl=T*H,nl=E*H;for(let t=1==Y?i:d;t>=i&&d>=t;t+=Y){let n=g[t];if(null==n)continue;if(null!=el){let l=el[t]??0;if(n-l==0)continue;O=b(l,w,S,k)}let i=_(2!=x.distr||null!=a?m[t]:t,x,M,v),o=b(Q(n,L),w,S,k),s=z(i-C),r=z(fl(o,O)),u=z(al(o,O)),f=r-u;if(null!=n){let i=0>n?nl:tl,o=0>n?tl:nl;U?(j>0&&null!=$[t]&&R(J.get($[t]),s,u+sl(j/2),H,fl(0,f-j),i,o),null!=V[t]&&R(B.get(V[t]),s,u+sl(j/2),H,fl(0,f-j),i,o)):R(ll,s,u+sl(j/2),H,fl(0,f-j),i,o),G(l,e,t,s-j/2,u,H+j,f)}}return j>0?Z.stroke=U?J:ll:U||(Z._fill=0==p.width?p._fill:p._stroke??p._fill,Z.width=0),Z.fill=U?B:ll,Z}))},l.spline=function(l){return function(l,e){const t=Q(e?.alignGaps,0);return(e,n,i,o)=>pt(e,n,((s,r,u,a,f,c,h,d,p,m,g)=>{[i,o]=U(u,i,o);let x,w,_,b=s.pxRound,v=l=>b(c(l,a,m,d)),k=l=>b(h(l,f,g,p));0==a.ori?(x=kt,_=Mt,w=Pt):(x=yt,_=St,w=At);const y=a.dir*(0==a.ori?1:-1);let M=v(r[1==y?i:o]),S=M,T=[],E=[];for(let l=1==y?i:o;l>=i&&o>=l;l+=y)if(null!=u[l]){let e=v(r[l]);T.push(S=e),E.push(k(u[l]))}const z={stroke:l(T,E,x,_,w,b),fill:null,clip:null,band:null,gaps:null,flags:1},D=z.stroke;let[P,A]=mt(e,n);if(null!=s.fill||0!=P){let l=z.fill=new Path2D(D),t=k(s.fillTo(e,n,s.min,s.max,P));_(l,S,t),_(l,M,t)}if(!s.spanGaps){let l=[];l.push(..._t(r,u,i,o,y,v,t)),z.gaps=l=s.gaps(e,n,i,o,l),z.clip=wt(l,a.ori,d,p,m,g)}return 0!=A&&(z.band=2==A?[xt(e,n,i,o,D,-1),xt(e,n,i,o,D,1)]:xt(e,n,i,o,D,A)),z}))}(Gt,l)}}return en}();
+
+</script>
+<script>
+(function(){
+'use strict';
+var LS=(function(){var mem={};try{var t='__mp_t';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);return window.localStorage;}catch(e){return {getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null},setItem:function(k,v){mem[k]=String(v)},removeItem:function(k){delete mem[k]}};}})();
+var KEY='mp_pw', THEME='mp_theme', DATA=null, SEC='mm', SUB='fills', OPEN={};
+var $=function(id){return document.getElementById(id)};
+function h(tag,attrs){var e=document.createElement(tag);attrs=attrs||{};for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='style')e.style.cssText=attrs[k];else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),attrs[k]);else e.setAttribute(k,attrs[k]);}
+  for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null||c===false)continue;if(Array.isArray(c)){c.forEach(function(x){if(x!=null)e.appendChild(typeof x==='string'?document.createTextNode(x):x)});}else e.appendChild(typeof c==='string'||typeof c==='number'?document.createTextNode(String(c)):c);}return e;}
+function b64d(s){var b=atob(s),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;}
+function dash(v){return v==null||v===''?'—':v}
+function num(x,n){if(x==null||isNaN(x))return '—';return Number(x).toLocaleString('en-US',{minimumFractionDigits:n==null?2:n,maximumFractionDigits:n==null?2:n});}
+function usd(x,n){return x==null?'—':'$'+num(x,n)}
+function pctS(x){if(x==null)return '—';var v=Number(x);return (v>0?'+':'')+num(v,2)+'%';}
+function cls(x){return x==null?'':(x>0?'up':(x<0?'dn':''))}
+var DOW=['일','월','화','수','목','금','토'];
+function dstr(s){if(!s)return '—';var m=/^(\d{4})-?(\d{2})-?(\d{2})/.exec(s);if(!m)return s;var d=new Date(+m[1],+m[2]-1,+m[3]);return m[2]+'-'+m[3]+'('+DOW[d.getDay()]+')';}
+function tstr(s){if(!s)return '—';var m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(s);return m?m[2]+'-'+m[3]+' '+m[4]+':'+m[5]:s;}
+function zoneColor(p){return p>=100?'#EF4444':(p>=80?'#F59E0B':'#34D399');}
+
+async function decrypt(blob,pw){
+  var enc=new TextEncoder();
+  var km=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);
+  var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64d(blob.salt),iterations:blob.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(blob.iv),additionalData:enc.encode(blob.aad)},key,b64d(blob.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function load(pw){
+  var r=await fetch('data/state.enc?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error('data '+r.status);
+  return decrypt(await r.json(),pw);
+}
+function setErr(m){$('err').textContent=m||''}
+async function unlock(pw,saved){
+  setErr('');$('go').disabled=true;
+  try{DATA=await load(pw);if(OPEN.__all&&typeof PAGE==='undefined'&&DATA.mm){delete OPEN.__all;DATA.mm.forEach(function(c){OPEN['mm:'+c.symbol]=true});}LS.setItem(KEY,pw);$('lock').hidden=true;$('app').hidden=false;render();}
+  catch(e){
+    if(DATA&&!(e&&e.name==='OperationError')){console.error('render',e&&e.stack||e);$('lock').hidden=true;$('app').hidden=false;$('view').replaceChildren(h('div',{class:'warn'},'화면 오류: '+(e&&e.message||e)));return;}
+    if(saved){LS.removeItem(KEY);setErr('저장된 비밀번호가 맞지 않습니다(바뀌었을 수 있음). 다시 입력하세요.');}
+    else setErr(e&&e.name==='OperationError'?'비밀번호가 맞지 않습니다.':'불러오지 못했습니다: '+(e&&e.message||e));
+    $('lock').hidden=false;$('app').hidden=true;
+  }finally{$('go').disabled=false;}
+}
+$('go').addEventListener('click',function(){var v=$('pw').value.trim();if(v)unlock(v,false);});
+$('pw').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click();});
+$('relock').addEventListener('click',function(){LS.removeItem(KEY);DATA=null;$('pw').value='';$('app').hidden=true;$('lock').hidden=false;});
+
+/* ---------- 정렬(표시층·기기 localStorage 저장) ---------- */
+function sortState(scope,def,defdir){try{var s=JSON.parse(LS.getItem('mp_sort_'+scope));if(s&&s.k)return s;}catch(e){}return {k:def,d:defdir||-1};}
+function sortBar(scope,opts,def,rerender){
+  var st=sortState(scope,def);
+  return h('div',{class:'sortRow'},h('span',{class:'slab'},'정렬'),opts.map(function(o){
+    var on=st.k===o[0];
+    return h('button',{class:'sbtn'+(on?' on':''),type:'button',onclick:function(){
+      var n=on?{k:o[0],d:-st.d}:{k:o[0],d:(o[2]||-1)};
+      LS.setItem('mp_sort_'+scope,JSON.stringify(n));rerender();}},o[1],on?h('span',{class:'ar'},st.d<0?'↓':'↑'):null);}));
+}
+function sortList(list,scope,def,acc,tie){
+  var st=sortState(scope,def),f=acc[st.k]||acc[def],t=tie||function(){return null};
+  var cmp=function(a,b){if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return a<b?-1:(a>b?1:0);};
+  return list.map(function(x,i){return [x,i]}).sort(function(p,q){
+    var a=f(p[0]),b=f(q[0]);
+    if(a==null||b==null){var r0=cmp(a,b);if(r0)return r0;}
+    else{var r=cmp(a,b);if(r)return r*st.d;}
+    var ta=t(p[0]),tb=t(q[0]);var r2=cmp(ta,tb);if(r2)return -r2;
+    return p[1]-q[1];}).map(function(p){return p[0]});
+}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);}
+var th=LS.getItem(THEME)||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');applyTheme(th);
+$('theme').addEventListener('click',function(){th=th==='dark'?'light':'dark';LS.setItem(THEME,th);applyTheme(th);});
+document.addEventListener('visibilitychange',function(){var pw=LS.getItem(KEY);if(!document.hidden&&pw&&DATA){load(pw).then(function(d){DATA=d;render();}).catch(function(){});}});
+
+/* ---------- 섹터 탭 3종(돌파 · DAT · 개별 투자) — 블록 MYPORT-SECTORS-20261112 ----------
+   자료 = state.enc 의 sectors(bo·dat·owner). 지표는 빌드(sectors_view.py)가 계산하고 여기서는 그리기만 한다. 차트 = 인라인 SVG(외부 자원 0). */
+var BOM=LS.getItem('mp_bo_m')||'all',BOP=LS.getItem('mp_bo_p')||'all';
+var SNS='http://www.w3.org/2000/svg';
+function sel(n,a,t){var e=document.createElementNS(SNS,n);for(var k in a)if(a[k]!=null)e.setAttribute(k,a[k]);if(t!=null){var ti=document.createElementNS(SNS,'title');ti.textContent=t;e.appendChild(ti);}return e;}
+function mny(v,ccy,n){if(v==null)return '—';return ccy==='USD'?sk(v,function(x){return '$'+num(x,n==null?0:n)}):sk(v,function(x){return krwShort(x)+'원'});}
+function mnyA(v,ccy){if(v==null)return '—';return ccy==='USD'?'$'+num(v,2):krwFull(v);}
+function nice(lo,hi,n){var span=hi-lo||1,st=Math.pow(10,Math.floor(Math.log(span/n)/Math.LN10)),m=span/n/st;st*=m>=5?5:m>=2?2:1;var out=[];for(var v=Math.ceil(lo/st)*st;v<=hi+1e-9;v+=st)out.push(+v.toFixed(10));return out;}
+/* 로그 축 눈금: [exp(llo), exp(lhi)] 안의 1·2·5×10^k — [MYPF-GRAPH-REDO-20261127] */
+function logTicks(llo,lhi){var out=[],a=Math.floor(llo/Math.LN10)-1,b=Math.ceil(lhi/Math.LN10)+1;for(var k=a;k<=b;k++)[1,2,5].forEach(function(m){var v=m*Math.pow(10,k),l=Math.log(v);if(l>=llo&&l<=lhi)out.push(v);});return out;}
+/* 선 그래프: series=[{name,color,vals,dash,fill}] · x=dates(문자) · opt{h,fmt,zero,pct,log(로그 축: 0 이하 값은 그리지 않음)} */
+function svgLine(dates,series,opt){
+  opt=opt||{};var W=640,H=opt.h||220,L=46,R=8,T=10,B=22,n=dates.length,lg=!!opt.log;
+  var okv=function(v){return v!=null&&isFinite(v)&&(!lg||v>0)};
+  var all=[];series.forEach(function(s){s.vals.forEach(function(v){if(okv(v))all.push(v)})});if(opt.zero&&!lg)all.push(0);
+  if(!n||!all.length)return h('div',{class:'empty'},'자료 없음');
+  var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all);if(lg){lo=Math.log(lo);hi=Math.log(hi);}if(hi===lo){hi+=lg?0.1:1;lo-=lg?0.1:1;}var pad=(hi-lo)*0.06;lo-=pad;hi+=pad;
+  var X=function(i){return L+(n<2?0:(W-L-R)*i/(n-1))},Y=function(v){if(lg)v=Math.log(v);return T+(H-T-B)*(1-(v-lo)/(hi-lo))};
+  var yBase=function(){return lg?(H-B):Y(opt.zero?0:lo)};
+  var svg=sel('svg',{viewBox:'0 0 '+W+' '+H,class:'sv',preserveAspectRatio:'none'});svg.style.width='100%';svg.style.height=H+'px';
+  (lg?logTicks(lo,hi):nice(lo,hi,4)).forEach(function(v){var y=Y(v);svg.appendChild(sel('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:cssv('--line'),'stroke-width':v===0?1.2:0.6}));var t=sel('text',{x:L-4,y:y+3.5,'text-anchor':'end','font-size':9.5,fill:cssv('--sub')});t.textContent=opt.fmt?opt.fmt(v):num(v,0);svg.appendChild(t);});
+  var step=Math.max(1,Math.ceil(n/6));for(var i=0;i<n;i+=step){if(n-1-i<step*0.5&&i!==n-1)continue;var tx=sel('text',{x:X(i),y:H-6,'text-anchor':i===0?'start':'middle','font-size':9.5,fill:cssv('--sub')});tx.textContent=md(dates[i]);svg.appendChild(tx);}
+  if(n>1){var tl=sel('text',{x:X(n-1),y:H-6,'text-anchor':'end','font-size':9.5,fill:cssv('--sub')});tl.textContent=md(dates[n-1]);svg.appendChild(tl);}
+  series.forEach(function(s){var d='',on=false;s.vals.forEach(function(v,i){if(!okv(v)){on=false;return;}d+=(on?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);on=true;});
+    if(s.fill){var f='',f0=null,fl=null;s.vals.forEach(function(v,i){if(!okv(v))return;if(f0==null)f0=i;fl=i;f+=(f?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);});if(f){f+='L'+X(fl).toFixed(1)+' '+yBase().toFixed(1)+'L'+X(f0).toFixed(1)+' '+yBase().toFixed(1)+'Z';svg.appendChild(sel('path',{d:f,fill:s.color,'fill-opacity':0.12}));}}
+    svg.appendChild(sel('path',{d:d,fill:'none',stroke:s.color,'stroke-width':s.w||1.8,'stroke-dasharray':s.dash||null,'vector-effect':'non-scaling-stroke'}));});
+  var ov=sel('rect',{x:L,y:T,width:W-L-R,height:H-T-B,fill:'transparent'});svg.appendChild(ov);
+  function at(ev){var r=svg.getBoundingClientRect(),px=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left,i=Math.round((px/r.width*W-L)/((W-L-R)/Math.max(1,n-1)));i=Math.max(0,Math.min(n-1,i));
+    tip(ev,'<b>'+dates[i]+'</b>'+series.map(function(s){var v=s.vals[i];return '<br><span style="color:'+s.color+'">●</span> '+s.name+' '+(v==null?'—':(opt.fmt?opt.fmt(v):num(v,0)))}).join(''));}
+  ov.addEventListener('mousemove',at);ov.addEventListener('touchstart',at,{passive:true});ov.addEventListener('mouseleave',function(){tip(null)});
+  var w=h('div',{class:'svw'},svg);
+  w.appendChild(h('div',{class:'legend2'},series.map(function(s){return h('span',{},h('i',{class:s.dash?'d':'',style:'border-color:'+s.color}),s.name)})));
+  return w;
+}
+/* 세로 막대(월별·연도별) */
+function svgBars(items,opt){
+  opt=opt||{};var W=640,H=opt.h||170,L=46,R=8,T=10,B=22,n=items.length;if(!n)return h('div',{class:'empty'},'자료 없음');
+  var vals=items.map(function(x){return x.v||0}),lo=Math.min(0,Math.min.apply(null,vals)),hi=Math.max(0,Math.max.apply(null,vals));if(hi===lo)hi=lo+1;var pad=(hi-lo)*0.14;lo-=pad;hi+=pad;
+  var bw=(W-L-R)/n,Y=function(v){return T+(H-T-B)*(1-(v-lo)/(hi-lo))};
+  var svg=sel('svg',{viewBox:'0 0 '+W+' '+H,class:'sv'});svg.style.width='100%';svg.style.height=H+'px';
+  nice(lo,hi,4).forEach(function(v){var y=Y(v);svg.appendChild(sel('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:cssv('--line'),'stroke-width':v===0?1.2:0.6}));var t=sel('text',{x:L-4,y:y+3.5,'text-anchor':'end','font-size':9.5,fill:cssv('--sub')});t.textContent=opt.fmt?opt.fmt(v):num(v,0);svg.appendChild(t);});
+  items.forEach(function(x,i){var v=x.v||0,y0=Y(0),y1=Y(v),r=sel('rect',{x:L+bw*i+bw*0.15,y:Math.min(y0,y1),width:bw*0.7,height:Math.max(1,Math.abs(y1-y0)),rx:2,fill:x.color||(v<0?'#3B82F6':'#10B981')},x.label+' '+(opt.fmt?opt.fmt(v):num(v,0))+(x.sub?' · '+x.sub:''));
+    r.addEventListener('click',function(ev){tip(ev,'<b>'+esc(x.label)+'</b><br>'+esc(opt.fmt?opt.fmt(v):num(v,0))+(x.sub?'<br>'+esc(x.sub):''));setTimeout(function(){tip(null)},3000);});svg.appendChild(r);
+    if(n<=8){var vl=sel('text',{x:L+bw*i+bw/2,y:(v>=0?y1-3:y1+10),'text-anchor':'middle','font-size':9,'font-weight':700,fill:cssv('--sub')});vl.textContent=opt.fmt?opt.fmt(v):num(v,0);svg.appendChild(vl);}
+    if(n<=16||i%Math.ceil(n/12)===0){var t=sel('text',{x:L+bw*i+bw/2,y:H-6,'text-anchor':'middle','font-size':9,fill:cssv('--sub')});t.textContent=x.label.length>7?x.label.slice(2):x.label;svg.appendChild(t);}});
+  return h('div',{class:'svw'},svg);
+}
+/* 산점도: 보유 세션 × 수익률 */
+function svgScatter(pts){
+  var W=640,H=220,L=40,R=10,T=10,B=24;if(!pts.length)return h('div',{class:'empty'},'자료 없음');
+  var xs=pts.map(function(p){return p.h}),ys=pts.map(function(p){return p.r});var xh=Math.max(5,Math.max.apply(null,xs)),ylo=Math.min(-5,Math.min.apply(null,ys)),yhi=Math.max(5,Math.max.apply(null,ys));
+  var X=function(v){return L+(W-L-R)*v/xh},Y=function(v){return T+(H-T-B)*(1-(v-ylo)/(yhi-ylo))};
+  var svg=sel('svg',{viewBox:'0 0 '+W+' '+H,class:'sv'});svg.style.width='100%';svg.style.height=H+'px';
+  nice(ylo,yhi,4).forEach(function(v){var y=Y(v);svg.appendChild(sel('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:cssv('--line'),'stroke-width':v===0?1.2:0.6}));var t=sel('text',{x:L-4,y:y+3.5,'text-anchor':'end','font-size':9.5,fill:cssv('--sub')});t.textContent=num(v,0)+'%';svg.appendChild(t);});
+  nice(0,xh,6).forEach(function(v){var t=sel('text',{x:X(v),y:H-6,'text-anchor':'middle','font-size':9.5,fill:cssv('--sub')});t.textContent=v+'세션';svg.appendChild(t);});
+  pts.forEach(function(p){var c=sel('circle',{cx:X(p.h),cy:Y(p.r),r:3.2,fill:p.r>0?'#10B981':'#3B82F6','fill-opacity':0.7},p.t+' · '+p.h+'세션 · '+pc(p.r,1));c.addEventListener('click',function(ev){tip(ev,'<b>'+esc(p.t)+'</b> '+p.m+'<br>보유 '+p.h+'세션 · '+pc(p.r,2));setTimeout(function(){tip(null)},3000);});svg.appendChild(c);});
+  return h('div',{class:'svw'},svg);
+}
+function aiTxt(a){return a?(a.score+'/'+a.scale):'—';}
+function jlink(url,label){return url?h('a',{href:url,target:'_blank',rel:'noopener',class:'jl'},label||'일지 ↗'):null;}
+function kbx(l,v,s,c){return h('div',{class:'kbox'},h('div',{class:'l'},l),h('div',{class:'v '+(c||'')},v),h('div',{class:'s'},s||''))}
+
+/* ---------- 돌파 탭 ---------- */
+function viewBO(){
+  var X=(DATA.sectors||{}).bo,w=h('div',{});
+  if(!X||!X.ok){w.appendChild(h('div',{class:'warn'},'돌파매매 자료 없음 — '+((X||{}).why||'')));return w;}
+  var K=X.kpi[BOM+':'+BOP]||X.kpi['all:all'],ccy=K.ccy,C=X.curves[BOM],CH=X.charts[BOM];
+  var top=h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin:0 2px 6px'});
+  top.appendChild(h('div',{class:'dist',style:'margin:0'},h('span',{class:'chip',style:'background:#F97316;color:#fff'},'보유 '+X.counts.open+'종목'),h('span',{class:'chip',style:'background:var(--track);color:var(--sub)'},'청산 '+X.counts.closed+'건'),bdg('stale','KR 종료 구간 '+md(X.kr_ended.date))));
+  top.appendChild(h('a',{href:X.journal_url,target:'_blank',rel:'noopener',class:'hbtn',style:'text-decoration:none;color:var(--ink);border-color:var(--line)'},'매매일지 열기 ↗'));
+  w.appendChild(top);
+  w.appendChild(h('div',{class:'pbtns'},[['all','전체'],['US','US'],['KR','KR']].map(function(m){return h('button',{class:'pbtn'+(BOM===m[0]?' on':''),onclick:function(){BOM=m[0];LS.setItem('mp_bo_m',BOM);render();}},m[1])}),
+    h('span',{style:'width:8px'}),[['all','전 구간'],['normal','정상('+md(X.proto_cutoff)+'~)'],['proto','Prototype'],['ytd','올해']].map(function(p){return h('button',{class:'pbtn'+(BOP===p[0]?' on':''),onclick:function(){BOP=p[0];LS.setItem('mp_bo_p',BOP);render();}},p[1])})));
+  var tot=K.realized+K.unrealized,cur=function(v){return BOM==='all'?amt(v,true):mny(v,ccy)};
+  var NR=X.nav_returns||{},nk=NR['토스KR']||{},nu=NR['토스US']||{};
+  var p1=(K.realized+K.unrealized)/(BOM==='all'?(X.principal.KR+X.principal.US*X.fx_now):X.principal[BOM])*100;
+  w.appendChild(sect('bo-kpi','요약',function(){return h('div',{},h('div',{class:'kgrid'},
+    kbx('누적 실현손익',cur(K.realized),K.fees!=null?'수수료·세금 '+(ccy==='USD'?'$'+num(K.fees,0):krwShort(K.fees)+'원')+' ('+K.fees_n+'건 확인)':'',cls(K.realized)),
+    kbx('보유분 미실현',cur(K.unrealized),K.n_open+'종목',cls(K.unrealized)),kbx('총 손익',cur(tot),'실현 + 미실현',cls(tot)),
+    kbx('수익률 (섹터 장부 기준)',pc(p1),'초기 투입금 대비('+(BOM==='KR'?'₩4천만':BOM==='US'?'$4만':'합산')+')',cls(p1)),
+    kbx('거래 수 · 승률',K.n+'건 · '+(K.win_rate==null?'—':num(K.win_rate,1)+'%'),'승 '+K.wins+' / 패 '+K.losses),
+    kbx('평균 수익 · 손실',pc(K.avg_win_pct,2)+' · '+pc(K.avg_loss_pct,2),'손익비 '+(K.payoff==null?'—':num(K.payoff,2))),
+    kbx('기대값(거래당)',pc(K.expectancy_pct,2),[cur(K.expectancy_amt)],cls(K.expectancy_pct)),
+    kbx('평균 보유 세션',num(K.avg_hold,1),'승 '+num(K.avg_hold_win,1)+' · 패 '+num(K.avg_hold_loss,1)),
+    kbx('최대 낙폭',K.max_dd==null?'—':cur(K.max_dd),'누적 손익 곡선 기준'+(BOP==='all'?'':' (전 구간)'),'dn'),
+    kbx('최고 · 최저 1건',pc(K.best,1)+' · '+pc(K.worst,1),''),
+    kbx('오너 재량 청산',[K.owner_liq.n+'건 · ',cur(K.owner_liq.realized)],'통계 분리(승률·평균 제외)',cls(K.owner_liq.realized))),
+    h('div',{class:'note',style:'margin-top:6px'},'통계 대상 = 청산 완료 거래 중 오너 재량 청산·IPM 개설분('+K.ipm_excluded+'건)·이사 제외분을 뺀 '+K.n+'건.'),
+    h('div',{class:'note'},'참고 — 토스 구간(이관 전) 계좌 순입금 기준 수익률: KR '+fr(nk.simple)+' (누적손익 '+krwShort(nk.cum_pnl)+'원) · US '+fr((nu.usd||{}).simple)+' (누적손익 $'+num((nu.usd||{}).pnl,0)+'). 「추이」 탭 토스 계좌 값 재사용. 메리츠는 무매·VR·DAT 와 공용 현금이라 계좌 기준 수익률을 정의할 수 없습니다.'));}));
+  w.appendChild(sect('bo-curve','누적 손익 곡선 (실현+미실현) · QQQ·KOSPI 참고선',function(){
+    var BM=X.bench_meta||{},kv=(BM.KOSPI||{}).verified,ser=[{name:'돌파 손익(% 초기 투입금)',color:'#F97316',vals:C.pct,w:2.2,fill:true},{name:'QQQ',color:'#2563EB',vals:C.bench.QQQ,dash:'5 4'},{name:'KOSPI'+(kv?'':' (검증 필요)'),color:'#DC2626',vals:C.bench.KOSPI,dash:'5 4'}];
+    return h('div',{},card(svgLine(C.dates,ser,{h:230,fmt:function(v){return num(v,1)+'%'},zero:true})),h('div',{class:'note'},'단순 비교: 지수 선은 '+md(X.start)+' 이후 지수 수익률이고 돌파 손익은 초기 투입금 대비 누적 손익(현금 비중·입출금 시점 미반영). 마지막 '+C.dates[C.dates.length-1]+' 손익 '+(BOM==='US'?'$'+num(C.pnl[C.pnl.length-1],0):krwShort(C.pnl[C.pnl.length-1])+'원')+'.'),
+      h('div',{class:'note'},'지수 원천: QQQ = '+((BM.QQQ||{}).source||'종가 캐시')+((BM.QQQ||{}).verified?' · 검증 '+(BM.QQQ||{}).verified:'')+' / KOSPI = '+((BM.KOSPI||{}).source||'^KS11')+(kv?' · 검증 '+kv:' · 검증 필요')+'.'));}));
+  w.appendChild(sect('bo-month','월별 실현손익',function(){return card(svgBars(CH.monthly.map(function(m){return {label:m.k,v:m.realized,sub:m.n+'건'+(m.owner_liq?' · 오너 청산 '+(ccy==='USD'?'$'+num(m.owner_liq,0):krwShort(m.owner_liq)+'원'):'')}}),{fmt:function(v){return ccy==='USD'?usdS(v):krwShort(v)}}))}));
+  w.appendChild(sect('bo-hist','거래별 수익률 분포',function(){return card(hbars(CH.hist,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#0EA5E9'))},false));
+  w.appendChild(sect('bo-reason','청산 사유별',function(){
+    var t=h('table',{class:'tbl'},h('tr',{},['사유','코드','건수','손익 합'].map(function(s){return h('th',{},s)})));
+    CH.reasons.forEach(function(r){t.appendChild(h('tr',{class:r.excluded?'dim':''},h('td',{},r.label,r.excluded?[' ',bdg('mute','통계 분리')]:null),h('td',{style:'font-size:10px;color:var(--sub)'},r.code),h('td',{},String(r.n)),h('td',{class:cls(r.realized)},mny(r.realized,ccy))))});
+    return h('div',{},h('div',{class:'hs'},t),card(hbars(CH.reasons.slice(0,12),function(r){return r.label.length>9?r.label.slice(0,9):r.label},function(r){return r.realized},function(r){return mny(r.realized,ccy)+' · '+r.n+'건'})));},false));
+  w.appendChild(sect('bo-scatter','보유 세션 × 수익률',function(){return card(svgScatter(CH.scatter))},false));
+  w.appendChild(sect('bo-rank','수익 상위 10 · 손실 상위 10',function(){var lab=function(r){return r.t+(r.name?' '+r.name:'')};
+    return h('div',{},h('div',{class:'sec'},'수익 상위'),card(hbars(CH.top,lab,function(r){return r.v},function(r){return mny(r.v,ccy)+' · '+pc(r.r,1)},'#10B981')),h('div',{class:'sec'},'손실 상위'),card(hbars(CH.bottom,lab,function(r){return r.v},function(r){return mny(r.v,ccy)+' · '+pc(r.r,1)},'#3B82F6')));},false));
+  w.appendChild(sect('bo-hold','현재 보유 ('+X.holdings.length+'종목)',function(){
+    var SO=[['value','평가액'],['upct','수익률'],['start','진입일'],['name','티커',1]];var b=h('div',{});b.appendChild(sortBar('bo',SO,'value',render));
+    var acc={value:function(i){return i.value_krw},upct:function(i){return i.pnl_pct},start:function(i){return i.entry_date},name:function(i){return i.ticker}};
+    sortList(X.holdings.filter(function(i){return BOM==='all'||i.market===BOM}),'bo','value',acc,function(i){return i.value_krw}).forEach(function(i){var key='bo:'+i.id,open=!!OPEN[key],col=i.pnl_pct>0?'#10B981':'#3B82F6';
+      var c=h('div',{class:'card'},h('div',{class:'chead',style:'--c:'+col,onclick:function(){OPEN[key]=!OPEN[key];render();}},
+        h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},i.ticker+(i.name?' '+i.name:'')),bdg('mute',i.market+' · '+(i.broker==='meritz'?'메리츠':'토스')),i.promoted?bdg('ok','승격'):null,i.rebuy?bdg('rest','재매수'+(i.leg_no?' L'+i.leg_no:'')):null,i.transfer?bdg('est','이관'):null),h('span',{class:'pct '+cls(i.pnl_pct)},pc(i.pnl_pct))),
+        h('div',{class:'key',style:'margin-top:8px'},h('div',{},'평단 → 현재가',h('b',{},mnyA(i.avg,i.ccy)+' → '+mnyA(i.last,i.ccy))),h('div',{},'평가액',h('b',{},i.ccy==='USD'?'$'+num(i.value,0):krwShort(i.value)+'원')),h('div',{},'미실현',h('b',{class:cls(i.unrealized)},mny(i.unrealized,i.ccy))))));
+      if(open)c.appendChild(h('div',{class:'cbody'},h('div',{class:'grid'},kv('진입일',ymd(i.entry_date)),kv('보유 세션',i.hold_sessions+'세션'),kv('수량',num(i.qty,0)+'주'),kv('손절선',i.stop==null?'—':mnyA(i.stop,i.ccy)+' ('+pc(i.stop_pct,1)+')'),
+        kv('MA50 까지',i.ma50==null?'—':mnyA(i.ma50,i.ccy)+' ('+pc(i.ma50_gap_pct,1)+')'),kv('승격 / 증명',(i.promoted?'승격':'미승격')+' / '+(i.proven?'증명':'미증명')),kv('재매수',i.rebuy?'예'+(i.leg_no?' (L'+i.leg_no+')':''):'아니오'),kv('AI 점수',aiTxt(i.ai)+(i.ai_verdict?' · '+i.ai_verdict:'')),kv('부분 매도',i.partial_sold?num(i.partial_sold,0)+'주':'없음'),kv('현재가 근거',i.last_src||'—')),
+        i.journal_url?h('div',{style:'margin-top:6px'},jlink(i.journal_url,'이 종목 매매일지 열기 ↗')):h('div',{class:'note'},'일지 페이지 없음')));
+      b.appendChild(c);});
+    if(!X.holdings.length)b.appendChild(h('div',{class:'note'},'보유 없음'));return b;}));
+  w.appendChild(sect('bo-rows','거래 이력 (월별 접기)',function(){
+    var rows=X.rows.filter(function(r){var pk=BOP==='all'||(BOP==='normal'?!r.proto:BOP==='proto'?r.proto:r.entry_date.slice(0,4)===String(new Date().getFullYear()));return (BOM==='all'||r.market===BOM)&&pk&&r.status!=='open';});
+    var months={},order=[];rows.forEach(function(r){if(!months[r.month]){months[r.month]=[];order.push(r.month);}months[r.month].push(r);});
+    var b=h('div',{});order.forEach(function(m,k){var rs=months[m],sum=rs.reduce(function(a,r){return a+(r.ccy===ccy||BOM!=='all'?(r.realized||0):0)},0);
+      var dt=h('details',{style:'margin:3px 0'});if(k===0)dt.setAttribute('open','');
+      dt.appendChild(h('summary',{style:'cursor:pointer;font-size:12px;padding:4px 2px'},m+' · '+rs.length+'건'+(BOM!=='all'?' · '+mny(sum,ccy):'')));
+      var t=h('table',{class:'tbl'},h('tr',{},['종목','진입','청산','세션','수익률','손익','사유','AI','일지'].map(function(s){return h('th',{},s)})));
+      rs.forEach(function(r){t.appendChild(h('tr',{class:r.excl?'dim':''},h('td',{},r.ticker+(r.name?' '+r.name:''),h('div',{style:'font-size:9.5px;color:var(--sub)'},r.market+' · '+(r.brokers||[]).map(function(x){return x==='meritz'?'메리츠':x==='toss'?'토스':x.toUpperCase()}).join('→')+(r.proto?' · Proto':'')+(r.rebuy_of?' · 재매수':'')+(r.n_partial?' · 부분 '+r.n_partial:'')+(r.transfer?' · 이관':''))),
+        h('td',{},md(r.entry_date)),h('td',{},md(r.exit_date)),h('td',{},String(r.hold_sessions)),h('td',{class:cls(r.ret_pct)},pc(r.ret_pct,1)),h('td',{class:cls(r.realized)},mny(r.realized,r.ccy)),h('td',{style:'text-align:left;white-space:normal;max-width:120px;font-size:10.5px'},r.exit_label||'—',r.excl?h('div',{style:'color:var(--sub);font-size:9.5px'},r.excl):null),h('td',{},aiTxt(r.ai)),h('td',{},r.journal_url?jlink(r.journal_url,'열기'):'—')));});
+      dt.appendChild(h('div',{class:'hs'},t));b.appendChild(dt);});
+    if(!order.length)b.appendChild(h('div',{class:'note'},'해당 구간 거래 없음'));return b;},false));
+  w.appendChild(sect('bo-check','대조·근거',function(){var c=X.checks,lv=c.ledger_vs_broker||{};
+    return h('div',{},card(kv('보유 ↔ 브로커 잔고','불일치 '+c.holdings.mismatch+'건 / '+c.holdings.n_open+'종목 (토스 '+tstr(c.holdings.toss_asof)+' · 메리츠 '+tstr(c.holdings.meritz_asof)+')'),
+      Object.keys(lv).map(function(k){var v=lv[k];return kv('장부 ↔ '+k+' 재생',(k.indexOf('KR')>=0?krwShort(v.ledger_sum)+'원 ↔ '+krwShort(v.broker_sum)+'원':'$'+num(v.ledger_sum,0)+' ↔ $'+num(v.broker_sum,0))+' · 차이 행 '+v.n_diff+(v.big.length?' (큰 차이: '+v.big.map(function(r){return r.sym}).join('·')+')':''))}),
+      kv('실현 산출 근거',Object.keys(c.pnl_basis||{}).map(function(k){return k+' '+c.pnl_basis[k]}).join(' · ')),kv('수수료 짝(토스)','확인 '+c.fee_match.matched+' · 미확인 '+c.fee_match.unmatched),kv('이관 연결',c.transfers+'건')),
+      X.notes.map(function(n){return h('div',{class:'note'},n)}));},false));
+  return w;
+}
+
+/* ---------- DAT 탭 (간략) ---------- */
+function viewDAT(){
+  var X=(DATA.sectors||{}).dat,D=DATA.detail.dat,w=h('div',{});
+  if(!X||!X.ok||!D){w.appendChild(h('div',{class:'warn'},'DAT 자료 없음 — '+((X||{}).why||'')));return w;}
+  w.appendChild(h('div',{class:'dist',style:'margin:0 2px 8px'},bdg('mute','봇 매매 없음 · 오너 수동'),h('span',{class:'chip',style:'background:#A855F7;color:#fff'},D.items.length+'종목')));
+  var it=D.items.slice();
+  it.forEach(function(i){var key='dat:'+i.symbol,open=!!OPEN[key];
+    var c=h('div',{class:'card'},h('div',{class:'chead',style:'--c:#A855F7',onclick:function(){OPEN[key]=!OPEN[key];render();}},
+      h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#A855F7'},i.symbol),(i.badges||[]).map(function(b){return bdg('mute',b)})),h('span',{class:'pct'},i.held?amt(i.value_krw):'보유 없음')),
+      h('div',{class:'grid',style:'margin-top:8px'},kv('수량',i.qty==null?'—':num(i.qty,0)+'주'),kv('평단',usd(i.avg)),kv('현재가',usd(i.last)),kv('평가액',i.held?usd(i.value_usd,0):'—'),kv('미실현',sk(i.unreal_usd,function(v){return '$'+num(v,0)}),cls(i.unreal_usd)),kv('수익률',pc(i.pnl_pct),cls(i.pnl_pct)),kv('실현 올해',sk(i.realized_ytd,function(v){return '$'+num(v,0)}),cls(i.realized_ytd)),kv('실현 전체',sk(i.realized_all,function(v){return '$'+num(v,0)}),cls(i.realized_all)))));
+    if(open)c.appendChild(h('div',{class:'cbody'},h('div',{class:'sec'},'체결 이력'),fillTable(i.fills&&i.fills.rows?i.fills.rows:i.fills,i.fills&&i.fills.n_total,false)));
+    w.appendChild(c);});
+  w.appendChild(card(h('div',{class:'ctop'},h('b',{},'합계'),h('span',{class:'pct'},amt(D.value_krw))),h('div',{class:'grid',style:'margin-top:6px'},kv('미실현',amt(D.unreal_krw,true),cls(D.unreal_krw)),kv('실현 올해',amt(D.realized_krw_ytd,true),cls(D.realized_krw_ytd)),kv('실현 전체',amt(D.realized_krw_all,true),cls(D.realized_krw_all)),kv('기준',tstr(D.asof)))));
+  /* [MYPF-GRAPH-REDO-20261127 §3] 「누적 투입금 · 평가액 (USD, DAT 합)」 그래프 삭제 — 페이지 맨 위 그래프(크립토 전체 범위)와 중복. DAT 정의 문구는 아래 note 로 유지 */
+  w.appendChild(h('div',{class:'note'},X.note+(Object.keys(X.qty_check||{}).some(function(k){return !X.qty_check[k].ok})?' ⚠ 수량 재생이 브로커와 다른 종목이 있습니다.':'')));
+  return w;
+}
+
+
+/* ---------- 크립토 탭: 업비트 현물 + DAT + 코인 레버리지 (구 「DAT」 탭 대체, 주소 #crypto) — 블록 MYPF-CRYPTO-20261127 ---------- */
+function upbitCoinCard(c){
+  var key='cz:'+c.asset,open=!!OPEN[key],col='#EAB308';
+  var head=h('div',{class:'chead',style:'--c:'+col,onclick:function(){OPEN[key]=!OPEN[key];render();}},
+    h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},c.other?'기타(상장 폐지 포함)':c.asset),c.other?bdg('mute','소액·과거 거래 통화 합산'):null,c.cost_basis_ok===false?bdg('stale','원가 신뢰 불가'):null),h('span',{class:'pct'},amt(c.eval_krw))),
+    h('div',{class:'key',style:'margin-top:8px'},
+      h('div',{},'평단('+(c.basis==='ma'?'이동평균':'선입선출')+' 기준)',h('b',{},c.avg==null?'—':krwFull(c.avg))),h('div',{},'현재가',h('b',{},c.cur==null?'—':krwFull(c.cur))),
+      h('div',{},'평가손익',h('b',{class:cls(c.unreal_krw)},c.unreal_krw==null?'—':sk(c.unreal_krw,krwShort)+(c.unreal_pct==null?'':' ('+pc(c.unreal_pct,1)+')')))));
+  var card_=h('div',{class:'card'},head);
+  if(open){
+    var g=h('div',{class:'grid'},kv('보유 수량',c.qty==null?'—':num(c.qty,c.qty<1?6:(c.qty<100?4:2))),kv('평가액',krwFull(c.eval_krw)),kv('평단('+(c.basis==='ma'?'이동평균':'선입선출')+' 기준)',c.avg==null?'—':krwFull(c.avg)),kv('업비트 표시 평단',c.avg_upbit==null?'—':krwFull(c.avg_upbit)),
+      kv('현재가',c.cur==null?'—':krwFull(c.cur)),kv('평가손익',c.unreal_krw==null?'—':sk(c.unreal_krw,krwShort),cls(c.unreal_krw)),kv('누적 매수',c.cum_buy_krw==null?'—':krwShort(c.cum_buy_krw)+'원'),kv('누적 매도',c.cum_sell_krw==null?'—':krwShort(c.cum_sell_krw)+'원'),
+      kv('실현손익(누적)',c.realized_krw==null?'—':sk(c.realized_krw,krwShort),cls(c.realized_krw)),(c.realized_ytd_krw==null?null:kv('실현손익(올해)',sk(c.realized_ytd_krw,krwShort),cls(c.realized_ytd_krw))),kv('마지막 거래일',ymd(c.last_trade)));
+    var b=h('div',{class:'cbody'},g);
+    if(c.members&&c.members.length)b.appendChild(h('div',{class:'note'},'보유 중: '+c.members.map(function(m){return m.currency+' '+num(m.qty,2)+'개 ('+krwFull(m.eval_krw)+')'}).join(' · ')+(c.n_traded?' · 거래 이력 통화 '+c.n_traded+'종 합산':'')));
+    (c.notes||[]).forEach(function(t){b.appendChild(h('div',{class:'note'},t));});
+    card_.appendChild(b);
+  }
+  return card_;
+}
+function upbitBody(U){
+  var w=h('div',{});
+  if(!U||!U.ok){w.appendChild(h('div',{class:'warn'},'업비트 자료 대기 — '+((U||{}).why||'upbit_summary.json 없음')+' (크립토 합계·추이에서 업비트 제외, 나머지는 정상)'));return w;}
+  var prov=U.provisional||zPastDue(U.stale_after);      // [MYPF-MM-VIEW-20261128 §3] 종전 고정 시간 기준 → 요약의 stale_after_kst(빌드가 stale_after 로 전달). 값이 없으면 빌드가 이미 잠정으로 표시
+  w.appendChild(card(h('div',{class:'grid'},kv('업비트 총액',amt(U.total_krw)),kv('코인 평가',amt(U.coin_eval_krw)),kv('원화 잔고',amt(U.krw_cash)),kv('누적 실현손익',amt(U.realized_total_krw,true),cls(U.realized_total_krw))),
+    h('div',{class:'note',style:'margin:0'},'기준 '+tstr(U.asof)+' KST'+(prov?' ':'')+' ',prov?bdg('stale','잠정 — '+(U.stale_label||'업비트 요약 유효기한 초과')):null,' · 원화가 정본, 달러 표시는 페이지 환율로 환산 · 원천 짜장이 요약('+(U.block||'—')+')'+(U.hist_why?' · '+U.hist_why:' · 일별 이력 '+ymd(U.hist_first)+' ~ '+ymd(U.hist_last)))));
+  (U.coins||[]).forEach(function(c){w.appendChild(upbitCoinCard(c));});
+  w.appendChild(h('div',{class:'note'},(U.basis==='ma'?'평단 = 이동평균(남은 원가 ÷ 보유 수량, 매수 수수료 포함 — 매도해도 평단은 그대로, 보유가 0이 되면 원가 0으로 다시 시작). 평가손익 = 평가액 − 이동평균 원가. 누적 실현손익 = Σ(매도 순수령 − 평단 × 매도 수량). 같은 체결이면 실현+평가 합은 선입선출과 같고 나누는 방식만 다릅니다.':'평단 = 체결 이력 선입선출(FIFO) 남은 로트 평균(매수 수수료 포함).'+(U.ma_why?' (이동평균 항목 일부 없음 — '+U.ma_why+')':''))+' 누적 매수 = 체결금액+매수 수수료, 누적 매도 = 체결금액−매도 수수료(2024-08-06~). 누적 실현손익은 「기타(상장 폐지 포함)」를 포함한 전 코인 합계입니다.'+(U.basis==='ma'?' 계좌·개요 탭의 업비트 평단·평가손익·실현도 같은 이동평균 값입니다.':'')));
+  return w;
+}
+function viewCrypto(){
+  var Z=DATA.crypto_zone,w=h('div',{});
+  if(!Z){w.appendChild(h('div',{class:'warn'},'크립토 자료 없음 — 빌드가 실패했을 수 있습니다.'));return w;}
+  var U=Z.upbit||{ok:false};
+  w.appendChild(card(h('div',{class:'ctop'},h('b',{},'크립토 합계'),h('span',{class:'pct'},amt(Z.total_krw))),
+    h('div',{class:'grid',style:'margin-top:6px'},(Z.parts||[]).map(function(p){return kv(p.label,p.id==='upbit'&&!U.ok?'자료 대기':amt(p.krw))})),
+    h('div',{class:'note',style:'margin:6px 0 0'},'합계 = 업비트 총액(코인+원화) + DAT + 코인 레버리지. 업비트는 짜장이 요약, DAT·코인 레버리지는 메리츠 보유 조회.')));
+  w.appendChild(sect('cz-upbit','업비트 현물',function(){return upbitBody(U)}));
+  w.appendChild(sect('cz-dat','DAT',function(){return viewDAT()}));
+  w.appendChild(sect('cz-lev','코인 레버리지 (2배 ETF)',function(){
+    var D=DATA.detail.coinlev,b=h('div',{});
+    if(!D)return h('div',{class:'empty'},'자료 없음');
+    if(!D.items.some(function(i){return i.held}))b.appendChild(h('div',{class:'note'},'메리츠 보유 조회에 아직 보유가 없습니다(다음 조회 때 표시).'));
+    b.appendChild(detailBlock('coinlev'));return b;}));
+  return w;
+}
+
+/* ---------- 개별 투자 탭 ---------- */
+function viewOwner(){
+  var X=(DATA.sectors||{}).owner,D=DATA.detail.owner,w=h('div',{});
+  if(!X||!X.ok||!D){w.appendChild(h('div',{class:'warn'},'개별 투자 자료 없음 — '+((X||{}).why||'')));return w;}
+  var S=X.summary;
+  w.appendChild(h('div',{class:'kgrid',style:'margin-bottom:8px'},kbx('누적 실현',amt(S.realized_all,true),'올해 '+sk(S.realized_ytd,krwShort)+'원',cls(S.realized_all)),kbx('보유분 미실현',amt(S.unreal_krw,true),X.n_held+'종목 보유',cls(S.unreal_krw)),
+    kbx('종목 수',X.n_held+' / '+X.n_closed,'보유 / 청산 완료'),kbx('승률',S.win_rate==null?'—':num(S.win_rate,1)+'%','청산 사이클 '+S.n_stat+'건'+(S.n_excluded?' · 원가 미확인 '+S.n_excluded+'건 제외':'')),kbx('평균 보유일',num(S.avg_hold_days,1)+'일','원가 미확인 제외')));
+  w.appendChild(sect('ow-year','연도별 실현손익 (USD)',function(){return card(svgBars(X.yearly.map(function(y){return {label:y.k,v:y.realized,sub:y.n+'건'}}),{h:150,fmt:usdS}))}));
+  w.appendChild(sect('ow-rank','종목별 실현손익 상위 10 · 하위 10',function(){return h('div',{},h('div',{class:'sec'},'상위'),card(hbars(X.top,function(r){return r.t},function(r){return r.v},function(r){return sk(r.v,function(v){return '$'+num(v,0)})},'#10B981')),h('div',{class:'sec'},'하위'),card(hbars(X.bottom,function(r){return r.t},function(r){return r.v},function(r){return sk(r.v,function(v){return '$'+num(v,0)})},'#3B82F6')))},false));
+  w.appendChild(sect('ow-mix','유형 비중',function(){var tot=X.mix.reduce(function(a,m){return a+m.n},0);return card(hbars(X.mix,function(m){return m.kind},function(m){return m.n},function(m){return m.n+'종목 ('+num(m.n/tot*100,0)+'%)'},'#06B6D4'),h('div',{class:'note'},'종목 수 기준 · yfinance quoteType/category(조회 실패 = 기타, 추측 배정 없음).'))},false));
+  var held=D.items.filter(function(i){return i.held}),closed=D.items.filter(function(i){return !i.held});
+  if(held.length){w.appendChild(h('div',{class:'sec'},'현재 보유 ('+held.length+')'));var SO=[['value','평가액'],['upct','미실현%'],['rall','실현 전체'],['start','시작일'],['name','티커',1]];w.appendChild(sortBar('owner',SO,'value',render));
+    var acc={value:function(i){return i.value_krw},upct:function(i){return i.upct},rall:function(i){return i.realized_krw_all},start:function(i){return i.start},name:function(i){return i.symbol}};
+    sortList(held,'owner','value',acc,function(i){return i.realized_krw_all}).forEach(function(i){w.appendChild(itemCard('owner',D,i))});}
+  else w.appendChild(h('div',{class:'note'},'현재 보유 없음 — 실현만 표시.'));
+  w.appendChild(sect('ow-closed','청산 완료 종목 ('+closed.length+')',function(){var b=h('div',{});var SO=[['rall','실현 전체'],['start','시작일'],['name','티커',1]];b.appendChild(sortBar('ownerc',SO,'rall',render));
+    var acc={rall:function(i){return i.realized_krw_all},start:function(i){return i.start},name:function(i){return i.symbol}};
+    sortList(closed,'ownerc','rall',acc,function(i){return i.realized_krw_all}).forEach(function(i){b.appendChild(itemCard('owner',D,i))});return b;},false));
+  w.appendChild(h('div',{class:'note'},X.note));w.appendChild(h('div',{class:'note'},D.note));
+  return w;
+}
+/* ---------- 내 투자자산 v2: 탭 5개(개요·계좌·추이·무매·VR) — 블록 MYPORT-P2-20261105 ----------
+   데이터 = state.enc 한 묶음(main·mm·vr·cycles·records·detail·data·derived). 지표는 빌드(derived.py)가 계산하고 여기서는 그리기만 한다.
+   차트 = uPlot 1.6.32(MIT, 페이지에 직접 포함 — 외부 CDN 0). */
+var TABS=[['overview','개요'],['accounts','계좌'],['trend','전체 자산'],['mumae','무매'],['vr','VR'],['bo','돌파'],['crypto','크립토'],['owner','개별 투자']];   /* 탭 8개 — [MYPF-CRYPTO-20261127] 「DAT」→「크립토」(#crypto, #dat 는 넘김) */
+var TAB='overview',ANCHOR=null,CHARTS=[],LIVE=[];
+var CUR=LS.getItem('mp_cur')||'KRW';
+var RANGE=LS.getItem('mp_range')||'all';
+var PER=LS.getItem('mp_per')||'month';
+var PAL=['#2563EB','#DC2626','#059669','#D97706','#7C3AED','#DB2777','#0891B2','#65A30D','#EA580C','#4F46E5','#0D9488','#B45309','#9333EA','#E11D48','#0284C7','#16A34A','#CA8A04','#475569'];
+var SEGC={transit:'#F472B6',dat:'#A855F7',coinlev:'#F59E0B',crypto:'#EAB308',vr:'#3B82F6',mm:'#10B981',tax:'#EC4899',ai:'#F97316',owner:'#06B6D4',etc:'#64748B',cash:'#94A3B8'};
+function kv(a,b,c){return h('div',{class:'kv'},h('span',{},a),h('span',{class:c||''},b));}
+function ymd(s){if(!s)return '—';var m=/^(\d{4})-?(\d{2})-?(\d{2})/.exec(s);return m?m[1].slice(2)+'-'+m[2]+'-'+m[3]:s;}
+function md(s){if(!s)return '—';var m=/^(\d{4})-?(\d{2})-?(\d{2})/.exec(s);return m?m[2]+'-'+m[3]:s;}
+function krwShort(x){if(x==null||isNaN(x))return '—';var a=Math.abs(x),s=x<0?'−':'';if(a>=1e8)return s+num(a/1e8,2)+'억';if(a>=1e4)return s+num(Math.round(a/1e4),0)+'만';return s+num(a,0);}
+function krwFull(x){return x==null?'—':(x<0?'−':'')+num(Math.abs(x),0)+'원';}
+function sk(x,f){if(x==null)return '—';var v=Number(x);return (v>0?'+':v<0?'−':'')+f(Math.abs(v));}
+function pc(x,n){return x==null?'—':sk(x,function(v){return num(v,n==null?2:n)+'%'});}
+function fr(x,n){return x==null?'—':pc(x*100,n);}
+function usdS(x){if(x==null)return '—';var a=Math.abs(x);return (x<0?'−':'')+'$'+(a>=1e6?num(a/1e6,2)+'M':a>=1e4?num(a/1e3,1)+'k':num(a,0));}
+function FX(){return (DATA.derived&&DATA.derived.overview&&DATA.derived.overview.fx)||DATA.main.fx;}
+/* 금액: 원화 원천 값을 받아 현재 통화로 축약 표시, 탭하면 원단위(또는 센트) 전체 표시 */
+function amt(krw,signed){
+  if(krw==null)return h('span',{},'—');
+  var fx=FX(),full=false,e=h('span',{class:'amt'});
+  function txt(){if(CUR==='USD'&&fx){var u=krw/fx;return full?(signed?sk(u,function(v){return '$'+num(v,2)}):usd(u,2)):(signed?sk(u,function(v){return usdS(v)}):usdS(u));}
+    return full?(signed?sk(krw,function(v){return num(v,0)+'원'}):krwFull(krw)):(signed?sk(krw,krwShort):krwShort(krw)+'원');}
+  e.textContent=txt();e.addEventListener('click',function(ev){ev.stopPropagation();full=!full;e.textContent=txt();});return e;
+}
+function amtU(usdv,signed){return usdv==null?h('span',{},'—'):amt(usdv*FX(),signed);}
+function bdg(kind,text,title){return h('span',{class:'bdg '+kind,title:title||''},text);}
+function sect(id,title,body,openDef,extra){
+  var k='mp_sec_'+id,st=LS.getItem(k),open=st==null?(openDef!==false):st==='1';
+  var w=h('div',{class:'secW',id:'sec-'+id});
+  w.appendChild(h('div',{class:'secH',onclick:function(){LS.setItem(k,open?'0':'1');render();}},h('span',{},title,extra||null),h('span',{class:'chev'},open?'접기 ▾':'펼치기 ▸')));
+  if(open)w.appendChild(typeof body==='function'?body():body);
+  return w;
+}
+function card(){var b=h.apply(null,['div',{class:'cbody',style:'background:var(--card);border-top:0'}].concat([].slice.call(arguments)));return h('div',{class:'card'},b);}
+function tip(ev,html){var t=$('tip');if(!html){t.hidden=true;return;}t.innerHTML=html;t.hidden=false;var x=(ev.touches?ev.touches[0].clientX:ev.clientX),y=(ev.touches?ev.touches[0].clientY:ev.clientY);t.style.left=Math.min(window.innerWidth-290,Math.max(6,x+12))+'px';t.style.top=Math.max(6,y-10-t.offsetHeight)+'px';}
+document.addEventListener('scroll',function(){$('tip').hidden=true;},true);
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]});}
+
+/* ---------- 갱신 일정: 마지막 예정 슬롯 + 3시간 기준 오래됨 판정(오너 11-05) ---------- */
+var DOWK=['월','화','수','목','금','토','일'];
+function kstParts(ms){var d=new Date(ms+9*3600e3);return {y:d.getUTCFullYear(),m:d.getUTCMonth(),d:d.getUTCDate(),wd:(d.getUTCDay()+6)%7};}
+function slotMs(y,m,d,hm){var p=hm.split(':');return Date.UTC(y,m,d,+p[0],+p[1])-9*3600e3;}
+function slotsAround(now,sch){var out=[];for(var k=-9;k<=9;k++){var p=kstParts(now+k*864e5);sch.slots.forEach(function(s){if(s.days.indexOf(p.wd)>=0)out.push({ms:slotMs(p.y,p.m,p.d,s.hm),wd:p.wd,hm:s.hm});});}out.sort(function(a,b){return a.ms-b.ms});return out;}
+function freshness(){
+  var sch=DATA.derived&&DATA.derived.schedule;if(!sch||!sch.slots)return null;
+  var now=Date.now(),gen=new Date(DATA.generated_at).getTime(),sl=slotsAround(now,sch);
+  var last=null,next=null;sl.forEach(function(s){if(s.ms<=now)last=s;else if(!next)next=s;});
+  var stale=!!(now-gen>(sch.grace_h||3)*3600e3);   /* [MYPF-REFRESH-20261128 §2] 10분 슬롯에서는 「마지막 슬롯 + 유예」 판정이 성립하지 않아 「마지막 반영 후 경과」로 판정 */
+  return {stale:stale,last:last,next:next,gen:gen};
+}
+
+/* ---------- 이관 중(토스 출고 → 메리츠 입고 대기) — 총자산·계좌 탭 반영 (MYPORT-NAV-FIX2-20261109 §1) ---------- */
+function transitInfo(){var N=DATA.derived.nav,T=N&&N.ok&&N.transit;return T&&T.n?T:null;}
+function totalWithTransit(){var O=DATA.derived.overview,T=transitInfo();return O.total_krw+(T?T.value_krw:0);}
+/* ---------- XIRR 표기: 실기간 365일 미만이면 연환산·기간(개월) + 비연환산 기간 수익률 병기 (§2) ---------- */
+function xirrNote(r){return r&&r.xirr!=null&&r.xirr_annualized_short?'연환산 · '+(r.months||0)+'개월 · 기간 '+fr(r.dietz):'';}
+function xirrSub(r,dflt){return r&&r.xirr!=null&&r.xirr_annualized_short?[h('div',{},'연환산 · '+(r.months||0)+'개월'),h('div',{},'기간 '+fr(r.dietz))]:dflt;}
+function xirrCell(r){var n=xirrNote(r);return n?[fr(r.xirr),h('div',{style:'font-size:9.5px;opacity:.75;font-weight:400'},n)]:fr(r.xirr);}
+/* ---------- 상단 고정 요약 바 ---------- */
+function sumbar(){
+  var O=DATA.derived.overview,M=DATA.main,d=(O.dod_flow&&O.dod_flow.ok)?O.dod_flow:O.dod,box=function(l,v,s,c,t){return h('div',{class:'sb',title:t||''},h('div',{class:'l'},l),h('div',{class:'v'+(c?' '+c:'')},v),h('div',{class:'s'},s||''))};
+  var N=DATA.derived.nav,R0=N&&N.ok&&((N.returns||{})['전체']||{}),A=R0&&R0['시작~오늘'],Y=R0&&R0['올해'];
+  var todayBox=d&&d.basis_change?box('오늘 변동','—','집계 기준 정정','', '전일 기록('+md(d.base_date)+')이 구 집계 기준(돌파매매 이중 계상)이라 비교하지 않습니다. 익일부터 정상 표시.'):box(d&&d.ex_flow?'오늘 변동(입출금 제외)':'오늘 변동',d?amt(d.delta_krw,true):'—',d?pc(d.pct)+(d.partial?' · 일부':''):'첫 기록',d?cls(d.delta_krw):'',d&&d.ex_flow?'입출금 '+krwShort(d.flow_krw)+'원 제외 · 기준: 「전체 자산」 탭과 같은 입출금 귀속':'');
+  if(A&&!A.status){
+    var cp=A.cum_pnl!=null?A.cum_pnl:A.pnl;
+    $('sumbar').replaceChildren(
+      box('총자산',amt(totalWithTransit()),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(totalWithTransit()/O.fx),null,transitInfo()?'이관 중 '+transitInfo().n+'종('+krwShort(transitInfo().value_krw)+'원) 포함':''),
+      box('누적손익 ⓘ',amt(cp,true),fr(A.simple),cls(cp),'시작~오늘. 총자산(위 칸과 같은 브로커 스냅샷 합) − 순입금(본인 입금 − 출금, 입출금 원장 기준)으로, 현금·환율 변동·실현손익을 모두 포함합니다. 비율은 순입금 기준. 빌드 시 「총자산 − 순입금 = 누적손익」 항등식을 검사합니다.'),
+      box('XIRR ⓘ',fr(A.xirr),xirrSub(A,'시작~오늘'),cls(A.xirr),'입출금 시점을 반영한 연환산 내부수익률(시작 '+ymd(A.since)+').'),
+      box('올해 손익 ⓘ',Y&&!Y.status?amt(Y.pnl,true):'—',Y&&!Y.status?fr(Y.dietz):'',Y&&!Y.status?cls(Y.pnl):'','올해 구간 손익(입출금 제외)과 수정 Dietz 수익률.'),
+      box('올해 XIRR ⓘ',Y&&!Y.status?fr(Y.xirr):'—',Y&&!Y.status?xirrSub(Y,'연환산'):'',Y&&!Y.status?cls(Y.xirr):'','올해 구간 현금흐름 기준 연환산 내부수익률.'));
+    var un=O.unrealized_krw,T0=transitInfo(),tr=T0?'  ·  이관 중 '+T0.n+'종 '+krwShort(T0.value_krw)+'원 포함(토스 출고 → 메리츠 입고 대기, 마지막 종가 평가)':'';
+    var nt=$('sumnote');if(!nt){nt=h('div',{id:'sumnote',class:'note',style:'margin:4px 2px 0'});$('sumbar').insertAdjacentElement('afterend',nt);}
+    nt.textContent='오늘'+(d&&d.ex_flow?'(입출금 제외) ':' ')+(d&&d.basis_change?'— (집계 기준 정정)':d?sk(d.delta_krw,krwShort)+'원 ('+pc(d.pct)+')':'첫 기록')+'  ·  보유분 미실현 '+sk(un,krwShort)+'원 ('+pc(O.unrealized_pct)+', 현금 제외 평가차익)'+tr;
+  }else{
+    var pl=O.pnl_vs_principal,bd=O.principal_base_date?md(O.principal_base_date):'—';
+    $('sumbar').replaceChildren(
+      box('총자산',amt(totalWithTransit()),CUR==='USD'?'환율 '+num(O.fx,1):'≈ '+usdS(totalWithTransit()/O.fx),null,transitInfo()?'이관 중 '+transitInfo().n+'종('+krwShort(transitInfo().value_krw)+'원) 포함':''),
+      box('기준자산+순입금',amt(O.principal),bd+' 기준·추정',null,'추적 시작일('+bd+') 총자산에 그 뒤 외부 입출금을 더한 값. 입출금이 비어 있는 계좌가 있어 추정입니다.'),
+      box('평가손익 ⓘ',amt(pl,true),pc(O.pnl_vs_principal_pct),cls(pl),'총자산 − (기준자산+순입금).'),
+      box('현금 비중',(O.cash_pct==null?'—':num(O.cash_pct,1)+'%'),krwShort(O.cash_krw)),todayBox);
+  }
+  $('cur').textContent=CUR==='KRW'?'₩ → $':'$ → ₩';
+}
+
+/* ---------- 탭1 개요 ---------- */
+var NS='http://www.w3.org/2000/svg';
+function donut(segs,total){
+  var svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox','0 0 42 42');svg.setAttribute('class','donut');
+  var bg=document.createElementNS(NS,'circle');bg.setAttribute('cx',21);bg.setAttribute('cy',21);bg.setAttribute('r',15.9155);bg.setAttribute('fill','none');bg.setAttribute('stroke','var(--track)');bg.setAttribute('stroke-width',6);svg.appendChild(bg);
+  var off=25;segs.forEach(function(s){if(!s.krw||!total)return;var p=s.krw/total*100;var c=document.createElementNS(NS,'circle');c.setAttribute('cx',21);c.setAttribute('cy',21);c.setAttribute('r',15.9155);c.setAttribute('fill','none');c.setAttribute('stroke',SEGC[s.id]||'#64748B');c.setAttribute('stroke-width',6);c.setAttribute('stroke-dasharray',Math.max(p-0.4,0.1)+' '+(100-Math.max(p-0.4,0.1)));c.setAttribute('stroke-dashoffset',off);svg.appendChild(c);off-=p;});
+  return svg;
+}
+function viewOverview(){
+  var O=DATA.derived.overview,M=DATA.main,w=h('div',{});
+  var pend=(M.pending||[]),stale=(M.categories||[]).filter(function(c){return c.stale}).concat((M.cash||[]).filter(function(c){return c.stale}));
+  if(pend.length)w.appendChild(h('div',{class:'warn'},'대기 중(합계 제외): '+pend.join(', ')));
+  if(stale.length)w.appendChild(h('div',{class:'warn'},bdg('stale','대기·직전 값'),' ',stale.map(function(c){return (c.label||c.account)+'('+(c.stale_origin||'')+')'}).join(', ')+' — 원천 갱신이 늦어 직전 기록 값을 합계에 유지'));
+  w.appendChild(sect('ov-alloc','자산 구성(전략별)',function(){
+    var T1=transitInfo(),TT=totalWithTransit(),SEG=O.segments.map(function(x){return Object.assign({},x,{pct:TT?x.krw/TT*100:x.pct})});
+    if(T1)SEG.push({id:'transit',label:'이관중(메리츠 입고 대기)',krw:T1.value_krw,pct:TT?T1.value_krw/TT*100:null});
+    var TABOF={dat:['crypto'],coinlev:['crypto'],owner:['owner'],ai:['bo'],mm:['mumae'],vr:['vr'],crypto:['crypto'],cash:['accounts'],tax:['accounts','manual'],etc:['accounts','manual'],transit:['accounts','transit']};
+    var leg=h('div',{class:'legend'},SEG.map(function(s){var tg=TABOF[s.id];return h('div',{class:'lg',style:tg?'cursor:pointer':'',onclick:tg?function(){go(tg[0],tg[1])}:null},h('span',{class:'dot',style:'background:'+(SEGC[s.id]||'#64748B')}),h('span',{class:'lgl'},s.label,tg?' ›':''),h('span',{class:'lgv'},(s.pct==null?'—':num(s.pct,1)+'%')+' · ',amt(s.krw)))}));
+    return card(h('div',{style:'display:flex;gap:12px;align-items:center;flex-wrap:wrap'},h('div',{class:'dwrap'},donut(SEG,TT),h('div',{class:'dc'},krwShort(TT))),leg),h('div',{class:'note',style:'margin:6px 0 0'},'항목을 누르면 해당 탭으로 이동합니다.'));
+  }));
+  w.appendChild(sect('ov-exp','노출 집계',function(){
+    var E=O.exposure,cb=O.cash_by_ccy||{};
+    return card(kv('크립토 방향성 노출',''),h('div',{style:'display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:-2px 0 2px'},amt(E.crypto_dir_krw),h('span',{},num(E.crypto_dir_pct,1)+'%')),h('div',{class:'note'},E.crypto_note),
+      kv('레버리지 상품 비중',''),h('div',{style:'display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:-2px 0 2px'},amt(E.leveraged_krw),h('span',{},num(E.leveraged_pct,1)+'%')),h('div',{class:'note'},E.leveraged_note),
+      kv('현금 합계',''),h('div',{style:'display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:-2px 0 2px'},amt(O.cash_krw),h('span',{},num(O.cash_pct,1)+'%')),
+      (O.cash_accounts||[]).map(function(c){var tab=c.account.indexOf('업비트')===0?'upbit':(c.account==='토스 KR'?'toss_kr':(c.account==='토스 US'?'toss_us':'meritz'));
+        return h('div',{class:'ln',style:'cursor:pointer',onclick:function(){go('accounts',tab)}},h('span',{class:'l'},c.account,c.stale?[' ',bdg('stale','직전 값')]:null),h('span',{class:'r'},c.ccy==='USD'?[usd(c.amount,2),' (',amt(c.krw),')']:amt(c.krw),' ›'))}),
+      h('div',{class:'note'},'줄을 누르면 해당 계좌로 이동합니다.'));
+  }));
+  M.notes.forEach(function(n){w.appendChild(h('div',{class:'note'},n))});
+  w.appendChild(h('div',{class:'note'},'누적손익 = 총자산 − 순입금(입출금 원장 기준, 「전체 자산」 탭). 보유 종목만의 평가차익은 「계좌」 탭 상단의 보유 미실현손익(현금 제외)입니다.'));
+  return w;
+}
+
+/* ---------- 탭2 계좌 ---------- */
+function srcBadge(s){return s==='장부'?bdg('ok','장부'):bdg('mute',s);}
+function fillTable(rows,n,crypto){
+  if(!rows||!rows.length)return h('div',{class:'note'},'체결 이력 없음');
+  var box=h('div',{});
+  rows.forEach(function(r){
+    var left=crypto?tstr(r.ts):ymd(r.date),tagc=r.side==='매수'?'b':(r.side==='매도'?'s':'');
+    var rr=crypto?(r.real!=null?sk(r.real,krwShort):'—'):(r.real!=null?sk(r.real,function(v){return '$'+num(v,0)}):'');
+    box.appendChild(h('div',{class:'ln',style:'flex-direction:column;gap:2px'},
+      h('div',{style:'display:flex;justify-content:space-between;gap:8px'},h('span',{class:'l'},[h('span',{class:'tag '+tagc,style:tagc?'':'background:#64748B'},r.side),left]),h('span',{class:'r'},crypto?(num(r.qty,r.qty<1?6:2)+' × '+krwFull(r.price)):(num(r.qty,0)+' × '+usd(r.price)))),
+      h('div',{style:'display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--sub)'},h('span',{},crypto?('수수료 '+krwFull(r.fee)+(r.real!=null?' · 실현'+((DATA.detail.crypto&&DATA.detail.crypto.basis==='ma')?'(선입선출)':'')+' '+rr:'')):('사유 '+r.reason+(r.real!=null?' · 실현 '+rr:''))),crypto?h('span',{},'업비트'):srcBadge(r.src))));
+  });
+  if(n&&n>rows.length)box.appendChild(h('div',{class:'note'},'총 '+n+'건 중 최근 '+rows.length+'건'));
+  return box;
+}
+function avgOf(it){return it.basis==='ma'?it.avg_ma:it.avg_fifo;}   /* [MYPF-FU4-20261128 §2] 업비트 평단 = 요약 기준(ma|fifo)에 따른 값 */
+function itemCard(page,D,it){
+  var crypto=D.kind==='crypto',key=page+':'+it.symbol,open=!!OPEN[key],col=crypto?'#EAB308':(D.kind==='dat'?'#A855F7':(D.kind==='coinlev'?'#F59E0B':'#06B6D4'));
+  var head=h('div',{class:'chead',style:'--c:'+col,onclick:function(){OPEN[key]=!OPEN[key];render();}},
+    h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},it.symbol),(it.badges||[]).map(function(b){return bdg('mute',b)})),h('span',{class:'pct'},crypto||it.held?amt(it.value_krw):'보유 없음')),
+    h('div',{class:'key',style:'margin-top:8px'},
+      h('div',{},crypto?'평단('+(it.basis==='ma'?'이동평균':'선입선출')+' 기준)':'평단',h('b',{},crypto?(avgOf(it)==null?'—':krwFull(avgOf(it))):(it.avg==null?(it.inherit_avg?usd(it.inherit_avg):'—'):usd(it.avg)))),
+      h('div',{},'현재가',h('b',{},crypto?krwFull(it.last):(it.last==null?'—':usd(it.last)))),
+      h('div',{},'미실현(평가)',h('b',{class:cls(crypto?it.unreal_krw:it.unreal_usd)},it.held||crypto?(crypto?sk(it.unreal_krw,krwShort):sk(it.unreal_usd,function(v){return '$'+num(v,0)})):'—'))));
+  var c=h('div',{class:'card'},head);
+  if(open){
+    var g=crypto?h('div',{class:'grid'},kv('수량',num(it.qty,it.qty<1?6:2)),kv('평가액',krwFull(it.value_krw)),kv(it.basis==='ma'?'이동평균 평단':'FIFO 평단',avgOf(it)==null?'—':krwFull(avgOf(it))),kv('업비트 평단',krwFull(it.avg_upbit)),
+        kv('미실현손익(평가, '+(it.basis==='ma'?'이동평균':'FIFO')+' 평단 기준)',sk(it.unreal_krw,krwShort),cls(it.unreal_krw)),kv('평가 수익률',pc(it.pnl_pct),cls(it.pnl_pct)),kv('실현손익(확정) 올해',sk(it.realized_ytd,krwShort),cls(it.realized_ytd)),kv('실현손익(확정) 전체',sk(it.realized_all,krwShort),cls(it.realized_all)))
+      :h('div',{class:'grid'},kv('수량',it.qty==null?'—':num(it.qty,0)+'주'),kv('평가액',it.held?usd(it.value_usd,0)+' · '+krwShort(it.value_krw):'—'),kv('평단',it.avg==null?'—':usd(it.avg)),kv('수익률',pc(it.pnl_pct),cls(it.pnl_pct)),
+        kv('미실현손익(평가)',it.held?sk(it.unreal_usd,function(v){return '$'+num(v,0)})+' · '+sk(it.unreal_krw,krwShort):'—',cls(it.unreal_usd)),kv('보유 시작일',ymd(it.start)),kv('실현손익(확정) 올해',sk(it.realized_ytd,function(v){return '$'+num(v,0)}),cls(it.realized_ytd)),kv('실현손익(확정) 전체',sk(it.realized_all,function(v){return '$'+num(v,0)}),cls(it.realized_all)));
+    c.appendChild(h('div',{class:'cbody'},g,it.end&&!it.held?kv('청산일',ymd(it.end)):null,h('div',{class:'sec'},'체결 이력'+(crypto?' (업비트 · 스냅샷 제공 범위)':'')),fillTable(it.fills&&it.fills.rows?it.fills.rows:it.fills,it.fills&&it.fills.n_total,crypto)));
+  }
+  return c;
+}
+function detailBlock(page){
+  var D=DATA.detail[page],w=h('div',{});if(!D)return h('div',{class:'empty'},'자료 없음');
+  if(D.kind==='crypto'&&!D.ok){w.appendChild(h('div',{class:'warn'},'크립토 대기 — '+(D.why||'스냅샷 없음')+' (합계에서 제외됨)'));return w;}
+  w.appendChild(card(h('div',{class:'grid'},kv('평가액',amt(D.value_krw)),kv('미실현',amt(D.unreal_krw,true),cls(D.unreal_krw)),kv('실현 올해',amt(D.realized_krw_ytd,true),cls(D.realized_krw_ytd)),kv('실현 전체',amt(D.realized_krw_all,true),cls(D.realized_krw_all))),
+    h('div',{class:'note',style:'margin:0'},'기준 '+tstr(D.asof)+(D.kind==='crypto'?' · 원화 현금 '+krwFull(D.cash)+' · 원가 '+(D.basis==='ma'?'이동평균':(D.cost_basis||'—').toUpperCase()):''))));
+  var keys=D.items.map(function(i){return page+':'+i.symbol}),allOpen=keys.length&&keys.every(function(k){return OPEN[k]});
+  w.appendChild(h('div',{style:'text-align:right;margin:-2px 2px 6px'},h('button',{class:'hbtn',style:'color:var(--sub);border-color:var(--line)',onclick:function(){keys.forEach(function(k){OPEN[k]=!allOpen});render();}},allOpen?'모두 접기':'모두 펼치기')));
+  var SO=[['value','평가액'],['upct','미실현%'],['rall','실현 전체'],['start','시작일'],['name','티커',1]];
+  w.appendChild(sortBar(page,SO,'value',render));
+  var rk=function(it,a,b){return it[a]!=null?it[a]:it[b]};
+  var acc={value:function(i){return i.value_krw},upct:function(i){return i.upct},rall:function(i){return rk(i,'realized_krw_all','realized_all')},start:function(i){return i.start},name:function(i){return i.symbol}};
+  sortList(D.items,page,'value',acc,function(i){return rk(i,'realized_krw_all','realized_all')}).forEach(function(it){w.appendChild(itemCard(page,D,it))});
+  if(D.kind==='owner')w.appendChild(h('div',{class:'note'},'개별 투자 '+D.n_symbols+'종목 · 현재 보유 '+D.n_held+'종목(나머지는 청산 완료 — 실현만 표시).'));
+  if(D.note)w.appendChild(h('div',{class:'note'},D.note));
+  return w;
+}
+function posTable(rows,ccy){
+  if(!rows.length)return h('div',{class:'note'},'보유 없음');
+  var fx=FX(),box=h('div',{});
+  var t=h('table',{class:'tbl'},h('tr',{},['종목','구분','평가','수익률'].map(function(x){return h('th',{},x)})));
+  rows.slice().sort(function(a,b){return (b.qty*(b.last||b.avg||0))-(a.qty*(a.last||a.avg||0))}).forEach(function(p){
+    var v=p.last!=null?p.qty*p.last:null,pr=(p.last!=null&&p.avg)?(p.last/p.avg-1)*100:null,k=p.ccy==='USD'?(v==null?null:v*fx):v,key='pos:'+p.acct+':'+p.ticker,open=!!OPEN[key];
+    t.appendChild(h('tr',{style:'cursor:pointer',onclick:function(){OPEN[key]=!OPEN[key];render();}},h('td',{},(open?'▾ ':'▸ ')+p.ticker,p.basis==='avg'?[' ',bdg('stale','평단 기준')]:null),h('td',{},p.tag||''),h('td',{},k==null?'—':amt(k)),h('td',{class:cls(pr)},pc(pr))));
+    if(open)t.appendChild(h('tr',{},h('td',{colspan:'4',style:'text-align:left;white-space:normal;background:var(--soft);font-size:11.5px;line-height:1.7'},
+      '수량 '+num(p.qty,p.qty<1?4:0)+' · 평단 '+(p.ccy==='USD'?usd(p.avg):krwFull(p.avg))+' · 현재가 '+(p.last==null?'미수집':(p.ccy==='USD'?usd(p.last):krwFull(p.last)))+(p.basis==='avg'?' (평단으로 대체)':'')+(v==null?'':' · 평가 '+(p.ccy==='USD'?usd(v,2):krwFull(v))),
+      h('br',{}),h('span',{style:'color:var(--sub)'},'현재가 근거: '+(p.last_src||'—')))));
+  });
+  return h('div',{class:'hs'},t);
+}
+function cashLines(names){var cs=(DATA.main.cash||[]).filter(function(c){return names.indexOf(c.account)>=0});
+  return cs.map(function(c){return h('div',{class:'ln'},h('span',{class:'l'},c.account+(c.note?' · '+c.note:''),c.stale?[' ',bdg('stale','직전 값')]:null),h('span',{class:'r'},c.status==='ok'?(c.ccy==='USD'?[usd(c.amount,2),' (',amt(c.krw),')']:amt(c.krw)):bdg('stale','대기')))});}
+function acctCard(id,title,value,sub,body,extra){
+  var key='acct:'+id,open=OPEN[key]!==false;
+  var c=h('div',{class:'card',id:'acct-'+id},h('div',{class:'chead',style:'--c:#334155',onclick:function(){OPEN[key]=!open;render();}},h('div',{class:'ctop'},h('div',{class:'cleft'},h('b',{},title),extra||null),h('span',{class:'pct'},value)),sub?h('div',{class:'note',style:'margin:4px 0 0'},sub):null));
+  if(open)c.appendChild(h('div',{class:'cbody'},body()));
+  return c;
+}
+function viewAccounts(){
+  var M=DATA.main,P=(DATA.data.positions||{}).rows||[],w=h('div',{}),cat=function(i){return (M.categories||[]).filter(function(c){return c.id===i})[0]||{}};
+  var O0=DATA.derived.overview;
+  w.appendChild(card(h('div',{class:'ctop'},h('b',{},'보유 미실현손익 (현금 제외)'),h('span',{class:'pct '+cls(O0.unrealized_krw)},amt(O0.unrealized_krw,true))),
+    h('div',{class:'note',style:'margin:4px 0 0'},'지금 보유한 종목의 평가차익 합 '+pc(O0.unrealized_pct)+' · 상단 「누적손익」은 순입금 기준 전체 손익(현금·환율·실현분 포함)이라 값이 다릅니다.')));
+  var mkv=['mm','vr','dat','owner'].reduce(function(s,i){return s+(cat(i).value_krw||0)},0);
+  var mcash=(M.cash||[]).filter(function(c){return c.account.indexOf('메리츠')===0}).reduce(function(s,c){return s+(c.krw||0)},0);
+  w.appendChild(acctCard('meritz','메리츠',amt(mkv+mcash),'무매·VR·DAT·개별 투자 + 현금(돌파매매 이관분은 「돌파매매 US」에) · 현금 비중 '+(mkv+mcash?num(mcash/(mkv+mcash)*100,1):'—')+'%'+(((DATA.sources||{}).meritz_live||{}).provisional?' · 잠정(직전 조회값)':''),function(){
+    var b=h('div',{});
+    b.appendChild(h('div',{class:'grid'},['mm','vr','dat','owner'].map(function(i){var c=cat(i);return kv(c.label||i,amt(c.value_krw))}).concat([kv('미실현(합)',amt(['mm','vr','dat','owner'].reduce(function(s,i){return s+(cat(i).unrealized_krw||0)},0),true))])));
+    b.appendChild(h('div',{class:'sec'},'현금'));cashLines(['메리츠 USD','메리츠 KRW']).forEach(function(x){b.appendChild(x)});
+    b.appendChild(h('div',{class:'note'},'투자 가능/묶인 돈 구분: 메리츠 스냅샷에 결제완료·미결제 구분 필드가 없어 「추정예수금(RP 포함)」 한 값으로 표시합니다.'));
+    b.appendChild(h('div',{class:'sec'},'보유 종목'));b.appendChild(posTable(P.filter(function(p){return p.acct==='메리츠'})));
+    b.appendChild(h('div',{class:'note'},h('a',{href:'#crypto',onclick:function(e){e.preventDefault();go('crypto')}},'크립토 탭 ›'),'  ',h('a',{href:'#owner',onclick:function(e){e.preventDefault();go('owner')}},'개별 투자 탭 ›'),'  ',h('a',{href:'#bo',onclick:function(e){e.preventDefault();go('bo')}},'돌파 탭 ›')));
+    return b;}));
+  ['KR','US'].forEach(function(mk){
+    var c=cat(mk==='KR'?'toss_kr':'toss_us'),cs=(M.cash||[]).filter(function(x){return x.account==='토스 '+mk})[0]||{};
+    var tot=(c.value_krw||0)+(cs.krw||0);
+    w.appendChild(acctCard('toss_'+mk.toLowerCase(),'돌파매매 '+mk+(mk==='US'?' (토스·메리츠 이관분)':' (토스)'),amt(tot),'평가 '+krwShort(c.value_krw)+' · 토스 현금 '+krwShort(cs.krw)+' · 현금 비중 '+(tot?num((cs.krw||0)/tot*100,1):'—')+'% · 기준 '+tstr(c.asof),function(){
+      var b=h('div',{});
+      b.appendChild(h('div',{class:'grid'},kv('평가',amt(c.value_krw)),kv('미실현',amt(c.unrealized_krw,true),cls(c.unrealized_krw)),kv('실현(전체)',amt(c.realized_krw_all,true),cls(c.realized_krw_all)),kv('보유',(c.n==null?'—':c.n)+'종목')));
+      b.appendChild(h('div',{class:'note'},h('a',{href:'#bo',onclick:function(e){e.preventDefault();go('bo')}},'돌파 탭에서 성과·보유·거래 이력 보기 ›')));
+      if(c.note)b.appendChild(h('div',{class:'note'},c.note));
+      b.appendChild(h('div',{class:'sec'},'현금'));cashLines(['토스 '+mk]).forEach(function(x){b.appendChild(x)});
+      var PT=P.filter(function(p){return p.acct==='토스 '+mk||(mk==='US'&&p.acct==='메리츠'&&p.tag==='돌파매매')});
+      b.appendChild(h('div',{class:'sec'},'보유 종목'));b.appendChild(posTable(PT));
+      var pv=PT.reduce(function(a,p){return a+(p.qty||0)*(p.last||0)},0);
+      b.appendChild(h('div',{class:'note'},'보유·평가 = 돌파매매 거래 정규화(토스 잔여 + 메리츠 BO 섹터 이관분, 브로커 스냅샷·일봉 캐시 현재가). 종목 평가 합 '+(mk==='US'?usd(pv,2):krwFull(pv))+' vs 카테고리 평가 '+(mk==='US'?usd(c.value,2):krwFull(c.value))+'. 종목을 눌러 상세 보기.'));
+      return b;},c.stale?bdg('stale','직전 값'):null));
+  });
+  var TR=transitInfo();
+  if(TR)w.appendChild(acctCard('transit','이관중 (메리츠 입고 대기)',amt(TR.value_krw),TR.n+'종 · 토스 출고 '+md(TR.items[0].out_date)+' · 메리츠 입고 확인 전 · 마지막 종가 평가',function(){
+    var b=h('div',{});
+    var t=h('table',{class:'tbl'},h('tr',{},['종목','수량','종가','평가'].map(function(x){return h('th',{},x)})));
+    TR.items.forEach(function(i){t.appendChild(h('tr',{},h('td',{},i.sym),h('td',{},num(i.qty,0)),h('td',{},i.px==null?'—':usd(i.px,2)),h('td',{},amt(i.value_krw))));});
+    b.appendChild(h('div',{class:'hs'},t));
+    b.appendChild(h('div',{class:'note'},'토스에서 출고된 증권이 메리츠 입고 행으로 확인되면 이 행은 사라지고 메리츠 보유로 옮겨집니다. 어느 계좌에도 속하지 않는 동안에도 총자산과 「전체」 수익률에는 포함합니다.'));
+    return b;},bdg('est','이관 중')));
+  var cr=cat('crypto'),uc=(M.cash||[]).filter(function(x){return x.account==='업비트 KRW'})[0]||{};
+  w.appendChild(acctCard('upbit','업비트 (코인 현물)',amt((cr.value_krw||0)+(uc.krw||0)),'평가 '+krwShort(cr.value_krw)+' · 원화 '+krwShort(uc.krw)+' · 기준 '+tstr(cr.asof),function(){return detailBlock('crypto')}));
+  var MA=(DATA.data.manual_accounts||{}).accounts||[];
+  w.appendChild(sect('acct-manual','수기 계좌 (ISA·IRP·연금저축·삼성·기타)',function(){
+    return h('div',{},MA.map(function(a){
+      var bk=a.badge==='미입력'?bdg('mute','미입력'):(a.stale?bdg('manual','수기·오래됨'):bdg('ok','수기'));
+      return card(h('div',{class:'ctop'},h('div',{class:'cleft'},h('b',{},a['계좌']),bk),h('span',{class:'pct'},a.value_krw==null?'—':amt(a.value_krw))),
+        h('div',{class:'note',style:'margin:4px 0 0'},'기준일 '+(a['기준일']||'—')+(a.age_days!=null?' ('+a.age_days+'일 전)':'')+' · 현금 '+(a['현금KRW']==null?'—':krwFull(a['현금KRW']))+(a['메모']?' · '+a['메모']:'')),
+        (a['보유']||[]).length?h('div',{},(a['보유']).map(function(x){return kv(x['종목']||'—',x['평가금']!=null?krwFull(x['평가금']):(num(x['수량'],0)+' × '+krwFull(x['현재가'])))})):null);
+    }),h('div',{class:'note'},'수기 입력(매월 1일 08:00 알림). 기준일이 '+((DATA.data.manual_accounts||{}).stale_days||45)+'일을 넘으면 「수기·오래됨」. 입력분은 총자산에 합산됩니다.'));
+  },true));
+  if(ANCHOR){setTimeout(function(){var e=document.getElementById(ANCHOR==='crypto'?'acct-upbit':ANCHOR==='manual'?'sec-acct-manual':'acct-'+ANCHOR);if(e)e.scrollIntoView({block:'start'});ANCHOR=null;},60);}
+  return w;
+}
+
+/* ---------- uPlot 공통 ---------- */
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#888';}
+function mkChart(el,opts,data){LIVE.push(function(){var wdt=el.clientWidth||360;opts.width=wdt;var u=new uPlot(opts,data,el);CHARTS.push(u);});return el;}
+function ts(d){return Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/1000;}
+function axisY(fmt){return {stroke:cssv('--sub'),grid:{stroke:cssv('--line'),width:1},ticks:{show:false},size:52,values:function(u,vs){return vs.map(fmt)}};}
+function axisX(xs){var a={stroke:cssv('--sub'),grid:{show:false},ticks:{show:false},values:function(u,vs){return vs.map(function(v){var d=new Date(v*1000);return (d.getUTCMonth()+1)+'/'+d.getUTCDate();})}};if(xs&&xs.length<=14)a.splits=function(){return xs};return a;}
+function hoverTip(u,fmt){var el=u.over;el.addEventListener('mouseleave',function(){tip(null)});u.hooks.setCursor=[function(uu){var i=uu.cursor.idx;if(i==null){tip(null);return;}var r=uu.over.getBoundingClientRect();tip({clientX:r.left+uu.cursor.left,clientY:r.top+uu.cursor.top},fmt(i));}];}
+
+/* ---------- 탭3 추이 ---------- */
+function rangeFilter(pts){
+  if(RANGE==='all'||!pts.length)return pts;var last=pts[pts.length-1].date,d=new Date(last+'T00:00:00Z');
+  var from={'1M':new Date(d-30*864e5),'3M':new Date(d-91*864e5),'6M':new Date(d-182*864e5),'YTD':new Date(Date.UTC(d.getUTCFullYear(),0,1)),'1Y':new Date(d-365*864e5)}[RANGE];
+  var f=from.toISOString().slice(0,10);return pts.filter(function(p){return p.date>=f});
+}
+function viewTrend(){
+  var T=DATA.derived.trend,w=h('div',{});
+  if(!T||!T.ok){w.appendChild(h('div',{class:'warn'},'추이 자료 없음 — '+((T||{}).why||'')));return w;}
+  var pts=rangeFilter(T.points),fx=FX();
+  w.appendChild(h('div',{class:'pbtns'},['1M','3M','6M','YTD','1Y','all'].map(function(r){return h('button',{class:'pbtn'+(RANGE===r?' on':''),onclick:function(){RANGE=r;LS.setItem('mp_range',r);render();}},r==='all'?'전체':r)})));
+  if(T.points.length<5)w.appendChild(h('div',{class:'note'},'추적 시작 '+ymd(T.start)+' 이후 '+T.points.length+'일치 기록뿐입니다(과거 소급 없음). 기록은 하루 1건씩 쌓입니다.'));
+  if(T.est_all)w.appendChild(h('div',{class:'note'},bdg('est','추정'),' 입출금 미입력 계좌(',(T.missing_accounts||[]).join('·'),')가 있어 기준자산+순입금·TWR 은 점선(추정)으로 표시합니다.'));
+  var last=pts[pts.length-1]||{},first=pts[0]||{};
+  var cv=function(k){return CUR==='USD'&&fx?(k/fx):k},fm=function(v){return CUR==='USD'?usdS(v):krwShort(v)};
+  // 수익률 2종 + 환율 효과
+  var twrR=(first.twr!=null&&last.twr!=null)?((1+last.twr)/(1+first.twr)-1):null;
+  w.appendChild(h('div',{class:'kgrid',style:'margin-bottom:8px'},
+    h('div',{class:'kbox',title:T.defs.twr},h('div',{class:'l'},'TWR(시간가중) ⓘ'),h('div',{class:'v '+cls(twrR)},fr(twrR)),h('div',{class:'s'},'입출금 효과 제거',T.est_all?[' ',bdg('est','추정')]:null)),
+    h('div',{class:'kbox',title:T.defs.simple},h('div',{class:'l'},'단순 수익률 ⓘ'),h('div',{class:'v '+cls(last.simple)},fr(last.simple)),h('div',{class:'s'},'(평가−원금)/원금')),
+    h('div',{class:'kbox',title:T.defs.fx},h('div',{class:'l'},'환율 효과(누적) ⓘ'),h('div',{class:'v '+cls(last.fx_effect_cum)},amt(last.fx_effect_cum,true)),h('div',{class:'s'},'달러 자산 원화 환산분')),
+    h('div',{class:'kbox'},h('div',{class:'l'},'고점 대비'),h('div',{class:'v '+cls(last.dd)},fr(last.dd)),h('div',{class:'s'},'현재 낙폭'))));
+  w.appendChild(h('div',{class:'note'},'두 수익률이 다른 이유: TWR 은 입출금 시점의 영향을 빼고 운용 성과만 보고, 단순 수익률은 원금 대비 평가 차이라 입금 직후 수익률이 희석됩니다. 표의 ⓘ 를 길게 누르면 정의가 나옵니다.'));
+  // 1) 총자산 vs 기준자산+순입금
+  var x=pts.map(function(p){return ts(p.date)});
+  var c1=h('div',{class:'chart'},h('div',{class:'ct'},'총자산 · 기준자산+순입금',h('span',{class:'bdg est'},'원금선 추정')),h('div',{}),
+    h('div',{class:'legend2'},h('span',{},h('i',{style:'border-color:#2563EB'}),'총자산'),h('span',{},h('i',{class:'d',style:'border-color:#F59E0B'}),'기준자산+순입금(추정)'),h('span',{},'두 선의 간격 = 평가손익')));
+  w.appendChild(c1);
+  mkChart(c1.children[1],{height:220,scales:{x:{time:false}},axes:[axisX(x),axisY(fm)],cursor:{points:{size:6}},legend:{show:false},
+    series:[{},{label:'총자산',stroke:'#2563EB',width:2,points:{show:pts.length<40}},{label:'원금',stroke:'#F59E0B',width:2,dash:[6,4],points:{show:false}}],
+    hooks:{ready:[function(u){hoverTip(u,function(i){var p=pts[i];return '<b>'+p.date+'</b><br>총자산 '+fm(cv(p.total))+'<br>기준자산+순입금(추정) '+fm(cv(p.principal))+'<br>입출금 '+fm(cv(p.flow))+(p.stale?'<br>직전 값 포함':'');})}]}},
+    [x,pts.map(function(p){return cv(p.total)}),pts.map(function(p){return cv(p.principal)})]);
+  // 2) 전략별 적층
+  var CATS=[['cash','현금'],['mm','무매'],['vr','VR'],['dat','DAT'],['crypto','코인'],['ai','돌파'],['owner','개별 투자'],['manual','수기']];
+  var raw=CATS.map(function(c){return pts.map(function(p){var v=c[0]==='cash'?p.cash_total:c[0]==='ai'?((p.cats.toss_kr||0)+(p.cats.toss_us||0)):(p.cats[c[0]]||0);return cv(v);})});
+  var cum=[],acc=pts.map(function(){return 0});raw.forEach(function(r){acc=acc.map(function(a,i){return a+r[i]});cum.push(acc.slice());});
+  var colors={cash:'#94A3B8',mm:'#10B981',vr:'#3B82F6',dat:'#A855F7',crypto:'#EAB308',ai:'#F97316',owner:'#06B6D4',manual:'#EC4899'};
+  var ser=[{}],dat2=[x];for(var k=CATS.length-1;k>=0;k--){ser.push({label:CATS[k][1],stroke:colors[CATS[k][0]],fill:colors[CATS[k][0]]+'D9',width:1,points:{show:false}});dat2.push(cum[k]);}
+  var c2=h('div',{class:'chart'},h('div',{class:'ct'},'전략별 적층'),h('div',{}),h('div',{class:'legend2'},CATS.map(function(c){return h('span',{},h('b',{style:'background:'+colors[c[0]]}),c[1])})));
+  w.appendChild(c2);
+  mkChart(c2.children[1],{height:200,scales:{x:{time:false}},axes:[axisX(x),axisY(fm)],legend:{show:false},series:ser,
+    hooks:{ready:[function(u){hoverTip(u,function(i){return '<b>'+pts[i].date+'</b><br>'+CATS.map(function(c,j){return c[1]+' '+fm(raw[j][i])}).join('<br>');})}]}},dat2);
+  // 3) 낙폭
+  var c3=h('div',{class:'chart'},h('div',{class:'ct'},'낙폭(고점 대비 %)'),h('div',{}));
+  w.appendChild(c3);
+  mkChart(c3.children[1],{height:130,scales:{x:{time:false}},axes:[axisX(x),axisY(function(v){return num(v,1)+'%'})],legend:{show:false},
+    series:[{},{label:'낙폭',stroke:'#DC2626',fill:'#DC262633',width:1.5,points:{show:pts.length<40}}],
+    hooks:{ready:[function(u){hoverTip(u,function(i){return pts[i].date+' 낙폭 '+fr(pts[i].dd)})}]}},[x,pts.map(function(p){return p.dd*100})]);
+  // 월별 표
+  w.appendChild(sect('tr-month','월별',function(){
+    var t=h('table',{class:'tbl'},h('tr',{},['월','월말 자산','월간 변동','월간 입출금','월간 TWR'].map(function(s){return h('th',{},s)})));
+    T.monthly.slice().reverse().forEach(function(m){t.appendChild(h('tr',{},h('td',{},m.month,m.est?[' ',bdg('est','추정')]:null),h('td',{},amt(m.end_total)),h('td',{class:cls(m.change)},amt(m.change,true)),h('td',{},amt(m.flows,true)),h('td',{class:cls(m.twr)},fr(m.twr))))});
+    return h('div',{class:'hs'},t);
+  }));
+  w.appendChild(h('div',{class:'note'},'환율 효과 = '+T.defs.fx+'. 수기 계좌는 입력분부터 합산됩니다.'));
+  return w;
+}
+
+/* ---------- 탭3 추이 — 입출금 원장 기반 재구축 (MYPORT-NAV-REBUILD-20261108) ---------- */
+var NAVA=(function(){try{var a=JSON.parse(LS.getItem('mp_nav_acc')||'["전체"]');return a.length?a:['전체'];}catch(e){return ['전체'];}})();
+var NAVLOG=LS.getItem('mp_nav_log')==='1',NAVWIN=LS.getItem('mp_nav_win')||'시작~오늘',NAVR=LS.getItem('mp_nav_rng')||'all';
+var NAVC={'전체':'#1E3A8A','삼성':'#2563EB','메리츠':'#059669','토스KR':'#D97706','토스US':'#DC2626','업비트':'#7C3AED'};
+var NAVACCT=['삼성','메리츠','토스KR','토스US','업비트'],NAVTYPE={DEPOSIT:'입금',WITHDRAW:'출금',TRANSFER_IN:'이체 입',TRANSFER_OUT:'이체 출'};
+function navSave(){LS.setItem('mp_nav_acc',JSON.stringify(NAVA));LS.setItem('mp_nav_log',NAVLOG?'1':'0');LS.setItem('mp_nav_win',NAVWIN);LS.setItem('mp_nav_rng',NAVR);}
+function navBadges(N,a){var out=[];(N.badges[a]||[]).forEach(function(b){if(b==='짜장이 값 그대로')return;out.push(' ',bdg(/추정/.test(b)?'est':'mute',b));});      /* [MYPF-MM-TAB-20261128 §3] 「짜장이 값 그대로」 배지 삭제 */var c=(N.checks||{})[a];if(c&&c.prov)out.push(' ',bdg('stale','잠정',c.note||''));return out;}
+function navFlowTxt(c,m){return c==='USD'?sk(m,function(v){return '$'+num(v,2)}):sk(m,function(v){return num(v,0)+'원'});}
+function viewNav(){
+  var N=DATA.derived.nav,w=h('div',{}),fxNow=FX();
+  w.appendChild(h('div',{class:'note',style:'margin-top:0'},'전체 자산 그래프(순입금 누계·총자산)는 이 탭 맨 위에 있습니다. 아래는 수익률·입출금 기준 표와 계좌별 상세입니다.'));
+  var EP=N.endpoint||{};
+  if((N.unclassified||[]).length)w.appendChild(h('div',{class:'warn'},'분류 보류(UNCLASSIFIED) '+N.unclassified.length+'행 — 짝 없는 이체성 행은 순입금·수익률에 넣지 않습니다(추정 0): '+N.unclassified.map(function(u){return u.account+' '+u.ref}).join(', ')));
+  // 수익률 카드
+  var WINS=['시작~오늘','올해','최근 1년','최근 3개월'];
+  w.appendChild(h('div',{class:'pbtns'},WINS.map(function(k){return h('button',{class:'pbtn'+(NAVWIN===k?' on':''),onclick:function(){NAVWIN=k;navSave();render();}},k)})));
+  var full=NAVWIN==='시작~오늘';
+  var RA=['전체'].concat(NAVACCT);
+  w.appendChild(h('div',{class:'hs'},(function(){
+    var t=h('table',{class:'tbl'},h('tr',{},['계좌',full?'순입금':'창 순유입','기말 자산','누적 손익'].map(function(s,j){return h('th',{title:j===1?N.defs.net_deposit:''},s)})));
+    RA.forEach(function(a){
+      var r=(N.returns[a]||{})[NAVWIN];if(!r||r.status){t.appendChild(h('tr',{},h('td',{},a,navBadges(N,a)),h('td',{colspan:3},'—')));return;}
+      t.appendChild(h('tr',{},h('td',{},h('b',{},a),(N.badges[a]||[]).filter(function(b){return b!=='짜장이 값 그대로'}).length||((N.checks||{})[a]||{}).prov?h('div',{style:'margin-top:3px'},navBadges(N,a).slice(1)):null),h('td',{},amt(full?r.net_deposit:r.net_flow,true)),h('td',{},amt(r.end_nav)),h('td',{class:cls(r.cum_pnl!=null?r.cum_pnl:r.pnl)},amt(r.cum_pnl!=null?r.cum_pnl:r.pnl,true))));
+      if(r.usd){var u=r.usd;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{},sk(full?u.net_deposit:u.net_flow,function(v){return '$'+num(v,0)})),h('td',{},usd(u.end_nav,0)),h('td',{class:cls(u.pnl)},sk(u.pnl,function(v){return '$'+num(v,0)}))));}
+    });
+    return t;})()));
+  w.appendChild(h('div',{class:'hs',style:'margin-top:6px'},(function(){
+    var t=h('table',{class:'tbl'},h('tr',{},[['계좌',''],[full?'단순 ⓘ':'창 단순 ⓘ',full?N.defs.simple:N.defs.dietz],['XIRR ⓘ',N.defs.xirr],['TWR ⓘ',N.defs.twr]].map(function(s){return h('th',{title:s[1]},s[0])})));
+    RA.forEach(function(a){
+      var r=(N.returns[a]||{})[NAVWIN];if(!r||r.status){t.appendChild(h('tr',{},h('td',{},a),h('td',{colspan:3},'—')));return;}
+      var sm=full?r.simple:r.dietz;
+      t.appendChild(h('tr',{},h('td',{},h('b',{},a)),h('td',{class:cls(sm),title:sm==null?(r.simple_note||''):(full&&r.simple_basis?'누적손익 ÷ 역대 최대 누적 순입금('+krwShort(r.peak_net_deposit)+'원)':'')},fr(sm),full&&r.simple_basis?[' ',bdg('mute',r.simple_basis)]:null),h('td',{class:cls(r.xirr),title:r.xirr==null?(r.xirr_note||''):''},xirrCell(r)),h('td',{class:cls(r.twr)},fr(r.twr))));
+      if(r.usd){var u=r.usd,us=full?u.simple:u.dietz;t.appendChild(h('tr',{style:'font-size:10.5px;opacity:.85'},h('td',{},'└ USD'),h('td',{class:cls(us)},fr(us),full&&u.simple_basis?[' ',bdg('mute',u.simple_basis)]:null),h('td',{class:cls(u.xirr)},fr(u.xirr)),h('td',{class:cls(u.twr)},fr(u.twr))));}
+    });
+    return t;})()));
+  w.appendChild(h('div',{class:'note'},'원화 기준(환율 효과 포함) 위주, 달러 계좌는 └ USD 줄에 병기. 순입금 = 본인 입금 − 출금(수수료·세금은 비용, 배당·이자는 기타수익으로 제외). 전체 XIRR 은 계좌 흐름을 합산해 다시 구한 값이며 계좌별 가중평균이 아닙니다. 순입금이 0 이하인 청산 계좌는 누적손익 ÷ 역대 최대 누적 순입금으로 「청산 계좌 기준」 표기를 붙여 보여줍니다. '+(N.transit&&N.transit.n?'이관 중 '+N.transit.n+'종(토스 출고 → 메리츠 입고 대기)은 어느 계좌에도 넣지 않고 「전체」에만 포함합니다. ':'')+NAVWIN+(full?'':' 구간의 단순 값은 수정 Dietz 입니다.')));
+  // 계좌별 상세
+  NAVACCT.forEach(function(a){w.appendChild(sect('nav-'+a,a+' 상세',function(){return navDetail(N,a)},false,navBadges(N,a)));});
+  return w;
+}
+function navDetail(N,a){
+  var d=N.detail[a],b=h('div',{});
+  var carried=0;d.daily.forEach(function(r){carried+=r[6]});
+  var inc=[];Object.keys(d.income||{}).forEach(function(k){var p=k.split(':'),nm={DIVIDEND:'배당',TAX:'세금(−=납부)',INTEREST:'이자·이용료',FEE:'수수료·소액 출금(−)'}[p[0]];inc.push(kv(nm+' '+p[1],p[1]==='USD'?sk(d.income[k],function(v){return '$'+num(v,2)}):sk(d.income[k],function(v){return num(v,0)+'원'})));});
+  b.appendChild(h('div',{class:'grid'},kv('기록 구간',ymd(d.start)+' ~ '+ymd(d.last)),kv('가격 이월일 비율',d.daily.length?num(carried/d.daily.length*100,1)+'% ('+carried+'/'+d.daily.length+'일)':'—'),inc));
+  if(a==='삼성')b.appendChild(h('div',{class:'note'},bdg('mute','청산 계좌(2024-05~2025-02)'),' 보유 종목을 모두 정리한 뒤 잔액 위주로 남은 계좌입니다. 한투 입고분은 원가를 알 수 없어 이체일 종가로 평가했습니다.'));
+  b.appendChild(h('div',{class:'ct',style:'margin:8px 0 4px'},'입출금 · 이체 ('+d.flows.length+'건)'));
+  var t=h('table',{class:'tbl'},h('tr',{},['날짜','종류','금액','구분','메모'].map(function(s){return h('th',{},s)})));
+  d.flows.slice().reverse().forEach(function(f){t.appendChild(h('tr',{},h('td',{},ymd(f.d)),h('td',{},NAVTYPE[f.t]||f.t),h('td',{class:cls(f.m)},navFlowTxt(f.c,f.m)),h('td',{},f.e?'외부':'내부',f.est?[' ',bdg('est','추정')]:null),h('td',{style:'text-align:left;white-space:normal;min-width:180px'},f.memo)))});
+  b.appendChild(h('div',{class:'hs'},t));
+  b.appendChild(h('div',{class:'ct',style:'margin:10px 0 4px'},'일별 자산 (월별로 접힘)'));
+  var months={},order=[];d.daily.forEach(function(r){var m=r[0].slice(0,7);if(!months[m]){months[m]=[];order.push(m);}months[m].push(r);});
+  order.slice().reverse().forEach(function(m,k){
+    var rows=months[m],end=rows[rows.length-1];
+    var dt=h('details',{style:'margin:3px 0'});if(k===0)dt.setAttribute('open','');
+    dt.appendChild(h('summary',{style:'cursor:pointer;font-size:12px;padding:4px 2px'},m+' · 월말 '+krwShort(end[1])+'원'));
+    var tb=h('table',{class:'tbl'},h('tr',{},['날짜','총자산','현금 KRW','현금 USD','보유평가','환율','가격'].map(function(s){return h('th',{},s)})));
+    rows.slice().reverse().forEach(function(r){tb.appendChild(h('tr',{},h('td',{},md(r[0])),h('td',{},num(r[1],0)),h('td',{},num(r[2],0)),h('td',{},num(r[3],2)),h('td',{},num(r[4],0)),h('td',{},num(r[5],1)),h('td',{},r[6]?bdg('mute','이월'):'')))});
+    dt.appendChild(h('div',{class:'hs'},tb));b.appendChild(dt);
+  });
+  return b;
+}
+
+/* ---------- 탭4 무매 ---------- */
+function hbars(rows,lab,val,sub,col){var mx=Math.max.apply(null,rows.map(function(r){return Math.abs(val(r))}).concat([1]));
+  return h('div',{},rows.map(function(r){var v=val(r);return h('div',{class:'hrow'},h('span',{},lab(r)),h('div',{class:'hb'},h('i',{style:'width:'+(Math.abs(v)/mx*100)+'%;background:'+(col||(v<0?'#3B82F6':'#10B981'))})),h('span',{class:'hv'},sub(r)));}));}
+function tickerTable(rows){
+  var st=sortState('tk','cum',-1),cols=[['symbol','종목',1],['n','건수'],['ann','연환산 시드수익률(중앙값)'],['mean','평균'],['median','중앙값'],['hold','평균 보유'],['cum','누적 실현'],['worst','최악 1건']];
+  var acc={symbol:function(r){return r.symbol},n:function(r){return r.n},ann:function(r){return r.ann_median},mean:function(r){return r.mean_ret},median:function(r){return r.median_ret},hold:function(r){return r.avg_hold},cum:function(r){return r.cum_realized},worst:function(r){return r.worst.realized}};
+  var srt=rows.slice().sort(function(a,b){var x=acc[st.k](a),y=acc[st.k](b);if(x==null)return 1;if(y==null)return -1;return (x<y?-1:x>y?1:0)*st.d;});
+  var t=h('table',{class:'tbl'},h('tr',{},cols.map(function(c){return h('th',{onclick:function(){var n=st.k===c[0]?{k:c[0],d:-st.d}:{k:c[0],d:c[2]?1:-1};LS.setItem('mp_sort_tk',JSON.stringify(n));render();}},c[1]+(st.k===c[0]?(st.d<0?' ↓':' ↑'):''))})));
+  srt.forEach(function(r){t.appendChild(h('tr',{},h('td',{},r.symbol),h('td',{},String(r.n)),h('td',{},fr(r.ann_median,0)),h('td',{},fr(r.mean_ret,1)),h('td',{},fr(r.median_ret,1)),h('td',{},num(r.avg_hold,1)+'일'),h('td',{class:cls(r.cum_realized)},amtU(r.cum_realized,true)),h('td',{class:cls(r.worst.realized)},sk(r.worst.realized,function(v){return '$'+num(v,0)})+' · '+ymd(r.worst.exit))))});
+  return h('div',{class:'hs'},t);
+}
+function timeline(TL){
+  var bars=TL.bars,order=TL.order;if(!bars.length)return h('div',{class:'empty'},'거래 없음');
+  var d0=new Date(bars.reduce(function(a,b){return a<b.entry?a:b.entry},'9999')+'T00:00:00Z'),d1=new Date(bars.reduce(function(a,b){return a>b.exit?a:b.exit},'0000')+'T00:00:00Z');
+  var days=Math.round((d1-d0)/864e5)+1,py=1.15,lw=46,cw=Math.max(18,Math.floor((Math.min(window.innerWidth,640)-40-lw)/order.length)),W=lw+cw*order.length+6,H=Math.ceil(days*py)+30;
+  var svg=document.createElementNS(NS,'svg');svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  function el(n,a,t){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(t){var ti=document.createElementNS(NS,'title');ti.textContent=t;e.appendChild(ti);}svg.appendChild(e);return e;}
+  order.forEach(function(s,i){var tx=el('text',{x:lw+i*cw+cw/2,y:12,'text-anchor':'middle','font-size':9,'font-weight':700,fill:cssv('--sub'),transform:'rotate(-35 '+(lw+i*cw+cw/2)+' 12)'});tx.textContent=s;});
+  var y0=26,cur=new Date(d0.getTime());cur.setUTCDate(1);
+  while(cur<=d1){var dy=Math.round((cur-d0)/864e5);if(dy>=0){var yy=y0+dy*py;el('line',{x1:lw-4,x2:W,y1:yy,y2:yy,stroke:cssv('--line'),'stroke-width':cur.getUTCMonth()===0?1.2:0.5});var tx2=el('text',{x:2,y:yy+9,'font-size':cur.getUTCMonth()===0?9.5:8.5,'font-weight':cur.getUTCMonth()===0?800:400,fill:cssv('--sub')});tx2.textContent=cur.getUTCMonth()===0?cur.getUTCFullYear()+'':(cur.getUTCMonth()+1)+'월';}cur.setUTCMonth(cur.getUTCMonth()+1);}
+  var nth={};
+  bars.forEach(function(b){var i=order.indexOf(b.symbol);if(i<0)return;nth[b.symbol]=(nth[b.symbol]||0)+1;
+    var ys=y0+Math.round((new Date(b.entry+'T00:00:00Z')-d0)/864e5)*py,ye=y0+(Math.round((new Date(b.exit+'T00:00:00Z')-d0)/864e5)+1)*py,col=PAL[i%PAL.length],alt=nth[b.symbol]%2===0;
+    var t=b.symbol+' '+b.entry+' → '+b.exit+' ('+b.hold+'일)\n시드 '+(b.seed==null?'—':'$'+num(b.seed,0))+' · 실현 $'+num(b.realized,2)+'\n회차수익률 '+fr(b.ret_cycle,1)+' · 시드대비 '+fr(b.ret_seed,2)+(b.badge?'\n['+b.badge+']':'')+(b.excluded?'\n[통계 제외] '+b.excluded:'');
+    var r=el('rect',{x:lw+i*cw+2,y:ys,width:cw-4,height:Math.max(2,ye-ys),rx:2,fill:b.excluded?'none':col,'fill-opacity':b.set==='복원'?0.35:(alt?0.55:0.95),stroke:b.excluded?'#64748B':(b.set==='복원'?col:'none'),'stroke-dasharray':(b.set==='복원'||b.excluded)?'3 2':'','stroke-width':1.2},t);
+    el('line',{x1:lw+i*cw+2,x2:lw+i*cw+cw-2,y1:ys,y2:ys,stroke:col,'stroke-width':2});
+    r.addEventListener('click',function(ev){tip(ev,esc(t).replace(/\n/g,'<br>'));setTimeout(function(){tip(null)},3500);});
+    if(b.badge==='★')el('text',{x:lw+i*cw+cw/2,y:ys+8,'text-anchor':'middle','font-size':8,fill:'#92400E'}).textContent='★';
+  });
+  return h('div',{class:'tlw'},svg);
+}
+function viewMumae(){
+  var X=DATA.derived.mumae,MM=DATA.data.mumae,w=h('div',{});
+  if(!X||!X.ok){w.appendChild(h('div',{class:'warn'},'무매 자료 없음 — '+((X||{}).why||'')));return w;}
+  var S=X.sets.with_restored,K=S.kpi,nX=X.sets.confirmed.kpi.n,nR=K.n-nX;      // [MYPF-MM-VIEW-20261128 §1] 보기 한 가지(엑셀 + 거래내역 복원, 별도 행 제외분 빼고) — 전환 버튼 제거
+  var nOpen=X.open.length,nEnd=(MM.ended||[]).length,nMis=(MM.missing||[]).length;
+  w.appendChild(h('div',{class:'dist',style:'margin:0 2px 8px'},[h('span',{class:'chip',style:'background:#10B981;color:#fff'},'무매 진행 중 '+nOpen+'종목')].concat(nMis?[h('span',{class:'chip',style:'background:#FFE4E6;color:#9F1239'},'데이터 결측 '+nMis)]:[])));      /* [MYPF-MM-TAB-20261128 §3] 「최근 종료」 칩 삭제 */
+  if(nMis)w.appendChild(sect('mm-missing','데이터 결측 '+nMis+'건',function(){return h('div',{},MM.missing.map(function(m){return card(h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#9F1239'},m.symbol),bdg('manual','데이터 결측')),h('span',{class:'pct'},m.last_cycle_start?ymd(m.last_cycle_start)+' 시작':'사이클 없음')),h('div',{class:'note',style:'margin:6px 0 0'},m.why+' · 장부 사용 시드 '+usd(m.used_seed,0)+'. 체결 원장·앱 화면 확인 후 정정이 필요합니다.'))}));},true));
+  w.appendChild(sect('mm-unified','진행 중 사이클 · 접수 줄 ('+nOpen+'종목)'+((X.open[0]&&X.open[0].report_date)?' · '+md(X.open[0].report_date)+' 접수 보고 값':''),function(){return viewMMcards()},true));      /* [MYPF-MM-TAB-20261128 §2] 진행 카드 통합(종목당 한 장) */
+  w.appendChild(h('div',{class:'note',style:'margin-top:-4px'},'청산 '+K.n+'건 · '+ymd(K.first)+' ~ '+ymd(K.last)));      /* [MYPF-MM-TAB-20261128 §3] 줄 축소 */
+  var kb=function(l,v,s,c){return h('div',{class:'kbox'},h('div',{class:'l'},l),h('div',{class:'v '+(c||'')},v),h('div',{class:'s'},s||''))};
+  w.appendChild(sect('mm-kpi','요약',function(){return h('div',{},h('div',{class:'kgrid'},
+    kb('청산 건수',K.n+'건'),kb('연환산 시드수익률',fr(K.ann_median,0),'중앙값 · '+K.ann_n+'건'),kb('평균 회차수익률',fr(K.avg_ret_cycle,2)),kb('평균 시드대비',fr(K.avg_ret_seed,2)),
+    kb('평균 보유',num(K.avg_hold,1)+'일'),kb('최장 보유',K.max_hold+'일'),kb('총 실현',amtU(K.total_realized,true),'$'+num(K.total_realized,0),cls(K.total_realized)),kb('월평균 실현',amtU(K.monthly_avg_realized,true),K.months+'개월'))
+    ,h('div',{class:'note',style:'margin-top:6px'},'원화 환산은 ',h('b',{},'현재 환율('+num(FX(),1)+') 일괄 환산'),'입니다 — 청산일별 환율 데이터가 없어 청산일 환율은 쓰지 않았습니다. 연환산 시드수익률 = 실현수익 ÷ 투입시드 ÷ 보유일 × 365. 무매 2.2는 손절이 없어 승률은 표시하지 않습니다.'));}));
+  w.appendChild(sect('mm-ticker','종목별',function(){return tickerTable(S.by_ticker)}));
+  w.appendChild(sect('mm-period','시기별 실현손익',function(){
+    var b=h('div',{});b.appendChild(h('div',{class:'pbtns'},[['month','월별'],['quarter','분기별'],['year','연도별']].map(function(p){return h('button',{class:'pbtn'+(PER===p[0]?' on':''),onclick:function(){PER=p[0];LS.setItem('mp_per',p[0]);render();}},p[1])})));
+    b.appendChild(card(hbars(S.periods[PER].slice().reverse(),function(r){return r.k},function(r){return r.realized},function(r){return '$'+num(r.realized,0)+' · '+r.n+'건'})));return b;}));
+  w.appendChild(sect('mm-dist','분포',function(){return h('div',{},
+    h('div',{class:'sec'},'보유일'),card(hbars(S.dist.hold,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#6366F1')),
+    h('div',{class:'sec'},'회차수익률'),card(hbars(S.dist.ret,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#0EA5E9')),
+    h('div',{class:'sec'},'최대 도달 회차 분포'),card(hbars(X.turns.hist,function(r){return r.label},function(r){return r.n},function(r){return r.n+'건'},'#F59E0B')),h('div',{class:'note'},X.turns.note+' (집계 '+X.turns.n+'건 / 복원 사이클 '+X.turns.n_total+'건)'));}));
+  w.appendChild(sect('mm-long','90일 초과 장기 사이클',function(){var L=K.long90;
+    return h('div',{},card(h('div',{class:'grid'},kv('건수',L.n+'건'),kv('시드 묶임 합계',L.seed_sum?'$'+num(L.seed_sum,0)+' · '+krwShort(L.seed_sum*FX()):'—'))),
+      L.items.length?h('div',{class:'hs'},h('table',{class:'tbl'},h('tr',{},['종목','진입','청산','보유','시드','실현'].map(function(x){return h('th',{},x)})),L.items.map(function(r){return h('tr',{},h('td',{},r.symbol),h('td',{},ymd(r.entry)),h('td',{},ymd(r.exit)),h('td',{},r.hold+'일'),h('td',{},r.seed?'$'+num(r.seed,0):'—'),h('td',{class:cls(r.realized)},sk(r.realized,function(v){return '$'+num(v,0)})))}))):null,
+      h('div',{class:'note'},'시드 묶임 합계 = 90일 넘게 열려 있던 사이클들의 시드 합'+(L.seed_missing?' (시드 가정이 없는 '+L.seed_missing+'건 제외)':'')+'.'));},true));
+  w.appendChild(sect('mm-tl','타임라인 (세로=일자 · 가로=종목)',function(){return h('div',{},timeline(X.timeline),
+    h('div',{class:'legend2'},h('span',{},h('b',{style:'background:#2563EB'}),'확정(엑셀) · 같은 종목 연속 회차는 진·연 교차, 시작일 굵은 윗선'),h('span',{},h('b',{style:'background:#2563EB59;outline:1px dashed #2563EB'}),'거래내역 복원'),h('span',{},h('b',{style:'outline:1px dashed #64748B'}),'통계 제외'),h('span',{},'★ 확인요망')),
+    h('div',{class:'note'},'막대를 누르거나(모바일) 올리면(PC) 상세가 나옵니다. 날짜는 미국장 추정일 기준.'));},false));
+  w.appendChild(sect('mm-gap','공백 구간 복원 (엑셀 마지막 청산 '+ymd(MM.meta.gap_cutoff_exclusive)+' 이후 종료)',function(){
+    var t=h('table',{class:'tbl'},h('tr',{},['종목','진입','청산','기간','실현','수익률','상태'].map(function(s){return h('th',{},s)})));
+    MM.gap.forEach(function(g){var ex=(X.excluded||[]).some(function(e){return e.symbol===g.symbol&&e.entry===g.entry});
+      t.appendChild(h('tr',{class:ex?'dim':''},h('td',{},g.symbol),h('td',{},ymd(g.entry)),h('td',{},ymd(g.exit)),h('td',{},g.days+'일'),h('td',{class:cls(g.realized)},sk(g.realized,function(v){return '$'+num(v,2)})),h('td',{},pc(g.return_pct)),h('td',{},ex?bdg('mute','통계 제외'):[bdg('rest','거래내역 복원'),g.state==='종료'?' ':null,g.state==='종료'?bdg('ok','종료 처리'):null])));});
+    return h('div',{},h('div',{class:'hs'},t),(X.excluded||[]).map(function(e){return h('div',{class:'note'},'통계 제외 '+e.symbol+' '+ymd(e.entry)+'→'+ymd(e.exit)+': '+e.excluded)}),
+      h('div',{class:'note'},'정본 우선순위: ① 엑셀(~'+md(MM.meta.gap_cutoff_exclusive)+') ② 메리츠 장부(10-26~) ③ 체결 복원(공백만). 엑셀 ★ 확인요망 '+MM.closed.filter(function(c){return c.star}).length+'건은 타임라인에 ★.'));},false));
+  w.appendChild(sect('mm-cyc','사이클 손익 (체결 복원 · 현 로스터)',function(){return viewCyc()},false));
+  w.appendChild(sect('mm-rec','기록 (체결 · 설정 변경)',function(){return viewRec()},false));
+  return w;
+}
+
+/* ---------- 탭5 VR ---------- */
+function viewVR(){
+  var VH=DATA.data.vr_history,v=DATA.vr,w=h('div',{});
+  if(!VH||!VH.ok){w.appendChild(h('div',{class:'warn'},'VR 이력 없음 — '+((VH||{}).why||'')));w.appendChild(viewVRcard());return w;}
+  var P=VH.periods,Sm=VH.summary,meta=VH.meta,live=P[P.length-1].live;
+  var nE=P.filter(function(p){return p.est}).length;
+  var poolNow=live?live.pool_now:null,ps=P[P.length-1].pool_start,use=(poolNow!=null&&ps)?(1-poolNow/ps)*100:null;
+  var kb=function(l,x,s){return h('div',{class:'kbox'},h('div',{class:'l'},l),h('div',{class:'v'},x),h('div',{class:'s'},s||''))};
+  w.appendChild(h('div',{class:'kgrid',style:'margin-bottom:8px'},
+    kb('시작일',ymd(Sm.start),meta.symbol),kb('경과 회차',Sm.periods+'회','추정 '+Sm.est_periods+' · 실측 '+Sm.measured_periods),kb('누적 입금',usd(Sm.deposit_cum,0),'$'+num(meta.params.deposit_per_period,0)+' × '+(Sm.periods-1)+'회'),kb('현재 V',usd(Sm.V_now,0),'밴드 ±'+meta.params.band_pct+'%'),
+    kb('평가금 / V',Sm.eval_over_V==null?'—':num(Sm.eval_over_V*100,1)+'%',live?usd(live.eval,0):''),kb('Pool',usd(poolNow,0),'주기 시작 '+usd(ps,0)),kb('Pool 사용률',use==null?'—':num(use,1)+'%','이번 주기 · 한도 '+meta.params.pool_limit_pct+'%'),kb('밴드 이탈',('상 '+Sm.band_breach_hi+' · 하 '+Sm.band_breach_lo),'주기 말 평가금 기준')));
+  // 차트: x = 주기 시작일 (+ 현재 시점)
+  var xs=P.map(function(p){return ts(p.start)});
+  var nowX=live&&live.asof?ts(live.asof.slice(0,10)):null;if(nowX&&nowX<=xs[xs.length-1])nowX=xs[xs.length-1]+86400;
+  var X2=nowX?xs.concat([nowX]):xs.slice(),N=X2.length,lastE=P.length-1;
+  var isEst=function(i){return i<lastE};
+  var Vf=function(p){return p.V},lo=function(p){return p.band_lo},hi=function(p){return p.band_hi};
+  var split=function(f){return [X2.map(function(_,i){return i<=lastE&&(isEst(i)||i===lastE)?f(P[Math.min(i,lastE)]):null}),X2.map(function(_,i){return i>=lastE?f(P[Math.min(i,lastE)]):null})];};
+  var Vs=split(Vf),Ls=split(lo),Hs=split(hi);
+  var evalS=X2.map(function(_,i){if(i===0)return null;if(i<=lastE)return P[i-1].eval_end;return live?live.eval:null;});
+  var c=h('div',{class:'chart'},h('div',{class:'ct'},'V · 밴드 · 평가금 (USD)',h('span',{},bdg('est','1~'+nE+'주기 추정'))),h('div',{}),
+    h('div',{class:'legend2'},h('span',{},h('i',{style:'border-color:#7C3AED'}),'V (실측)'),h('span',{},h('i',{class:'d',style:'border-color:#7C3AED'}),'V (추정·점선)'),h('span',{},h('b',{style:'background:#7C3AED26'}),'밴드 ±'+meta.params.band_pct+'%'),
+      h('span',{},h('i',{style:'border-color:#059669'}),'평가금(주기 말 실제 시세)'),h('span',{},'▲ 매수 ▼ 매도 (주기 합계)'),h('span',{},'⚠ 사다리 vs 체결 불일치')));
+  w.appendChild(c);
+  var mk=function(u){var ctx=u.ctx;ctx.save();ctx.font=(11*devicePixelRatio)+'px sans-serif';ctx.textAlign='center';
+    P.forEach(function(p,i){var xx=u.valToPos(xs[i],'x',true),yy=u.valToPos(p.V,'y',true);
+      if(p.amt_buy>0){ctx.fillStyle='#DC2626';ctx.fillText('▲',xx,yy+14*devicePixelRatio);}
+      if(p.amt_sell>0){ctx.fillStyle='#2563EB';ctx.fillText('▼',xx,yy-6*devicePixelRatio);}
+      if(p.ladder_mismatch){ctx.fillStyle='#D97706';ctx.fillText('⚠',xx,u.bbox.top+12*devicePixelRatio);}});ctx.restore();};
+  mkChart(c.children[1],{height:260,scales:{x:{time:false}},axes:[axisX(),axisY(usdS)],legend:{show:false},
+    series:[{},{label:'상단 추정',stroke:'#7C3AED66',width:1,dash:[4,3],points:{show:false}},{label:'하단 추정',stroke:'#7C3AED66',width:1,dash:[4,3],points:{show:false}},
+      {label:'상단',stroke:'#7C3AED99',width:1,points:{show:false}},{label:'하단',stroke:'#7C3AED99',width:1,points:{show:false}},
+      {label:'V 추정',stroke:'#7C3AED',width:2,dash:[6,4],points:{show:false}},{label:'V',stroke:'#7C3AED',width:2,points:{show:true,size:5}},
+      {label:'평가금',stroke:'#059669',width:2,points:{show:false},spanGaps:true}],
+    bands:[{series:[1,2],fill:'#7C3AED14'},{series:[3,4],fill:'#7C3AED26'}],
+    hooks:{draw:[mk],ready:[function(u){hoverTip(u,function(i){var p=P[Math.min(i,lastE)],isNow=i>lastE;
+      return '<b>'+(isNow?'현재 '+(live?tstr(live.asof):''):(p.n+'주기 '+p.start+'~'+md(p.end)))+'</b>'+(p.est?' <i>(추정)</i>':' (실측)')+'<br>V $'+num(p.V,0)+' · 밴드 $'+num(p.band_lo,0)+'~$'+num(p.band_hi,0)+
+        '<br>평가금 '+(evalS[i]==null?'—':'$'+num(evalS[i],0))+(isNow?'':'<br>Pool 시작 $'+num(p.pool_start,0)+'<br>매수 '+p.n_buy+'건 $'+num(p.amt_buy,0)+' · 매도 '+p.n_sell+'건 $'+num(p.amt_sell,0))+(p.ladder_mismatch&&!isNow?'<br>⚠ 사다리 vs 체결 불일치':'')+(p.split_in_period?'<br>(이 주기에 2:1 액면분할)':'');})}]}},
+    [X2,Hs[0],Ls[0],Hs[1],Ls[1],Vs[0],Vs[1],evalS]);
+  // Pool 보조 패널
+  var pe=X2.map(function(_,i){return i<lastE?P[i].pool_start:null}),pm=X2.map(function(_,i){return i===lastE?P[i].pool_start:(i>lastE&&live?live.pool_now:null)});
+  var c2=h('div',{class:'chart'},h('div',{class:'ct'},'Pool 잔고 (주기 시작 · 현재)'),h('div',{}),h('div',{class:'legend2'},h('span',{},h('b',{style:'background:#0EA5E966;outline:1px dashed #0EA5E9'}),'추정(역산)'),h('span',{},h('b',{style:'background:#0EA5E9'}),'실측')));
+  w.appendChild(c2);
+  mkChart(c2.children[1],{height:120,scales:{x:{time:false}},axes:[axisX(),axisY(usdS)],legend:{show:false},
+    series:[{},{label:'Pool 추정',stroke:'#0EA5E9',fill:'#0EA5E966',paths:uPlot.paths.bars({size:[0.7,40]}),points:{show:false}},{label:'Pool',stroke:'#0EA5E9',fill:'#0EA5E9',paths:uPlot.paths.bars({size:[0.7,40]}),points:{show:false}}],
+    hooks:{ready:[function(u){hoverTip(u,function(i){var p=P[Math.min(i,lastE)];return (i>lastE?'현재':p.n+'주기 '+p.start)+' Pool $'+num(i>lastE&&live?live.pool_now:p.pool_start,0)+(p.est?' (추정)':'');})}]}},[X2,pe,pm]);
+  w.appendChild(h('div',{class:'note'},'추정(점선) = 1~'+nE+'주기 복원: '+meta.formula));
+  w.appendChild(h('div',{class:'note'},'가정: V(1)='+usd(meta.assumptions.V1,0)+'(기록 없음·사다리 일관성으로 정함), Pool(1)='+usd(meta.assumptions.Pool1,0)+'(기록 Pool(50)에서 역산 — 순환 구조라 풀 궤적은 독립 검증 불가). 검증: 복원 V(50) '+usd(meta.validation.V50_restored,2)+' vs 기록 '+usd(meta.validation.V50_recorded,2)+' (오차 '+pc(meta.validation.err_pct,3)+'). 사다리 불일치 주기 ⚠ '+meta.validation.ladder_mismatch_periods.join('·')+'.'));
+  w.appendChild(sect('vr-card','현 주기 · 사다리 (장부)',function(){return viewVRcard()},true));
+  w.appendChild(sect('vr-table','주기 표',function(){
+    var t=h('table',{class:'tbl'},h('tr',{},['주기','시작','V','밴드 하·상','Pool 시작','매수','매도','말 평가금','이탈'].map(function(s){return h('th',{},s)})));
+    P.slice().reverse().forEach(function(p){t.appendChild(h('tr',{},h('td',{},p.n+(p.est?' ':''),p.est?bdg('est','추정'):bdg('ok','실측'),p.ladder_mismatch?' ⚠':''),h('td',{},ymd(p.start)),h('td',{},'$'+num(p.V,0)),h('td',{},'$'+num(p.band_lo,0)+'~'+num(p.band_hi,0)),h('td',{},'$'+num(p.pool_start,0)),
+      h('td',{},p.n_buy?p.n_buy+'건 $'+num(p.amt_buy,0):'—'),h('td',{},p.n_sell?p.n_sell+'건 $'+num(p.amt_sell,0):'—'),h('td',{},p.eval_end==null?'—':'$'+num(p.eval_end,0)),h('td',{},p.band_breach==='hi'?'상':p.band_breach==='lo'?'하':'')))});
+    return h('div',{class:'hs'},t);},false));
+  return w;
+}
+
+/* ---------- 기존 무매·VR 화면 조각(이전 mmvr 페이지에서 이관) ---------- */
+function bars(p){var n=Math.max(1,Math.floor(p/100)+1),out=[];for(var i=0;i<n;i++){var v=Math.min(100,Math.max(0,p-i*100));out.push(h('div',{class:'bar'},h('div',{class:'fill',style:'width:'+v+'%;background:'+zoneColor(i===0?p:100)}),i===0?h('div',{class:'mark',style:'left:80%'}):null));}return out;}
+/* [MYPF-MM-TAB-20261128 §2] 무매 진행 카드 통합 — 종목당 한 장(진행 중 사이클 + 접수 줄). 위치 = 그래프와 요약 사이. 금액·종목은 전부 데이터에서 읽는다(코드에 종목 문자열 없음). */
+function mmRealCyc(sym){var A=DATA.agraph,V=A&&A.tabs&&A.tabs.mumae&&A.tabs.mumae.views&&A.tabs.mumae.views.all,R=V&&V.recon&&V.recon.open_by_sym;return R&&R[sym]||null;}
+function mmLineOf(c,id){var all=((c.lines||{}).buy||[]).concat((c.lines||{}).sell||[]);for(var i=0;i<all.length;i++){if(all[i].line===id)return all[i];}return null;}
+function mmLineRow(label,price,ln,extra){return h('div',{class:'ln'},h('span',{class:'l'},label),h('span',{class:'r'},price==null?'—':usd(price)+(ln?' × '+ln.qty+'주':(extra||''))));}
+function mmUnified(c,o){
+  if(c.error)return h('div',{class:'card'},h('div',{class:'chead'},h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#94A3B8'},c.symbol),bdg('mute','산출 불가'))),h('div',{class:'note'},c.error)));
+  var p=c.progress_pct,col=zoneColor(p),rc=mmRealCyc(c.symbol);
+  var head=h('div',{class:'chead',style:'--c:'+col+';cursor:default'},
+    h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},c.symbol),bdg('ok','장부'),(o&&o.dist_to_target_pct!=null&&o.dist_to_target_pct<=0)?bdg('star','익절 대기'):null,c.badges.map(function(b){return bdg('mute',b)})),h('span',{class:'pct',style:'font-size:26px;line-height:1'},num(p,1)+'%')),
+    h('div',{class:'bars',style:'margin:10px 0 8px'},bars(p).map(function(b){b.style.height='13px';return b;})),
+    h('div',{class:'key'},h('div',{},'장부 평단',h('b',{},usd(c.avg))),h('div',{},'현재가',h('b',{},usd(c.last))),h('div',{},'수익률',h('b',{class:cls(c.pnl_pct)},pctS(c.pnl_pct)))));
+  var cd=h('div',{class:'card'},head);
+  cd.appendChild(h('div',{class:'cbody'},h('div',{class:'grid'},
+      kv('회차 / 길이',num(c.T,2)+' / '+c.cycle_len),kv('수량',num(c.qty,0)+'주'),
+      kv('시드 (사용한 시드)',usd(c.seed,0)+' ('+usd(c.used_seed,0)+')'),kv('★%',pctS(c.star_pct)),
+      kv('진입일',ymd(o?o.entry:c.cycle_start)),kv('경과일',o&&o.elapsed_days!=null?o.elapsed_days+'일':'—')),
+    kv('이번 사이클 실현 (부분 매도, 손익상계 제외)',rc&&rc.n?sk(rc.realized,function(v){return '$'+num(v,2)})+' · '+rc.n+'건':'없음',rc&&rc.n?cls(rc.realized):''),
+    h('div',{class:'sec'},c.report_date?(md(c.report_date)+' 접수 보고 (장부 기준 · 접수 완료 줄)'):('다음 접수 예정 ('+ymd(DATA.summary.next_trade_date)+' · 장부 기준 계산)')),
+    mmLineRow('평단 매수가',c.buy_avg_price,mmLineOf(c,'BUY_AVG'),' · 줄 없음'),
+    mmLineRow('★ 매수가',c.buy_star_price,mmLineOf(c,'BUY_STAR'),' · 줄 없음'),
+    mmLineRow('1/4 매도가',c.sell_q_price,mmLineOf(c,'SELL_Q'),' · 줄 없음'),
+    mmLineRow('익절가 ('+c.target_pct+'%)',c.sell_3q_price,mmLineOf(c,'SELL_3Q'),' · 줄 없음'),
+    (o&&o.dist_to_target_pct!=null&&o.dist_to_target_pct>0)?h('div',{class:'note',style:'margin:4px 0 0'},'익절가까지 '+pc(o.dist_to_target_pct)):null,
+    mmNextIntra(c)));
+  return cd;
+}
+/* 매집 카드(크립토 집계 — 무매 그래프·요약·누적 실현·사이클 표에는 넣지 않는다). 종료·정지면 DATA.lacc 에서 빠진다. */
+function lacCard(c){
+  var p=c.progress_pct,col=zoneColor(p);
+  var head=h('div',{class:'chead',style:'--c:'+col+';cursor:default'},
+    h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:'+col},c.symbol),bdg('rest','매집 · 크립토 집계'),c.lines_state==='estimate'?bdg('mute','접수 줄 예상'):(c.lines_state==='wait'?bdg('mute','기준가 대기'):null)),h('span',{class:'pct',style:'font-size:26px;line-height:1'},num(p,1)+'%')),
+    h('div',{class:'bars',style:'margin:10px 0 8px'},bars(p).map(function(b){b.style.height='13px';return b;})),
+    h('div',{class:'key'},h('div',{},'장부 평단',h('b',{},usd(c.avg))),h('div',{},'현재가',h('b',{},usd(c.last))),h('div',{},'수익률',h('b',{class:cls(c.pnl_pct)},pctS(c.pnl_pct)))));
+  var cd=h('div',{class:'card'},head);
+  var la=null,ls=null;(c.lines||[]).forEach(function(l){if(l.line==='BUY_AVG')la=l;else if(l.line==='BUY_STAR')ls=l;});
+  cd.appendChild(h('div',{class:'cbody'},h('div',{class:'grid'},kv('목표 투입',usd(c.target_usd,0)),kv('누적 매수액',usd(c.used_usd,2)),kv('수량',num(c.qty,0)+'주'),kv('1회분',usd(c.unit,0)+' · '+c.turns+'분할')),
+    h('div',{class:'sec'},c.lines_state==='estimate'?'다음 접수 예상 ('+(c.order_label||'')+')':(c.lines_state==='wait'?'다음 접수 (기준가 대기 · '+(c.order_label||'')+')':'다음 접수 (두 줄)')),
+    lacRow('평단 이하 매수',la,c,false),lacRow('평단×1.3 이하 매수',ls,c,true),
+    lacNote(c)));
+  return cd;
+}
+/* [MYPF-FU4-20261128 §1] 매집 접수 줄 한 줄 — 상태: estimate(기준가=페이지 현재가, 예상) · wait(기준가 대기: 줄 가격 비움) · plain(종전 방식, 기준가 불필요). 금액·종목은 전부 데이터에서 읽는다. */
+function lacRow(label,ln,c,isStar){var t;
+  if(c.lines_state==='wait')t='기준가 대기';
+  else if(!ln)t=(isStar&&c.star_skip)?'건너뜀 · 기준가가 평단×1.3 상한('+usd(c.star_skip.limit)+') 초과':'줄 없음';
+  else if(ln.mkt_twap)t='지정가 없음(TWAP) × '+ln.qty+'주 · 추정 '+usd(ln.est_price)+(ln.fallback_price!=null?' · 접수 거부 시 지정가 '+usd(ln.fallback_price):'');
+  else t=usd(ln.price)+' × '+ln.qty+'주'+(ln.clamped_from!=null?' · 상한 적용(원 지정가 '+usd(ln.clamped_from)+')':'');
+  return h('div',{class:'ln'},h('span',{class:'l'},label),h('span',{class:'r'},t));}
+function lacNote(c){var r=c.p_ref;
+  if(c.lines_state==='estimate'&&r)return h('div',{class:'note',style:'margin-top:6px'},'기준가 P = '+usd(r.P)+' ('+(r.kind||'')+' · '+tstr(r.asof)+'). 실제 접수 때는 접수 시각 분봉 체결가로 다시 정해져 줄 가격·수량이 달라질 수 있습니다. 지정가 상한 = P×'+r.cap_mult+' = '+usd(r.cap)+'.');
+  if(c.lines_state==='wait')return h('div',{class:'note',style:'margin-top:6px'},'이 페이지에 현재가가 없어 접수 줄 가격을 정하지 못했습니다. 접수 시각에 분봉 체결가를 기준가로 줄이 정해집니다. 카드의 진행도·평단·수량은 장부 값 그대로입니다.');
+  return null;}
+/* [MYPF-FU4-20261128 §1] 무매 카드(변형 종목) — 장중 지정가 TWAP 가동 후 다음 접수 예상. 접수 보고가 아직 종전 방식이거나 접수 보고가 없을 때만 붙는다. */
+function mmNextIntra(c){var n=c.next_intraday;if(!n)return null;var b=h('div',{});
+  b.appendChild(h('div',{class:'sec'},'다음 접수 예상 ('+ymd(DATA.summary.next_trade_date)+' · '+n.order_label+')  ',bdg('mute',n.state==='wait'?'기준가 대기':'예상')));
+  if(n.state==='wait'||!n.lines.length){b.appendChild(h('div',{class:'note'},'이 페이지에 현재가가 없어 줄 가격을 정하지 못했습니다 — 접수 시각 분봉 체결가를 기준가로 정해집니다.'));return b;}
+  n.lines.forEach(function(l){b.appendChild(h('div',{class:'ln'},h('span',{class:'l'},l.kind),h('span',{class:'r'},usd(l.price)+' × '+l.qty+'주'+(l.clamped_from!=null?' · 상한 적용(원 지정가 '+usd(l.clamped_from)+')':''))));});
+  if(n.ledger_gap)b.appendChild(h('div',{class:'warn'},'장부 수량 '+n.ledger_gap.ledger+'주 ≠ 브로커 수량 '+n.ledger_gap.broker+'주 — 이전 접수분 체결이 장부에 아직 반영되지 않았습니다. 접수 직전 대사로 반영된 뒤에는 ★ 가격 등 줄 값이 이 예상과 달라질 수 있습니다(평단이 내려가면 가격도 내려갑니다).'));
+  var r=n.p_ref;if(r)b.appendChild(h('div',{class:'note'},'기준가 P = '+usd(r.P)+' ('+(r.kind||'')+' · '+tstr(r.asof)+'). 접수 때는 접수 시각 분봉 체결가로 다시 정해집니다. 지정가 상한 = P×'+r.cap_mult+' = '+usd(r.cap)+' (수량 불변).'));
+  return b;}
+function viewMMcards(){
+  var s=DATA.summary,d=s.progress_dist,w=h('div',{});
+  w.appendChild(h('div',{class:'dist',style:'margin:0 2px 8px'},[h('span',{class:'chip',style:'background:var(--track);color:var(--sub)'},(s.report_date?md(s.report_date)+' 접수 보고':'다음 접수 '+ymd(s.next_trade_date))+' · 매수 '+s.next_buy_lines+'줄 · 매도 '+s.next_sell_lines+'줄')].concat(Object.keys(d).map(function(k){return h('span',{class:'chip',style:'background:var(--track);color:var(--sub)'},k+' · '+d[k])}))));
+  if(s.errors&&s.errors.length)w.appendChild(h('div',{class:'warn'},'산출 불가 종목: '+s.errors.join(', ')));
+  var SO=[['prog','진행도'],['value','평가액'],['upct','미실현%'],['rall','실현 전체'],['start','시작일'],['name','티커',1]];
+  w.appendChild(sortBar('mm2',SO,'prog',render));
+  var accm={prog:function(c){return c.error?null:c.progress_pct},value:function(c){return c.error?null:c.value_usd},upct:function(c){return c.error?null:c.upct},rall:function(c){return c.error?null:c.realized_all},start:function(c){return c.error?null:c.cycle_start},name:function(c){return c.symbol}};
+  var open={};((DATA.derived.mumae||{}).open||[]).forEach(function(o){open[o.symbol]=o;});
+  sortList(DATA.mm,'mm2','prog',accm,function(c){return c.error?null:c.realized_all}).forEach(function(c){w.appendChild(mmUnified(c,open[c.symbol]))});
+  (DATA.lacc||[]).forEach(function(c){w.appendChild(lacCard(c))});
+  if(DATA.legend_mm)w.appendChild(h('div',{class:'note'},DATA.legend_mm));
+  return w;
+}
+function lad(rows){return rows.map(function(r){return h('div',{class:'ln'},h('span',{class:'l'},'보유 '+r.ref_qty+'주 기준'),h('span',{class:'r'},usd(r.price)+' × '+r.qty+'주'))});}
+function viewVRcard(){
+  var v=DATA.vr,dd=v.days_to_period_end;
+  return card(h('div',{class:'grid'},kv('방식',v.mode),kv('적립금',usd(v.deposit,0)+' / '+v.interval_days+'일'),kv('V',usd(v.V,3)),kv('G',String(v.G)),kv('band','±'+v.band_pct+'%'),kv('Pool 사용 한도',v.pool_limit_pct+'%'),
+      kv('Pool(현재)',usd(v.pool_now)),kv('Pool(주기 시작)',usd(v.pool_start)),kv('현 주기 종료',ymd(v.period_end)+(dd==null?'':(dd>=0?' (D-'+dd+')':' (지남)'))),kv('다음 주기',ymd(v.next_start)+' ~ '+ymd(v.next_end)),
+      kv('보유',(v.qty==null?'—':num(v.qty,0))+'주 · 평단 '+usd(v.avg)),kv('수익률',pctS(v.pnl_pct)),kv('band 하한',usd(v.band_lo,3)),kv('band 상한',usd(v.band_hi,3))),
+    h('div',{class:'sec'},'접수 줄 수 (방향별 근접순 상위, 설정 '+v.max_lines_buy+' / '+v.max_lines_sell+')'),
+    kv('브로커에 실제 접수됨','매수 '+v.reserved_buy+' · 매도 '+v.reserved_sell),kv('사다리 후보','매수 '+dash(v.buy_candidates)+' · 매도 '+dash(v.sell_candidates)),kv('접수 예정 줄','매수 '+dash(v.buy_lines)+' · 매도 '+dash(v.sell_lines)),
+    v.buy_range?kv('매수 가격대',usd(v.buy_range[0])+' ~ '+usd(v.buy_range[1])):null,v.sell_range?kv('매도 가격대',usd(v.sell_range[0])+' ~ '+usd(v.sell_range[1])):null,
+    h('div',{class:'sec'},[h('span',{class:'tag b'},'매수'),'현재가에 가장 가까운 3줄']),v.buy_near?lad(v.buy_near):null,
+    h('div',{class:'sec'},[h('span',{class:'tag s'},'매도'),'현재가에 가장 가까운 3줄']),v.sell_near?lad(v.sell_near):null,
+    h('div',{class:'note',style:'margin-top:8px'},v.ladder_basis||''),v.lines_warn?h('div',{class:'warn'},v.lines_warn):null);
+}
+function viewRec(){
+  var w=h('div',{}),r=DATA.records;
+  w.appendChild(h('div',{class:'sub'},[['fills','체결 '+r.fills.length],['settings','설정 변경 '+r.settings.length]].map(function(t){return h('button',{class:'subtab'+(SUB===t[0]?' on':''),onclick:function(){SUB=t[0];render();}},t[1])})));
+  if(SUB==='fills'){if(!r.fills.length)w.appendChild(h('div',{class:'empty'},'체결 기록 없음'));var last=null;
+    r.fills.forEach(function(f){if(f.date!==last){w.appendChild(h('div',{class:'day'},ymd(f.date)));last=f.date;}
+      w.appendChild(h('div',{class:'row'},h('div',{},h('span',{class:'tag '+(f.side==='매수'?'b':'s')},f.side),f.symbol,h('div',{class:'m'},f.reason)),h('div',{style:'text-align:right;font-weight:700;font-variant-numeric:tabular-nums'},usd(f.price)+' × '+num(f.qty,0)+'주')));});}
+  else{r.settings.forEach(function(s){w.appendChild(h('div',{class:'chg'},h('div',{class:'h'},(s.symbol||s.sector||'')+' · '+s.kind),h('div',{class:'m'},tstr(s.ts)+' · '+s.by),s.changes.map(function(c){return h('div',{},c.key+': '+dash(c.old)+' → '+dash(c.new))}),s.note?h('div',{class:'m'},s.note):null));});
+    w.appendChild(h('div',{class:'day'},'규칙 버전 이력'));r.rule_versions.forEach(function(x){w.appendChild(h('div',{class:'chg'},h('div',{class:'h'},x.version+' · '+x.date),h('div',{class:'m'},x.block),h('div',{},x.note)));});}
+  return w;
+}
+function sgn(x,f){if(x==null)return '—';var v=Number(x);return (v>0?'+':v<0?'−':'')+f(Math.abs(v));}
+function usdA(x){return '$'+num(x,0)}
+function cycRow(c){var rp=c.return_pct==null?'진행 중':sgn(c.return_pct,function(v){return num(v,1)+'%'});
+  return h('div',{class:'ln',style:'flex-direction:column;gap:2px'},h('div',{style:'display:flex;justify-content:space-between;gap:8px'},h('span',{class:'l'},'#'+c.n+' '+ymd(c.start)+' → '+(c.end?ymd(c.end):'진행 중')+' · '+c.days+'일'),h('span',{class:'r '+cls(c.realized)},sgn(c.realized,usdA))),
+    h('div',{style:'display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--sub)'},h('span',{},rp+' · 쿼터 '+c.quarter_sells+'회'+(c.verdict==='무매형'?'':' · '+c.verdict)),c.badge==='장부'?bdg('ok','장부'):bdg('rest',c.badge)));}
+function viewCyc(){
+  var Y=DATA.cycles,w=h('div',{}),cp=Y.mm_compare;
+  w.appendChild(card(kv('종료(무매형)',cp.after.closed+'개'),kv('승률',(cp.after.win_pct==null?'—':num(cp.after.win_pct,1)+'%')),kv('평균 기간',num(cp.after.mean_days,1)+'일'),kv('평균 수익률',pctS(cp.after.mean_ret)),kv('누적 실현',usdA(cp.after.realized))));
+  w.appendChild(h('div',{class:'note'},'체결 복원 기준(현 로스터 + 과거 무매 '+cp.extra.join('·')+'). 엑셀 확정 통계는 위 「요약」. 「장부」= 10-26 이후 시작.'));
+  var SC=[['end','종료일'],['ret','수익률'],['name','종목',1]];w.appendChild(sortBar('cyc',SC,'end',render));
+  var accs={end:function(s){return s.last_end},ret:function(s){return s.med_ret},name:function(s){return s.symbol}};
+  sortList(Y.summary,'cyc','end',accs,function(s){return s.realized}).forEach(function(s){var key='cy:'+s.symbol,open=!!OPEN[key];
+    var head=h('div',{class:'chead',style:'--c:#60A5FA',onclick:function(){OPEN[key]=!OPEN[key];render();}},h('div',{class:'ctop'},h('div',{class:'cleft'},h('span',{class:'tpill',style:'--c:#60A5FA'},s.symbol),bdg('mute','종료 '+s.closed)),h('span',{class:'pct '+cls(s.realized)},sgn(s.realized,usdA))),
+      h('div',{class:'key',style:'margin-top:8px'},h('div',{},'승률',h('b',{},s.win_pct==null?'—':s.win_pct+'%')),h('div',{},'중앙 기간',h('b',{},s.med_days==null?'—':s.med_days+'일')),h('div',{},'중앙 수익률',h('b',{class:cls(s.med_ret)},s.med_ret==null?'—':pctS(s.med_ret)))));
+    var cd=h('div',{class:'card'},head);
+    if(open)cd.appendChild(h('div',{class:'cbody'},Y.cycles.filter(function(c){return c.symbol===s.symbol}).slice().reverse().map(cycRow)));
+    w.appendChild(cd);});
+  return w;
+}
+
+
+/* ---------- 자산 탭 그래프 — 블록 MYPF-GRAPH-REDO2-20261127 (표시 전용) ----------
+   개요·계좌 탭 = 그래프 없음. 「전체 자산」 탭 맨 위 = 본인 순입금 누계(점선, 입출금 표시) + 총자산. 무매·VR·돌파·크립토·개별 투자 탭 맨 위 = 그 자산의 세 선:
+   투입 원금(그 날 보유분의 매수 원가) · 실현수익(누적 실현손익) · 총자산(= 평가액 + 누적 실현수익). 자료 = DATA.agraph(빌드가 장부·체결 이력에서 재생해 계산),
+   전체 = DATA.derived.nav. 브라우저는 그리기만 한다. 복원할 수 없는 구간은 그리지 않고 시작일을 표시한다(가정값 0). 돌파 = 전체/국장/미장, 크립토 = 전체/코인 현물/DAT/코인 레버리지. */
+var ZRNG_KEY='mp_zrange',ZLOG_KEY='mp_zlog',GV_PRE='mp_gv_';
+var ZRNGS=[['1m','1개월'],['3m','3개월'],['6m','6개월'],['ytd','올해'],['1y','1년'],['all','전체']];
+function zRange(){var r=LS.getItem(ZRNG_KEY)||'all';return ZRNGS.some(function(x){return x[0]===r})?r:'all';}
+function zLog(){return LS.getItem(ZLOG_KEY)==='1';}
+function zPastDue(iso){if(!iso)return false;var t=new Date(iso).getTime();return isFinite(t)&&Date.now()>t;}
+function zAgeStale(iso,hours){if(!iso)return false;var t=new Date(iso).getTime();return isFinite(t)&&Date.now()-t>hours*3600e3;}
+function gFrom(dates,rng){
+  var n=dates.length,from=0,days={'1m':31,'3m':92,'6m':183,'1y':366}[rng];if(!n)return 0;
+  if(rng==='ytd'){var y0=dates[n-1].slice(0,4)+'-01-01';for(var j=0;j<n;j++){if(dates[j]>=y0){from=j;break;}}}
+  else if(days){var last=new Date(dates[n-1]+'T00:00:00').getTime();for(var i=0;i<n;i++){if(new Date(dates[i]+'T00:00:00').getTime()>=last-days*864e5){from=i;break;}}}
+  return from;
+}
+function gFirstIdx(a){for(var i=0;i<a.length;i++){if(a[i]!=null)return i;}return -1;}
+function gStartMark(w,dates,from,gs,txt){            /* 시작일 세로선 + 문구(그래프 구간 안에서 시작할 때) */
+  var svg=w.querySelector&&w.querySelector('svg'),n=dates.length-from,i=gs-from;
+  if(svg&&i>0&&n>1){var x=46+(640-46-8)*i/(n-1);
+    svg.appendChild(sel('line',{x1:x,x2:x,y1:10,y2:188,stroke:'#EAB308','stroke-width':1.4,'stroke-dasharray':'4 3','pointer-events':'none','vector-effect':'non-scaling-stroke'}));
+    var t=sel('text',{x:Math.min(x+4,640-120),y:22,'font-size':9.5,fill:'#B45309','pointer-events':'none'});t.textContent=txt;svg.appendChild(t);}
+}
+function gRangeBar(paint){
+  var rng=zRange(),lg=zLog();
+  return h('div',{class:'sortRow',style:'padding:6px 12px 0'},ZRNGS.map(function(r){
+    return h('button',{class:'sbtn'+(rng===r[0]?' on':''),type:'button',onclick:function(){try{LS.setItem(ZRNG_KEY,r[0]);}catch(e){}paint();}},r[1]);}),
+    h('button',{class:'sbtn'+(lg?' on':''),type:'button',style:'margin-left:auto',title:'로그 축: 0 이하 값은 그리지 않습니다',onclick:function(){try{LS.setItem(ZLOG_KEY,lg?'0':'1');}catch(e){}paint();}},lg?'로그':'선형'));
+}
+function gConv(arr,fx,from){return arr.slice(from).map(function(v,k){var q=CUR==='USD'?fx[from+k]:1;return v==null||!q?null:v/q;});}
+function gFmt(q){return CUR==='USD'?usdS(q):krwShort(q);}
+function gView(tab,A){var o=A.tabs[tab].order,s=LS.getItem(GV_PRE+tab);return o.indexOf(s)>=0?s:o[0];}
+function gCheck(A,tab,key){var r=null;(A.checks||[]).forEach(function(c){if(c.tab===tab&&c.view===key)r=c;});return r;}
+function gPanel(paintHost,title,chip,rightEl,body){
+  var c=h('div',{class:'card zpanel'});
+  c.appendChild(h('div',{class:'ctop',style:'padding:10px 12px 0'},h('div',{class:'cleft'},h('b',{},title),chip?h('span',{class:'chip',style:'background:var(--track);color:var(--sub)'},chip):null),rightEl));
+  body.forEach(function(x){if(x)c.appendChild(x);});return c;
+}
+function viewAssetGraph(tab){
+  var A=DATA.agraph,wrap=h('div',{id:'zpanel'});
+  function paint(){var nw=build();wrap.replaceChildren.apply(wrap,[].slice.call(nw.childNodes));}
+  function build(){
+    var box=h('div',{});
+    if(!A||!A.tabs||!A.tabs[tab]){box.appendChild(h('div',{class:'warn'},'그래프 자료 없음 — '+((A||{}).why||'빌드를 확인하세요')));return box;}
+    var T=A.tabs[tab],key=gView(tab,A),V=T.views[key],rng=zRange(),lg=zLog(),from=gFrom(A.dates,rng),n=A.dates.length;
+    var dts=A.dates.slice(from),inv=gConv(V.inv,A.fx,from),rl=gConv(V.real,A.fx,from),ev=gConv(V.ev,A.fx,from);
+    var tot=ev.map(function(e,k){return e==null||rl[k]==null?null:e+rl[k];});
+    var gs=gFirstIdx(V.inv),lastTot=tot[tot.length-1];
+    var series=[{name:'투입 원금',color:'#D97706',vals:inv,dash:'5 4'},{name:'실현수익',color:'#10B981',vals:rl},{name:'총자산',color:'#A855F7',vals:tot,w:2,fill:true}];
+    var sel_=null;
+    if(T.order.length>1){
+      sel_=h('div',{class:'sortRow',style:'padding:6px 12px 0'},h('span',{class:'slab'},'구분'),T.order.map(function(k){
+        return h('button',{class:'sbtn'+(k===key?' on':''),type:'button','aria-pressed':k===key?'true':'false',onclick:function(){try{LS.setItem(GV_PRE+tab,k);}catch(e){}paint();}},T.views[k].label);}));
+    }
+    var chart;
+    if(gs<0)chart=h('div',{class:'note',style:'margin:8px 12px'},(V.start_note||'기록이 없어 복원할 수 없어 그리지 않습니다.'));
+    else{chart=svgLine(dts,series,{h:210,fmt:gFmt,log:lg,zero:true});gStartMark(chart,A.dates,from,gs,'시작 '+A.dates[gs]);}
+    var rightEl=h('div',{style:'text-align:right'},lastTot!=null?h('span',{class:'pct'},amt(lastTot*(CUR==='USD'?(A.fx[n-1]||1):1))):null);
+    var notes=[];
+    notes.push(h('div',{class:'note',style:'margin:0;padding:2px 12px 4px'},'투입 원금 = 그 날 보유분의 매수 원가(장부 기준) · 실현수익 = 그 날까지 누적 실현손익 · 총자산 = 평가액 + 누적 실현수익. 달러 자산은 그날 환율로 환산했습니다.'+(V.realized_basis==='ledger_excl_tlh'?' 무매는 장부 기준입니다 — 투입 원금 = 장부 수량 × 장부 평단, 미실현 = 평가액 − 장부 원가, 누적 실현 = 손익상계 매도·재매수 쌍을 뺀 값(계좌 기준 값과 다릅니다).':'')));
+    notes.push(h('div',{class:'note',style:'margin:0;padding:2px 12px 4px'},V.note||''));
+    if(gs>=0)notes.push(h('div',{class:'note',style:'margin:0;padding:2px 12px 4px'},'그래프 시작일 '+ymd(A.dates[gs])+(V.start_note?' — '+V.start_note:'')));
+    else if(V.start_note)notes.push(h('div',{class:'note',style:'margin:0;padding:2px 12px 4px'},V.start_note));
+    var ck=gCheck(A,tab,key);
+    if(ck&&ck.ok!=null){
+      var m=ck.ccy==='USD'?A.fx[n-1]:1;
+      notes.push(h('div',{class:'note',style:'margin:0;padding:2px 12px 10px'},'검산(마지막 날 '+ymd(A.dates[n-1])+') 총자산 − 투입 원금 = ',amt(ck.lhs*m,true),' = 미실현손익 ',amt(ck.unreal_table*m,true),' + 누적 실현손익 ',amt(ck.real_table*m,true),ck.ok?' · 표 숫자와 일치':[' · ⚠ 표 숫자와 불일치(차 ',amt(Math.abs(ck.diff)*m),(ck.lag?' — 원인: 업비트 체결 스캔 '+String(ck.lag.scan).slice(11,16)+' ↔ 요약 '+String(ck.lag.asof).slice(11,16)+' 사이 체결분이 평단 재생에 아직 없음':''),')']));
+    }
+    var RC=(tab==='mumae'&&V&&V.recon)||null;      /* [MYPF-MM-REALIZED2-20261128] 무매 누적 실현(브로커 순서) 항목별 풀이 한 줄 — 금액·종목은 전부 데이터(빌드가 계산) */
+    if(RC){
+      var uA=function(v){return '$'+num(v,2)},uS=function(v){return sk(v,function(x){return '$'+num(x,2)})},exs=(RC.excluded||[]).map(function(x){return x.symbol}).join('·');      /* [MYPF-MM-TAB-20261128 §1] 한 줄로 축소 */
+      notes.push(h('div',{class:'note',style:'margin:0;padding:2px 12px 10px'},'누적 실현(손익상계 매매 제외) '+uA(RC.real_all)+' = 사이클 '+RC.cycles_n+'건 '+uA(RC.cycles_sum)+' + '+exs+' '+uS(RC.excluded_sum)+' + 진행 중 부분 매도 '+uS(RC.open_other)+' + 그 밖 차이 '+uS(RC.other_diff)+' · 잔액 '+uA(Math.abs(RC.residual))));
+    }
+    box.appendChild(gPanel(null,({mumae:'무매',vr:'VR',bo:'돌파',crypto:'크립토',owner:'개별 투자'})[tab]+(key==='all'?'':' › '+V.label),'투입 원금·실현수익·총자산',rightEl,[gRangeBar(paint),sel_,h('div',{style:'padding:0 6px'},chart)].concat(notes)));
+    return box;
+  }
+  wrap.appendChild(build());
+  return wrap;
+}
+function viewAllGraph(){
+  var N=DATA.derived&&DATA.derived.nav,wrap=h('div',{id:'zpanel'});
+  function paint(){var nw=build();wrap.replaceChildren.apply(wrap,[].slice.call(nw.childNodes));}
+  function build(){
+    var box=h('div',{});
+    if(!N||!N.ok){box.appendChild(h('div',{class:'warn'},'전체 자산 그래프 자료 없음 — '+((N||{}).why||'nav 산출물을 확인하세요')));return box;}
+    var rng=zRange(),lg=zLog(),from=gFrom(N.dates,rng),n=N.dates.length;
+    var dts=N.dates.slice(from),nd=gConv(N.cum_net_deposit['전체'],N.fx,from),tot=gConv(N.series['전체'],N.fx,from);
+    var series=[{name:'순입금 누계',color:'#D97706',vals:nd,dash:'5 4'},{name:'총자산',color:'#A855F7',vals:tot,w:2,fill:true}];
+    var chart=svgLine(dts,series,{h:210,fmt:gFmt,log:lg,zero:true}),svg=chart.querySelector&&chart.querySelector('svg');
+    if(svg&&dts.length>1){                                             /* 입출금 표시: ▲ 입금 · ▼ 출금(같은 날은 합산), 점선 순입금이 계단으로 오르내리는 날 */
+      var by={};(N.marks||[]).forEach(function(m){if(m.d<dts[0])return;var o=by[m.d]||(by[m.d]={dep:0,wd:0,est:false,acc:{}});if(m.t==='DEPOSIT')o.dep+=m.k;else o.wd+=m.k;if(m.est)o.est=true;o.acc[m.a]=1;});
+      Object.keys(by).forEach(function(d){var i=dts.indexOf(d);if(i<0)return;var x=46+(640-46-8)*i/(dts.length-1),o=by[d],f=CUR==='USD'?(N.fx[N.dates.indexOf(d)]||1):1;
+        [[o.dep,'입금','#059669',1],[o.wd,'출금','#DC2626',-1]].forEach(function(r){if(!r[0])return;
+          var y=r[3]>0?186:176,tri=r[3]>0?[x-3.5,y,x+3.5,y,x,y-7]:[x-3.5,y-7,x+3.5,y-7,x,y];
+          var p=sel('polygon',{points:tri.join(','),fill:r[2],'fill-opacity':o.est?0.45:0.9,stroke:'#fff','stroke-width':0.6},d+' '+r[1]+' '+(CUR==='USD'?'$'+num(r[0]/f,0):krwShort(r[0])+'원')+' · '+Object.keys(o.acc).join('·')+(o.est?' (추정)':''));svg.appendChild(p);});});
+    }
+    var rightEl=h('div',{style:'text-align:right'},h('span',{class:'pct'},amt(N.series['전체'][n-1])),h('div',{class:'note',style:'margin:2px 0 0;padding:0'},'순입금 누계 ',amt(N.cum_net_deposit['전체'][n-1])));
+    var notes=[h('div',{class:'note',style:'margin:0;padding:2px 12px 4px'},'순입금 누계 = 본인 입금 − 출금(계좌 간 이체 제외, 입출금 원장 기준) · 총자산 = 브로커 스냅샷 합 + 이관중(마지막 점), 이전은 거래내역 재생 · ▲ 입금 ▼ 출금(같은 날 합산, 흐린 표시는 추정 입출금).'),
+      h('div',{class:'note',style:'margin:0;padding:2px 12px 10px'},'환율 '+num(FX(),1)+'원/$ · '+(CUR==='USD'?'달러 표시: 원화 자산은 그날 환율로 환산':'원화 표시: 달러 자산은 그날 환율로 환산'))];
+    box.appendChild(gPanel(null,'전체 자산 — 순입금 누계 · 총자산','',rightEl,[gRangeBar(paint),h('div',{style:'padding:0 6px'},chart)].concat(notes)));
+    return box;
+  }
+  wrap.appendChild(build());
+  return wrap;
+}
+
+/* ---------- 라우팅·렌더 ---------- */
+function go(tab,anchor){TAB=tab;ANCHOR=anchor||null;history.replaceState(null,'','#'+tab+(anchor?'/'+anchor:''));render();window.scrollTo(0,0);}
+function parseHash(){var m=/^#([a-z]+)(?:\/([a-z_]+))?/.exec(location.hash||'');if(m&&m[1]==='dat'){m[1]='crypto';try{history.replaceState(null,'','#crypto'+(m[2]?'/'+m[2]:''));}catch(e){}}      /* [MYPF-CRYPTO-20261127] 옛 #dat → #crypto */
+  if(m&&TABS.some(function(t){return t[0]===m[1]})){TAB=m[1];ANCHOR=m[2]||null;}}
+window.addEventListener('hashchange',function(){parseHash();if(DATA)render();});
+$('cur').addEventListener('click',function(){CUR=CUR==='KRW'?'USD':'KRW';LS.setItem('mp_cur',CUR);render();});
+function render(){
+  if(!DATA)return;
+  CHARTS.forEach(function(u){try{u.destroy()}catch(e){}});CHARTS=[];LIVE=[];$('tip').hidden=true;
+  var F=freshness(),src=DATA.sources,dw=function(s){return s?DOWK[s.wd]+' '+s.hm:'—'};
+  var a=$('asof');a.replaceChildren(document.createTextNode('데이터 기준 '+tstr(DATA.generated_at)+' KST · 다음 갱신 예정 '+(F?dw(F.next):'—')+' '));
+  if(F&&F.stale)a.appendChild(bdg('stale','오래됨 — 마지막 반영 '+tstr(DATA.generated_at)));
+  var MLV=(src||{}).meritz_live;if(MLV&&MLV.provisional)a.appendChild(bdg('stale','메리츠 잠정 — 직전 조회값'+(MLV.asof?' ('+tstr(MLV.asof)+')':''),MLV.reason||''));
+  $('tabs').replaceChildren.apply($('tabs'),TABS.map(function(t){return h('button',{class:'tab'+(TAB===t[0]?' on':''),onclick:function(){go(t[0])}},t[1])}));
+  if(!DATA.derived||!DATA.data){$('view').replaceChildren(h('div',{class:'warn'},'새 데이터(derived/data)가 없습니다 — 빌드가 실패했을 수 있습니다.'));return;}
+  sumbar();
+  var v=$('view');v.replaceChildren();
+  if(F&&F.stale)v.appendChild(h('div',{class:'warn'},'⚠ 데이터가 '+((DATA.derived.schedule||{}).grace_h||3)+'시간 넘게 갱신되지 않았습니다(마지막 반영 '+tstr(DATA.generated_at)+') — 갱신이 멈췄을 수 있습니다.'));
+  if(TAB==='trend')v.appendChild(viewAllGraph());else if(['mumae','vr','bo','crypto','owner'].indexOf(TAB)>=0)v.appendChild(viewAssetGraph(TAB));      /* [MYPF-GRAPH-REDO2-20261127] 그래프 = 전체 자산·자산 탭 맨 위(개요·계좌 없음) */
+  v.appendChild(TAB==='overview'?viewOverview():TAB==='accounts'?viewAccounts():TAB==='trend'?(DATA.derived.nav&&DATA.derived.nav.ok?viewNav():viewTrend()):TAB==='mumae'?viewMumae():TAB==='bo'?viewBO():TAB==='crypto'?viewCrypto():TAB==='owner'?viewOwner():viewVR());
+  $('foot').textContent='열람 전용 · 원장 seq '+dash(src.ledger_seq)+' · 브로커 조회 '+tstr(src.snapshot_asof)+' · 매매 판단·주문 기능 없음 · 차트 uPlot(MIT)';
+  requestAnimationFrame(function(){LIVE.forEach(function(f){try{f()}catch(e){console.error(e)}});LIVE=[];});
+}
+window.addEventListener('resize',function(){clearTimeout(window.__rz);window.__rz=setTimeout(function(){if(DATA)render();},250);});
+parseHash();
+var saved=LS.getItem(KEY);if(saved)unlock(saved,true);
+})();
+</script>
+</body>
+</html>
